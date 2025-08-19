@@ -20,8 +20,9 @@ abstract class Routes {
   static const FORGOT_PASSWORD = _Paths.FORGOT_PASSWORD;
   static const RESET_PASSWORD = _Paths.RESET_PASSWORD;
   static const USER_PROFILE_CONTROLLER = _Paths.USER_PROFILE_CONTROLLER;
-  static const Y = _Paths.Y;
+
   static const EDIT_PROFILE = _Paths.EDIT_PROFILE;
+  static const My_PROFILE = _Paths.USER_PROFILE;
 }
 
 abstract class _Paths {
@@ -39,11 +40,12 @@ abstract class _Paths {
   static const EXPERTSPROFILE = '/expertsprofile';
   static const COMMUNITY_SEARCH = '/community-search';
   static const NOTIFICATIONS = '/notifications';
-  static const USER_PROFILE = '/user-profile';
+  static const MY_PROFILE = '/my-profile';
   static const POST_QUESIONS = '/post-quesions';
   static const FORGOT_PASSWORD = '/forgot-password';
   static const RESET_PASSWORD = '/reset-password';
   static const USER_PROFILE_CONTROLLER = '/user-profile-controller';
-  static const Y = '/y';
+
   static const EDIT_PROFILE = '/edit-profile';
+  static const USER_PROFILE = '/user-profile';
 }

@@ -5,8 +5,8 @@ import 'package:travel_app2/app/constants/app_color.dart';
 import 'package:travel_app2/app/modules/home/views/Tabes/ExpertsTab.dart';
 import '../../community_search/views/community_search_view.dart';
 import '../../home/views/home_view.dart';
+import '../../my_profile/views/my_profile_view.dart';
 import '../../notifications/views/notifications_view.dart';
-import '../../user_profile/views/user_profile_view.dart';
 import '../controllers/dashboard_controller.dart';
 
 class DashboardView extends GetView<DashboardController> {
@@ -17,7 +17,7 @@ class DashboardView extends GetView<DashboardController> {
     CommunitySearchView(),
     Expertstab(),
     NotificationView(),
-    UserProfileView(),
+    MyProfileView(),
   ];
 
   @override

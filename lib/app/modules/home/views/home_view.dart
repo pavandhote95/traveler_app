@@ -31,6 +31,7 @@ class HomeView extends GetView<DashboardController> {
       communityController.searchPosts(value);
     },
 
+
     decoration: InputDecoration(
       hintText: 'Search posts, places...',
 
@@ -44,6 +45,7 @@ class HomeView extends GetView<DashboardController> {
           dashboardController.searchController.clear();
 
           Get.find<CommunityController>().searchPosts('');
+
         },
       ),
       contentPadding: const EdgeInsets.symmetric(vertical: 15),

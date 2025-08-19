@@ -2,9 +2,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lottie/lottie.dart';
 import 'package:swipe_cards/swipe_cards.dart';
 import 'package:travel_app2/app/constants/app_color.dart';
 import 'package:travel_app2/app/modules/post_quesions/views/bottom_sheet_questions.dart';
+import 'package:travel_app2/app/routes/app_pages.dart';
 
 import '../../../../models/post_model.dart';
 import '../../controllers/community_controller.dart';
@@ -50,8 +52,14 @@ class _CommunityTabState extends State<CommunityTab> with WidgetsBindingObserver
       body: SafeArea(
         child: Obx(() {
           if (controller.filteredPosts.isEmpty) {
-            return const Center(
-              child: CircularProgressIndicator(color: AppColors.buttonBg),
+            return  Center(
+              child:Lottie.asset(
+                  'assets/animations/loading.json',
+
+                   height:250,
+                 width: 500,
+                  // fit: BoxFit.contain, // Optional: how it scales
+               )
             );
           }
 
@@ -119,6 +127,7 @@ class _CommunityTabState extends State<CommunityTab> with WidgetsBindingObserver
     // Calculate if the text exceeds maxLines using TextPainter
     final textPainter = TextPainter(
       text: TextSpan(text: post.question, style: textStyle),
+      
       maxLines: maxLines,
       textDirection: TextDirection.ltr,
     )..layout(maxWidth: MediaQuery.of(context).size.width - 64); // Account for padding
@@ -131,6 +140,7 @@ class _CommunityTabState extends State<CommunityTab> with WidgetsBindingObserver
 
         elevation: 6,
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+
         color: AppColors.centerright,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
@@ -145,45 +155,81 @@ class _CommunityTabState extends State<CommunityTab> with WidgetsBindingObserver
                 // Header
                 Row(
                   children: [
-                    CircleAvatar(
-                      radius: 24,
-                      backgroundImage: const CachedNetworkImageProvider(
-                        'https://randomuser.me/api/portraits/men/10.jpg',
+                    // 👉 Avatar Click
+                    GestureDetector(
+                      onTap: () {
+                        Get.toNamed(
+                          Routes.USER_PROFILE,
+                          arguments: {
+
+                            "name": "Kunal Patel",
+                            "profileImage": "https://randomuser.me/api/portraits/men/10.jpg",
+                            "location": "Mumbai, India",
+                            "joinedDate": "2021-06-12",
+                            "bio": "Traveler | Explorer | Content Creator",
+                            "followers": 1500,
+                            "following": 300,
+                            "posts": 120,
+                          },
+                        );
+
+                      },
+                      child: CircleAvatar(
+                        radius: 24,
+                        backgroundImage: const CachedNetworkImageProvider(
+                          'https://randomuser.me/api/portraits/men/10.jpg',
+                        ),
+                        backgroundColor: Colors.grey.shade800,
                       ),
-                      backgroundColor: Colors.grey.shade800,
                     ),
                     const SizedBox(width: 12),
+
+                    // 👉 Name Click
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                'Kunal Patel',
-                                style: GoogleFonts.openSans(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 18,
-                                  color: Colors.white,
+                      child: GestureDetector(
+                        onTap: () {
+                          Get.toNamed(
+                            Routes.USER_PROFILE,
+                            arguments: {
+                              "name": "Kunal Patel",
+                              "profileImage": "https://randomuser.me/api/portraits/men/10.jpg",
+                              "location": post.location,
+                              "joinedDate": post.createdAt.substring(0, 10),
+                            },
+                          );
+                        },
+
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  'Kunal Patel',
+                                  style: GoogleFonts.openSans(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 18,
+                                    color: Colors.white,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 8),
-                              const Icon(
-                                Icons.verified,
-                                size: 20,
-                                color: AppColors.buttonBg,
-                              ),
-                            ],
-                          ),
-                          Text(
-                            '${post.location} · ${post.createdAt.substring(0, 10)}',
-                            style: GoogleFonts.inter(
-                              fontWeight: FontWeight.w400,
-                              fontSize: 14,
-                              color: Colors.grey.shade500,
+                                const SizedBox(width: 8),
+                                const Icon(
+                                  Icons.verified,
+                                  size: 20,
+                                  color: AppColors.buttonBg,
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
+                            Text(
+                              '${post.location} · ${post.createdAt.substring(0, 10)}',
+                              style: GoogleFonts.inter(
+                                fontWeight: FontWeight.w400,
+                                fontSize: 14,
+                                color: Colors.grey.shade500,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     IconButton(
@@ -192,8 +238,8 @@ class _CommunityTabState extends State<CommunityTab> with WidgetsBindingObserver
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
 
+                const SizedBox(height: 16),
                 // Question
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

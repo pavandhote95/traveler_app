@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-
 import '../modules/Experts/bindings/experts_binding.dart';
 import '../modules/Experts/views/experts_view.dart';
 import '../modules/community_search/bindings/community_search_binding.dart';
@@ -16,6 +15,8 @@ import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
 import '../modules/login/bindings/login_binding.dart';
 import '../modules/login/views/login_view.dart';
+import '../modules/my_profile/bindings/my_profile_binding.dart';
+import '../modules/my_profile/views/my_profile_view.dart';
 import '../modules/notifications/bindings/notifications_binding.dart';
 import '../modules/notifications/views/notifications_view.dart';
 import '../modules/onboarding/bindings/onboarding_binding.dart';
@@ -32,8 +33,6 @@ import '../modules/splash/bindings/splash_binding.dart';
 import '../modules/splash/views/splash_view.dart';
 import '../modules/user_profile/bindings/user_profile_binding.dart';
 import '../modules/user_profile/views/user_profile_view.dart';
-import '../modules/y/bindings/y_binding.dart';
-import '../modules/y/views/y_view.dart';
 
 part 'app_routes.dart';
 
@@ -104,10 +103,17 @@ class AppPages {
       binding: NotificationsBinding(),
     ),
     GetPage(
-      name: _Paths.USER_PROFILE,
-      page: () => UserProfileView(),
-      binding: UserProfileBinding(),
+      name: _Paths.MY_PROFILE,
+      page: () => MyProfileView(),
+      binding: MyProfileBinding(),
     ),
+      GetPage(
+          name: _Paths.USER_PROFILE,
+          page: () => const UserProfileView(),
+          binding: UserProfileBinding(),
+        ),
+
+
     GetPage(
       name: _Paths.POST_QUESIONS,
       page: () => BottomSheetQuestionsView(),
@@ -123,14 +129,10 @@ class AppPages {
       page: () => ResetPasswordView(),
       binding: ResetPasswordBinding(),
     ),
-    GetPage(
-      name: _Paths.Y,
-      page: () => const YView(),
-      binding: YBinding(),
-    ),
+
     GetPage(
       name: _Paths.EDIT_PROFILE,
-      page: () =>  EditProfileView(),
+      page: () => EditProfileView(),
       binding: EditProfileBinding(),
     ),
   ];
