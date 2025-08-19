@@ -6,6 +6,8 @@ import 'package:travel_app2/app/modules/home/controllers/community_controller.da
 import 'package:travel_app2/app/modules/home/views/Tabes/CommunityTab.dart';
 import 'package:travel_app2/app/widgets/custom_appbar.dart';
 
+
+
 class HomeView extends GetView<DashboardController> {
   final DashboardController dashboardController = Get.find();
 @override
@@ -14,7 +16,8 @@ class HomeView extends GetView<DashboardController> {
       backgroundColor: const Color(0xFF081B22),
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(80),
-        child: Obx(() { 
+     
+        child: Obx(() {  
           return dashboardController.showSearchBar.value
               ? AppBar(
                   toolbarHeight: 110,
@@ -30,6 +33,7 @@ class HomeView extends GetView<DashboardController> {
       final communityController = Get.find<CommunityController>();
       communityController.searchPosts(value);
     },
+
 
 
     decoration: InputDecoration(
@@ -64,7 +68,7 @@ class HomeView extends GetView<DashboardController> {
     ),
   ),
 ),
-                         
+
                 )
               : AppBar(
                   automaticallyImplyLeading: false,

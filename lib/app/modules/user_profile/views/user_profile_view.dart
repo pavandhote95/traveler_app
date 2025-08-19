@@ -2,7 +2,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 import '../../../constants/app_color.dart';
 import '../controllers/user_profile_controller.dart';
 
@@ -59,7 +58,7 @@ class UserProfileView extends StatelessWidget {
                 style: GoogleFonts.inter(fontSize: 14, color: Colors.grey)),
             const SizedBox(height: 20),
 
-            // 🔹 Updated Stats Row
+            // 🔹 Updated Stats R
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -82,6 +81,7 @@ class UserProfileView extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
+
             Text(
               bio,
               style: GoogleFonts.inter(fontSize: 14, color: Colors.white70),
@@ -94,6 +94,7 @@ class UserProfileView extends StatelessWidget {
 
   // 🔹 Helper widget
   Widget _buildStat(String label, int value) {
+
     return Column(
       children: [
         Text(
@@ -104,7 +105,11 @@ class UserProfileView extends StatelessWidget {
             color: Colors.white,
           ),
         ),
+
+
         const SizedBox(height: 4),
+
+
         Text(
           label,
           style: GoogleFonts.inter(fontSize: 14, color: Colors.grey),
