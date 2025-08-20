@@ -39,7 +39,8 @@ class BottomSheetQuestionsView extends GetView<BottomSheetQuestionsController> {
             const SizedBox(height: 20),
             _buildImagePicker(),
             const SizedBox(height: 20),
-            _buildDropdown(["Japan", "India", "USA"]),
+            //   _buildDropdown(["Japan", "India", "USA"]),
+            _buildCitySearchField(),
             const SizedBox(height: 24),
             SafeArea(
               child: CustomButton(
@@ -104,49 +105,77 @@ class BottomSheetQuestionsView extends GetView<BottomSheetQuestionsController> {
     );
   }
 
-  Widget _buildDropdown(List<String> items) {
-    return Obx(() => DropdownButtonFormField<String>(
-      value: controller.selectedLocation.value.isEmpty
-          ? null
-          : controller.selectedLocation.value,
-      dropdownColor: const Color(0xFF1F1F1F),
-      style: const TextStyle(color: Colors.white, fontSize: 16),
-      decoration: InputDecoration(
-        labelText: "Location",
-        labelStyle: TextStyle(color: Colors.grey.shade400, fontSize: 16),
-        floatingLabelStyle: TextStyle(color: AppColors.buttonBg, fontSize: 14),
-        filled: true,
-        fillColor: const Color(0xFF1F1F1F),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide.none,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide.none,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: AppColors.buttonBg, width: 1.5),
-        ),
-      ),
-      icon: const Icon(Icons.arrow_drop_down, color: Colors.white70),
-      items: items
-          .map((item) => DropdownMenuItem(
-        value: item,
-        child: Text(item, style: const TextStyle(color: Colors.white)),
-      ))
-          .toList(),
-      onChanged: controller.updateLocation,
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Please select a location';
-        }
-        return null;
-      },
-    ));
+  Widget _buildCitySearchField() {
+    return Obx(() {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextField(
+            controller: controller.locationController,
+            onChanged: (value) {
+              controller.updateLocation(value);   // keep Rx + controller in sync
+              controller.fetchCities(value);      // filter suggestions
+            },
+            style: const TextStyle(color: Colors.white, fontSize: 16),
+            decoration: InputDecoration(
+              labelText: "Location",
+              labelStyle: TextStyle(color: Colors.grey.shade400, fontSize: 16),
+              floatingLabelStyle: TextStyle(color: AppColors.buttonBg, fontSize: 14),
+              filled: true,
+              fillColor: const Color(0xFF1F1F1F),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(color: AppColors.buttonBg, width: 1.5),
+              ),
+              suffixIcon: controller.isSearching.value
+                  ? const Padding(
+                padding: EdgeInsets.all(12),
+                child: SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              )
+                  : const Icon(Icons.search, color: Colors.white70),
+            ),
+          ),
+
+          if (controller.searchResults.isNotEmpty)
+            Container(
+              margin: const EdgeInsets.only(top: 6),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1F1F1F),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              constraints: const BoxConstraints(maxHeight: 200),
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: controller.searchResults.length,
+                itemBuilder: (context, index) {
+                  final city = controller.searchResults[index];
+                  return ListTile(
+                    title: Text(city, style: const TextStyle(color: Colors.white)),
+                    onTap: () {
+                      controller.updateLocation(city);
+                      controller.searchResults.clear(); // hide the list
+                      FocusScope.of(context).unfocus(); // optional: close keyboard
+                    },
+                  );
+                },
+              ),
+            ),
+        ],
+      );
+    });
   }
+
+
+
 
   Widget _buildImagePicker() {
     return Obx(() {

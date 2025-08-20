@@ -8,8 +8,27 @@ class EditProfileController extends GetxController {
   final bioController = TextEditingController();
   final emailController = TextEditingController();
   final phoneController = TextEditingController();
+  final travelMode = 'Normal'.obs;
+  final firstNameController = TextEditingController();
+  final lastNameController = TextEditingController();
+  // 🔹 New Controllers
+  final locationController = TextEditingController();
+  final travelInterestController = TextEditingController();
+  final visitedPlacesController = TextEditingController();
+  final dreamDestinationController = TextEditingController();
+  final languageController = TextEditingController();
 
-  final Rx<File?> selectedImage = Rx<File?>(null);
+  // 🔹 Travel Type (Radio Button)
+  var travelType = "Solo".obs;
+
+  final selectedImage = Rx<File?>(null);
+
+  // void updateProfile() {
+  //   // handle update logic
+  //   print("Travel Type: ${travelType.value}");
+  // }
+
+  // final Rx<File?> selectedImage = Rx<File?>(null);
 
   final ImagePicker _picker = ImagePicker();
 
