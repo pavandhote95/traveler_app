@@ -7,6 +7,8 @@ class ApiPostModel {
   final int userId;
   final List<int> postIds;
   final String createdAt;
+  final int likes; // Total likes count
+  final String? userReaction; // User's reaction: "like", "dislike", or null
 
   ApiPostModel({
     required this.id,
@@ -17,6 +19,8 @@ class ApiPostModel {
     required this.userId,
     required this.postIds,
     required this.createdAt,
+    required this.likes,
+    this.userReaction,
   });
 
   factory ApiPostModel.fromJson(Map<String, dynamic> json) {
@@ -28,10 +32,12 @@ class ApiPostModel {
       images: (json['image'] as List<dynamic>?)?.cast<String>() ?? [],
       userId: _parseInt(json['user_id']),
       postIds: (json['post_id'] as List<dynamic>?)
-          ?.map((e) => _parseInt(e))
-          .toList() ??
+              ?.map((e) => _parseInt(e))
+              .toList() ??
           [],
       createdAt: json['created_at'] as String? ?? '',
+      likes: _parseInt(json['likes']), // Assuming API returns "likes"
+      userReaction: json['user_reaction'] as String?, // Assuming API returns "user_reaction"
     );
   }
 
@@ -45,6 +51,8 @@ class ApiPostModel {
       'user_id': userId,
       'post_id': postIds,
       'created_at': createdAt,
+      'likes': likes,
+      'user_reaction': userReaction,
     };
   }
 
@@ -53,4 +61,29 @@ class ApiPostModel {
     if (value is String) return int.tryParse(value) ?? 0;
     return 0;
   }
+  ApiPostModel copyWith({
+  int? id,
+  String? question,
+  String? location,
+  String? status,
+  List<String>? images,
+  int? userId,
+  List<int>? postIds,
+  String? createdAt,
+  int? likes,
+  String? userReaction,
+}) {
+  return ApiPostModel(
+    id: id ?? this.id,
+    question: question ?? this.question,
+    location: location ?? this.location,
+    status: status ?? this.status,
+    images: images ?? this.images,
+    userId: userId ?? this.userId,
+    postIds: postIds ?? this.postIds,
+    createdAt: createdAt ?? this.createdAt,
+    likes: likes ?? this.likes,
+    userReaction: userReaction ?? this.userReaction,
+  );
+}
 }

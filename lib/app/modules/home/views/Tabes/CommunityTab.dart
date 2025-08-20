@@ -138,6 +138,7 @@ Widget _buildPostCard(ApiPostModel post, int index) {
 
   final exceedsMaxLines = textPainter.didExceedMaxLines;
 
+
   return SizedBox(
     height: MediaQuery.of(context).size.height * 0.75,
     child: Card(
@@ -334,55 +335,31 @@ Widget _buildPostCard(ApiPostModel post, int index) {
 
               const SizedBox(height: 16),
 
-              // 🔹 Likes / Reply / Share
-              Row(
-                children: [
-                  GestureDetector(
-                    onTap: () {},
-                    child: Row(
-                      children: [
-                        Image.asset('assets/icons/fav.png',
-                            width: 24, height: 24),
-                        const SizedBox(width: 8),
-                        Text(
-                          '124 Likes',
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white70,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 20),
-                  GestureDetector(
-                    onTap: () {},
-                    child: Row(
-                      children: [
-                        Image.asset('assets/icons/message.png',
-                            width: 24, height: 24),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Reply',
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.buttonBg,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Spacer(),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.share_outlined,
-                        color: AppColors.buttonBg, size: 24),
-                  ),
-                ],
-              ),
-
+GestureDetector(
+  onTap: () => controller.likePost(post.id.toString()),
+  child: Row(
+    children: [
+      Icon(
+        post.userReaction == 'like' 
+            ? Icons.favorite   // 🔴 Filled heart if liked
+            : Icons.favorite_border, // 🤍 Outline heart if not liked
+        color: post.userReaction == 'like'
+            ? Colors.red   // Red for liked
+            : Colors.white70, // Greyish white for not liked
+      ),
+      const SizedBox(width: 8),
+      Text(
+        '${post.likes} Likes',
+        style: GoogleFonts.inter(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+  
+        ),
+      ),
+    ],
+  ),
+)
+,
               const SizedBox(height: 16),
 
               // 🔹 Comments Section
@@ -470,9 +447,6 @@ Widget _buildPostCard(ApiPostModel post, int index) {
     ),
   );
 }
-
-/// 🔹 Reusable Comment Widget
-/// 🔹 LinkedIn Style Comment Widget
 Widget _buildComment({
   required String name,
   required String text,
@@ -664,4 +638,5 @@ class _FullScreenImageGalleryState extends State<FullScreenImageGallery> {
       ),
     );
   }
+  
 }

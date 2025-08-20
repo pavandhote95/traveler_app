@@ -177,4 +177,10 @@ class ApiService extends GetxService {
       throw Exception('Failed to logout: $e');
     }
   }
+
+
+
+// Yeh function post_id: 61 ke liye "like" ya "dislike" reaction bhejta hai
+
+
 }

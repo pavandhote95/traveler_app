@@ -1,5 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
+
 import 'package:swipe_cards/swipe_cards.dart';
 import 'package:travel_app2/app/services/api_service.dart';
 import '../../../models/post_model.dart';
@@ -14,6 +20,7 @@ class CommunityController extends GetxController {
   late MatchEngine matchEngine;
   final ApiService apiService = Get.find<ApiService>();
   final RxString searchQuery = ''.obs;
+    final GetStorage box = GetStorage();
 
   @override
   void onInit() {
@@ -21,6 +28,57 @@ class CommunityController extends GetxController {
     initializeSwipeEngine();
     fetchPosts();
   }
+Future<void> likePost(String postId) async {
+  const String baseUrl = 'https://kotiboxglobaltech.com/travel_app/api';
+  final url = Uri.parse('$baseUrl/post/react');
+  final token = box.read('token');
+
+  if (token == null) {
+    Get.snackbar("Auth Error", "You must login first",
+        backgroundColor: Colors.red, colorText: Colors.white);
+    return;
+  }
+
+  try {
+    final index = allPosts.indexWhere((p) => p.id.toString() == postId);
+    if (index == -1) return;
+
+    final post = allPosts[index];
+
+    // ✅ Toggle logic
+    final bool isLiked = post.userReaction == "like";
+    final String newReaction = isLiked ? "" : "like";
+
+    // 🔹 Optimistic update (sirf ek post update hoga, list reassign nahi hogi)
+    final updatedPost = isLiked
+        ? post.copyWith(userReaction: "", likes: (post.likes > 0 ? post.likes - 1 : 0))
+        : post.copyWith(userReaction: "like", likes: post.likes + 1);
+
+    allPosts[index] = updatedPost;
+ // ✅ sirf ek hi post update hoga, list wahi रहेगी
+    updateFilteredPosts();
+
+    // 🔹 API call
+    final response = await http.post(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'post_id': postId,
+        'type': newReaction.isEmpty ? "dislike" : "like",
+      }),
+    );
+
+    if (!(response.statusCode == 200 || response.statusCode == 201)) {
+      debugPrint("❌ API failed: ${response.body}");
+    }
+  } catch (e) {
+    debugPrint("❌ Like failed: $e");
+  }
+}
 
   Future<void> fetchPosts() async {
     try {
@@ -49,7 +107,7 @@ class CommunityController extends GetxController {
             .map((e) => ApiPostModel.fromJson(e))
             .toList();
 
-        updateFilteredPosts();
+        fetchPosts();
 
         // 🔹 Show message if no posts for the location
         if (locationPosts.isEmpty) {
