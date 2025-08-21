@@ -35,6 +35,7 @@ class BottomSheetQuestionsController extends GetxController {
       return;
     }
 
+
     try {
       isPickingImage.value = true;
       final List<XFile>? pickedFiles = await _picker.pickMultiImage();
@@ -53,6 +54,8 @@ class BottomSheetQuestionsController extends GetxController {
     } finally {
       isPickingImage.value = false;
     }
+
+
   }
 
   void clearImages() {
@@ -69,6 +72,7 @@ class BottomSheetQuestionsController extends GetxController {
 
   void updateLocation(String value) {
     selectedLocation.value = value;
+
     // keep the field in sync when we set from a suggestion
     if (locationController.text != value) {
       locationController.text = value;
