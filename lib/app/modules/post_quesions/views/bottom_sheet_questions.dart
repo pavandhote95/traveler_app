@@ -105,7 +105,7 @@ class BottomSheetQuestionsView extends GetView<BottomSheetQuestionsController> {
     );
   }
 
-  Widget _buildCitySearchField() {
+ Widget _buildCitySearchField() {
     return Obx(() {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -113,8 +113,7 @@ class BottomSheetQuestionsView extends GetView<BottomSheetQuestionsController> {
           TextField(
             controller: controller.locationController,
             onChanged: (value) {
-              controller.updateLocation(value);   // keep Rx + controller in sync
-              controller.fetchCities(value);      // filter suggestions
+              controller.onTextChanged;    // filter suggestions
             },
             style: const TextStyle(color: Colors.white, fontSize: 16),
             decoration: InputDecoration(
@@ -155,14 +154,14 @@ class BottomSheetQuestionsView extends GetView<BottomSheetQuestionsController> {
               constraints: const BoxConstraints(maxHeight: 200),
               child: ListView.builder(
                 shrinkWrap: true,
-                itemCount: controller.searchResults.length,
+                itemCount: controller.searchresults.value.length,
                 itemBuilder: (context, index) {
-                  final city = controller.searchResults[index];
+                  final place = controller.searchresults.value[index];
+                  final displayName = place['display_name'] ?? "Unknown";
                   return ListTile(
-                    title: Text(city, style: const TextStyle(color: Colors.white)),
+                    title: Text(displayName, style: const TextStyle(color: Colors.white)),
                     onTap: () {
-                      controller.updateLocation(city);
-                      controller.searchResults.clear(); // hide the list
+                    controller.onPlaceSelected(place);// hide the list
                       FocusScope.of(context).unfocus(); // optional: close keyboard
                     },
                   );

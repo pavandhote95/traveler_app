@@ -25,7 +25,37 @@ class BottomSheetQuestionsController extends GetxController {
   // 📦 Cache all cities onceEx
   final List<String> _allCitiesCache = [];
   bool _citiesLoaded = false;
+final Rx<List<Map<String, dynamic>>> searchresults = Rx<List<Map<String, dynamic>>>([]);
 
+  var _selectedplace = <Map<String, dynamic>>[].obs;
+
+
+  // Handle typing
+  Future<void> onTextChanged(String query) async {
+    if (query.isEmpty) {
+      searchResults.clear();
+      return;
+    }
+
+    try {
+      final results = await ApiService().searchLocation(query);
+      searchresults.value = results;
+    } catch (e) {
+      Get.snackbar("Error", "Failed to fetch locations");
+    }
+  }
+
+  // Select a place
+  void onPlaceSelected(Map<String, dynamic> place) {
+    _selectedplace.add(place);
+    searchResults.clear();
+   // textController.clear();
+  }
+
+  // Remove a place
+  void removePlace(int index) {
+    _selectedplace.removeAt(index);
+  }
 
   // Pick multiple images
   Future<void> pickImages() async {

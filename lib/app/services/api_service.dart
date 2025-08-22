@@ -177,7 +177,24 @@ class ApiService extends GetxService {
       throw Exception('Failed to logout: $e');
     }
   }
+Future<List<Map<String, dynamic>>> searchLocation(String query) async {
+    if (query.isEmpty) return [];
 
+    final url = Uri.parse(
+      "https://nominatim.openstreetmap.org/search?q=$query&format=json&limit=10&addressdetails=1",
+    );
+
+    final response = await http.get(url, headers: {
+      "User-Agent": "flutter_app" // required by Nominatim policy
+    });
+
+    if (response.statusCode == 200) {
+      final List data = json.decode(response.body);
+      return data.cast<Map<String, dynamic>>();
+    } else {
+      throw Exception("Failed to fetch location");
+    }
+  }
 
 
 // Yeh function post_id: 61 ke liye "like" ya "dislike" reaction bhejta hai

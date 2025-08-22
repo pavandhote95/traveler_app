@@ -62,8 +62,7 @@ class MyProfileView extends GetView<MyProfileController> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         _buildStatColumn("Posts", controller.totalPosts.value),
-                        _buildStatColumn(
-                            "Answers", controller.totalAnswers.value),
+                      
                         _buildStatColumn(
                           "Points",
                           (controller.totalPosts.value * 50) +
