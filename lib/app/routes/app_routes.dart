@@ -23,6 +23,8 @@ abstract class Routes {
 
   static const EDIT_PROFILE = _Paths.EDIT_PROFILE;
   static const My_PROFILE = _Paths.USER_PROFILE;
+  static const EXPERT = _Paths.EXPERT;
+  static const EXPERTS_PROFILE = _Paths.EXPERTS_PROFILE;
 }
 
 abstract class _Paths {
@@ -48,4 +50,6 @@ abstract class _Paths {
 
   static const EDIT_PROFILE = '/edit-profile';
   static const USER_PROFILE = '/user-profile';
+  static const EXPERT = '/expert';
+  static const EXPERTS_PROFILE = '/experts-profile';
 }

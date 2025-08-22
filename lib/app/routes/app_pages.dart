@@ -1,12 +1,15 @@
 import 'package:get/get.dart';
-import '../modules/Experts/bindings/experts_binding.dart';
-import '../modules/Experts/views/experts_view.dart';
+
 import '../modules/community_search/bindings/community_search_binding.dart';
 import '../modules/community_search/views/community_search_view.dart';
 import '../modules/dashboard/bindings/dashboard_binding.dart';
 import '../modules/dashboard/views/dashboard_view.dart';
 import '../modules/edit_profile/bindings/edit_profile_binding.dart';
 import '../modules/edit_profile/views/edit_profile_view.dart';
+import '../modules/expert/bindings/expert_binding.dart';
+import '../modules/expert/views/expert_view.dart';
+import '../modules/experts_profile/bindings/experts_profile_binding.dart';
+import '../modules/experts_profile/views/experts_profile_view.dart';
 import '../modules/expertsprofile/bindings/expertsprofile_binding.dart';
 import '../modules/expertsprofile/views/expertsprofile_view.dart';
 import '../modules/forgot_password/bindings/forgot_password_binding.dart';
@@ -82,11 +85,7 @@ class AppPages {
       page: () => DashboardView(),
       binding: DashboardBinding(),
     ),
-    GetPage(
-      name: _Paths.EXPERTS,
-      page: () => const ExpertsView(),
-      binding: ExpertsBinding(),
-    ),
+
     GetPage(
       name: _Paths.EXPERTSPROFILE,
       page: () => ExpertsprofileView(),
@@ -107,12 +106,11 @@ class AppPages {
       page: () => MyProfileView(),
       binding: MyProfileBinding(),
     ),
-      GetPage(
-          name: _Paths.USER_PROFILE,
-          page: () => const UserProfileView(),
-          binding: UserProfileBinding(),
-        ),
-
+    GetPage(
+      name: _Paths.USER_PROFILE,
+      page: () => const UserProfileView(),
+      binding: UserProfileBinding(),
+    ),
 
     GetPage(
       name: _Paths.POST_QUESIONS,
@@ -135,5 +133,19 @@ class AppPages {
       page: () => EditProfileView(),
       binding: EditProfileBinding(),
     ),
+    GetPage(
+      name: _Paths.EXPERT,
+      page: () => ExpertView(),
+      binding: ExpertBinding(),
+    ),
+ GetPage(
+  name: _Paths.EXPERTS_PROFILE,
+  page: () {
+    final args = Get.arguments as Map<String, dynamic>;
+    return ExpertsProfileView(expertId: args['expertId']);
+  },
+  binding: ExpertsProfileBinding(),
+),
+
   ];
 }

@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:travel_app2/app/constants/app_color.dart';
+import 'package:travel_app2/app/modules/expert/views/expert_view.dart';
 import 'package:travel_app2/app/modules/home/views/Tabes/ExpertsTab.dart';
 import '../../community_search/views/community_search_view.dart';
 import '../../home/views/home_view.dart';
@@ -15,7 +16,7 @@ class DashboardView extends GetView<DashboardController> {
   final List<Widget> _pages = [
     HomeView(),
     CommunitySearchView(),
-    Expertstab(),
+    ExpertView(),
     NotificationView(),
     MyProfileView(),
   ];
