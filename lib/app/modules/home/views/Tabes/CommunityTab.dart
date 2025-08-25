@@ -53,7 +53,6 @@ class _CommunityTabState extends State<CommunityTab> with WidgetsBindingObserver
             return  Center(
               child:Lottie.asset(
                   'assets/animations/loading.json',
-
                    height:250,
                  width: 500,
                   // fit: BoxFit.contain, // Optional: how it scales
@@ -329,31 +328,30 @@ Widget _buildPostCard(ApiPostModel post, int index) {
 
               const SizedBox(height: 16),
 
-GestureDetector(
-  onTap: () => controller.likePost(post.id.toString()),
-  child: Row(
-    children: [
-      Icon(
-        post.userReaction == 'like' 
-            ? Icons.favorite   // 🔴 Filled heart if liked
-            : Icons.favorite_border, // 🤍 Outline heart if not liked
-        color: post.userReaction == 'like'
-            ? Colors.red   // Red for liked
-            : Colors.white70, // Greyish white for not liked
-      ),
-      const SizedBox(width: 8),
-      Text(
-        '${post.likes} Likes',
-        style: GoogleFonts.inter(
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-  
-        ),
-      ),
-    ],
-  ),
-)
-,
+              GestureDetector(
+                onTap: () => controller.toggleLike(post.id.toString()),
+                child: Row(
+                  children: [
+                    Icon(
+                      post.isLiked
+                          ? Icons.favorite      // 🔴 liked
+                          : Icons.favorite_border, // 🤍 not liked
+                      color: post.isLiked ? Colors.red : Colors.white70,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '${post.likesCount} Likes',
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+
               const SizedBox(height: 16),
 
               // 🔹 Comments Section

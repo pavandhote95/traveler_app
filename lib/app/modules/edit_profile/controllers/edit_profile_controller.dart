@@ -105,6 +105,8 @@ Future<void> updateProfile() async {
       return;
     }
 
+
+
     isUpdating.value = true;
 
     var request = http.MultipartRequest('POST', Uri.parse(updateProfileUrl));

@@ -7,8 +7,11 @@ class ApiPostModel {
   final int userId;
   final List<int> postIds;
   final String createdAt;
-  final int likes; // Total likes count
-  final String? userReaction; // User's reaction: "like", "dislike", or null
+
+  final int likesCount;
+  final int dislikesCount;
+  final bool isLiked;
+  final bool isDisliked;
 
   ApiPostModel({
     required this.id,
@@ -19,8 +22,10 @@ class ApiPostModel {
     required this.userId,
     required this.postIds,
     required this.createdAt,
-    required this.likes,
-    this.userReaction,
+    required this.likesCount,
+    required this.dislikesCount,
+    required this.isLiked,
+    required this.isDisliked,
   });
 
   factory ApiPostModel.fromJson(Map<String, dynamic> json) {
@@ -32,12 +37,14 @@ class ApiPostModel {
       images: (json['image'] as List<dynamic>?)?.cast<String>() ?? [],
       userId: _parseInt(json['user_id']),
       postIds: (json['post_id'] as List<dynamic>?)
-              ?.map((e) => _parseInt(e))
-              .toList() ??
+          ?.map((e) => _parseInt(e))
+          .toList() ??
           [],
       createdAt: json['created_at'] as String? ?? '',
-      likes: _parseInt(json['likes']), // Assuming API returns "likes"
-      userReaction: json['user_reaction'] as String?, // Assuming API returns "user_reaction"
+      likesCount: _parseInt(json['likes_count']),
+      dislikesCount: _parseInt(json['dislikes_count']),
+      isLiked: _parseInt(json['is_liked']) == 1,
+      isDisliked: _parseInt(json['is_disliked']) == 1,
     );
   }
 
@@ -51,8 +58,10 @@ class ApiPostModel {
       'user_id': userId,
       'post_id': postIds,
       'created_at': createdAt,
-      'likes': likes,
-      'user_reaction': userReaction,
+      'likes_count': likesCount,
+      'dislikes_count': dislikesCount,
+      'is_liked': isLiked ? 1 : 0,
+      'is_disliked': isDisliked ? 1 : 0,
     };
   }
 
@@ -61,29 +70,34 @@ class ApiPostModel {
     if (value is String) return int.tryParse(value) ?? 0;
     return 0;
   }
+
   ApiPostModel copyWith({
-  int? id,
-  String? question,
-  String? location,
-  String? status,
-  List<String>? images,
-  int? userId,
-  List<int>? postIds,
-  String? createdAt,
-  int? likes,
-  String? userReaction,
-}) {
-  return ApiPostModel(
-    id: id ?? this.id,
-    question: question ?? this.question,
-    location: location ?? this.location,
-    status: status ?? this.status,
-    images: images ?? this.images,
-    userId: userId ?? this.userId,
-    postIds: postIds ?? this.postIds,
-    createdAt: createdAt ?? this.createdAt,
-    likes: likes ?? this.likes,
-    userReaction: userReaction ?? this.userReaction,
-  );
-}
+    int? id,
+    String? question,
+    String? location,
+    String? status,
+    List<String>? images,
+    int? userId,
+    List<int>? postIds,
+    String? createdAt,
+    int? likesCount,
+    int? dislikesCount,
+    bool? isLiked,
+    bool? isDisliked,
+  }) {
+    return ApiPostModel(
+      id: id ?? this.id,
+      question: question ?? this.question,
+      location: location ?? this.location,
+      status: status ?? this.status,
+      images: images ?? this.images,
+      userId: userId ?? this.userId,
+      postIds: postIds ?? this.postIds,
+      createdAt: createdAt ?? this.createdAt,
+      likesCount: likesCount ?? this.likesCount,
+      dislikesCount: dislikesCount ?? this.dislikesCount,
+      isLiked: isLiked ?? this.isLiked,
+      isDisliked: isDisliked ?? this.isDisliked,
+    );
+  }
 }
