@@ -2,17 +2,24 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:travel_app2/app/constants/app_color.dart';
+import 'package:travel_app2/app/constants/custom_button.dart';
 import 'package:travel_app2/app/modules/edit_profile/controllers/edit_profile_controller.dart';
 
 class EditProfileView extends StatelessWidget {
   EditProfileView({super.key});
+  String baseUrl = "https://kotiboxglobaltech.com/travel_app/storage/";
+
 
   final EditProfileController controller = Get.put(EditProfileController());
   final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
+    controller.fetchProfile(); 
+    // Fetch data on view load
+
     return Scaffold(
       backgroundColor: AppColors.mainBg,
       appBar: AppBar(
@@ -34,175 +41,162 @@ class EditProfileView extends StatelessWidget {
           ),
         ),
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                _buildProfileImage(),
-                const SizedBox(height: 20),
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return _buildShimmerLoader();
+        }
 
-                // 🟢 Personal Info Card
-                _buildCard(
-                  title: "Personal Information",
-                  children: [
-                    _buildTextField("First Name", controller.firstNameController),
-                    const SizedBox(height: 12),
-                    _buildTextField("Last Name", controller.lastNameController),
-                    const SizedBox(height: 12),
-                    _buildTextField("Bio", controller.bioController, maxLines: 3),
-                    const SizedBox(height: 12),
-                    _buildTextField("Email", controller.emailController,
-                        keyboardType: TextInputType.emailAddress),
-                    const SizedBox(height: 12),
-                    _buildTextField("Phone", controller.phoneController,
-                        keyboardType: TextInputType.phone),
-                  ],
-                ),
-                const SizedBox(height: 20),
+        return SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  _buildProfileImage(),
+                  const SizedBox(height: 20),
 
-                // 🟢 Travel Info Card
-                _buildCard(
-                  title: "Travel Details",
-                  children: [
-                    _buildTextField("Location", controller.locationController),
-                    const SizedBox(height: 12),
-                    _buildTextField("Travel Interest", controller.travelInterestController, maxLines: 2),
-                    const SizedBox(height: 12),
-                    _buildTextField("Visited Places", controller.visitedPlacesController, maxLines: 2),
-                    const SizedBox(height: 12),
-                    _buildTextField("Dream Destination", controller.dreamDestinationController),
-                    const SizedBox(height: 12),
-                    _buildTextField("Language", controller.languageController),
-                  ],
-                ),
-                const SizedBox(height: 20),
-
-                // 🟢 Travel Type Card
-                _buildCard(
-                  title: "Travel Type",
-                  children: [
-                    Obx(() => Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Row(
-                          children: [
-                            Radio<String>(
-                              value: "Solo",
-                              groupValue: controller.travelType.value,
-                              onChanged: (value) => controller.travelType.value = value!,
-                            ),
-                            const Text("Solo", style: TextStyle(color: Colors.white)),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Radio<String>(
-                              value: "Group",
-                              groupValue: controller.travelType.value,
-                              onChanged: (value) => controller.travelType.value = value!,
-                            ),
-                            const Text("Group", style: TextStyle(color: Colors.white)),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Radio<String>(
-                              value: "Slow",
-                              groupValue: controller.travelType.value,
-                              onChanged: (value) => controller.travelType.value = value!,
-                            ),
-                            const Text("Slow", style: TextStyle(color: Colors.white)),
-                          ],
-                        ),
-                      ],
-                    )),
-                  ],
-                ),
-                const SizedBox(height: 20),
-
-                // 🟢 Travel Mode Card
-                _buildCard(
-                  title: "Travel Mode",
-                  children: [
-                    Obx(() => Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Row(
-                          children: [
-                            Radio<String>(
-                              value: "Normal",
-                              groupValue: controller.travelMode.value,
-                              onChanged: (value) => controller.travelMode.value = value!,
-                            ),
-                            const Text("Normal", style: TextStyle(color: Colors.white)),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Radio<String>(
-                              value: "Digital",
-                              groupValue: controller.travelMode.value,
-                              onChanged: (value) => controller.travelMode.value = value!,
-                            ),
-                            const Text("Digital", style: TextStyle(color: Colors.white)),
-                          ],
-                        ),
-                      ],
-                    )),
-                  ],
-                ),
-
-                const SizedBox(height: 30),
-
-                // 🟢 Save Button
-                ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      controller.updateProfile();
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.buttonBg,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    minimumSize: const Size(double.infinity, 50),
-                    elevation: 6,
+                  // Personal Info
+                  _buildCard(
+                    title: "Personal Information",
+                    children: [
+                      _buildTextField("First Name", controller.firstNameController),
+                      const SizedBox(height: 12),
+                      _buildTextField("Last Name", controller.lastNameController),
+                      const SizedBox(height: 12),
+                      _buildTextField("Bio", controller.bioController, maxLines: 3),
+                      const SizedBox(height: 12),
+                      _buildTextField("Email", controller.emailController,
+                          keyboardType: TextInputType.emailAddress),
+                      const SizedBox(height: 12),
+                      _buildTextField("Phone", controller.phoneController,
+                          keyboardType: TextInputType.phone),
+                    ],
                   ),
-                  child: Text(
-                    'Save Changes',
-                    style: GoogleFonts.poppins(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
+                  const SizedBox(height: 20),
+
+                  // Travel Info
+                  _buildCard(
+                    title: "Travel Details",
+                    children: [
+                      _buildTextField("Location", controller.locationController),
+                      const SizedBox(height: 12),
+                      _buildTextField("Travel Interest", controller.travelInterestController, maxLines: 2),
+                      const SizedBox(height: 12),
+                      _buildTextField("Visited Places", controller.visitedPlacesController, maxLines: 2),
+                      const SizedBox(height: 12),
+                      _buildTextField("Dream Destination", controller.dreamDestinationController),
+                      const SizedBox(height: 12),
+                      _buildTextField("Language", controller.languageController),
+                    ],
                   ),
-                ),
-              ],
+                  const SizedBox(height: 20),
+
+                  // Travel Type (multi-select)
+                  _buildCard(
+                    title: "Travel Type",
+                    children: [
+                      Obx(() => Wrap(
+                        spacing: 10,
+                        children: ["Solo", "Group", "Family"].map((type) {
+                          final isSelected = controller.selectedTravelTypes.contains(type);
+                          return FilterChip(
+                            label: Text(type),
+                            selected: isSelected,
+                            onSelected: (selected) {
+                              if (selected) {
+                                controller.selectedTravelTypes.add(type);
+                              } else {
+                                controller.selectedTravelTypes.remove(type);
+                              }
+                            },
+                            selectedColor: AppColors.buttonBg,
+                            backgroundColor: Colors.white.withOpacity(0.1),
+                            labelStyle: TextStyle(
+                              color: isSelected ? Colors.white : Colors.grey[300],
+                              fontWeight: FontWeight.w600,
+                            ),
+                          );
+                        }).toList(),
+                      )),
+                    ],
+                  ),
+
+                  const SizedBox(height: 30),
+
+                  // Save Button
+               // Replace your ElevatedButton with this CustomButton
+
+CustomButton(
+  isLoading: controller.isUpdating, // RxBool from controller for loading state
+  onPressed: () {
+    if (_formKey.currentState!.validate()) {
+      controller.updateProfile();
+    }
+  },
+  text: 'Save Changes',
+  backgroundColor: AppColors.buttonBg,
+  textColor: Colors.white,
+),
+
+               
+                ],
+              ),
             ),
           ),
+        );
+      }),
+    );
+  }
+
+  // Shimmer Loader Widget
+  Widget _buildShimmerLoader() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Shimmer.fromColors(
+        baseColor: Colors.grey.shade700.withOpacity(0.3),
+        highlightColor: Colors.grey.shade500.withOpacity(0.3),
+        child: Column(
+          children: [
+            // Profile image placeholder
+            CircleAvatar(radius: 55, backgroundColor: Colors.white24),
+            const SizedBox(height: 20),
+
+            // Multiple lines placeholders for text fields
+            ...List.generate(8, (index) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Container(
+                  width: double.infinity,
+                  height: index == 2 ? 60 : 50, // Bio field taller
+                  decoration: BoxDecoration(
+                    color: Colors.white24,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              );
+            }),
+          ],
         ),
       ),
     );
   }
 
-  // 🟢 Profile Image Widget
+  // Profile Image Widget
   Widget _buildProfileImage() {
     return Center(
       child: Stack(
         children: [
           Obx(() {
             final imageFile = controller.selectedImage.value;
+            final apiImage = controller.profileImageUrl.value;
             return CircleAvatar(
               radius: 55,
               backgroundImage: imageFile != null
                   ? FileImage(imageFile)
-                  : const NetworkImage(
-                'https://randomuser.me/api/portraits/men/11.jpg',
-              ) as ImageProvider,
+                  : (apiImage.isNotEmpty
+                      ? NetworkImage(apiImage)
+                      : const NetworkImage('https://randomuser.me/api/portraits/men/11.jpg')) as ImageProvider,
             );
           }),
           Positioned(
@@ -226,7 +220,6 @@ class EditProfileView extends StatelessWidget {
     );
   }
 
-  // 🟢 Card Section
   Widget _buildCard({required String title, required List<Widget> children}) {
     return Container(
       width: double.infinity,
@@ -255,7 +248,6 @@ class EditProfileView extends StatelessWidget {
     );
   }
 
-  // 🟢 Reusable TextField
   Widget _buildTextField(String label, TextEditingController controller,
       {int maxLines = 1, TextInputType keyboardType = TextInputType.text}) {
     return TextFormField(

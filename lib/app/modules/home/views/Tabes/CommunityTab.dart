@@ -9,12 +9,6 @@ import 'package:travel_app2/app/modules/post_quesions/views/bottom_sheet_questio
 import 'package:travel_app2/app/routes/app_pages.dart';
 import '../../../../models/post_model.dart';
 import '../../controllers/community_controller.dart';
-
-
-
-
-
-
 class CommunityTab extends StatefulWidget {
   const CommunityTab({super.key});
 
@@ -143,7 +137,7 @@ Widget _buildPostCard(ApiPostModel post, int index) {
     height: MediaQuery.of(context).size.height * 0.75,
     child: Card(
       elevation: 6,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
       color: AppColors.centerright,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
@@ -204,7 +198,7 @@ Widget _buildPostCard(ApiPostModel post, int index) {
                           Row(
                             children: [
                               Text(
-                                'Kunal Patel',
+                                  'Kunal Patel',
                                 style: GoogleFonts.openSans(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 18,

@@ -5,6 +5,7 @@ import 'package:travel_app2/app/constants/app_color.dart';
 import 'package:travel_app2/app/constants/my_toast.dart';
 import 'package:travel_app2/app/modules/dashboard/controllers/dashboard_controller.dart';
 import 'package:travel_app2/app/modules/home/controllers/community_controller.dart';
+import 'package:travel_app2/app/modules/my_profile/controllers/my_profile_controller.dart';
 import 'package:travel_app2/app/widgets/custom_appbar_controller.dart';
 
 class HeaderWidget extends StatelessWidget {
@@ -13,9 +14,14 @@ class HeaderWidget extends StatelessWidget {
   // Initialize controllers
   final LocationController locationController = Get.put(LocationController());
   final RxBool isToggled = false.obs; // For switch toggle state
-
+  final MyProfileController controller = Get.find<MyProfileController>();
   @override
   Widget build(BuildContext context) {
+    String _capitalize(String s) {
+  if (s.isEmpty) return s;
+  return s[0].toUpperCase() + s.substring(1).toLowerCase();
+}
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -25,12 +31,12 @@ class HeaderWidget extends StatelessWidget {
             final dashboardController = Get.find<DashboardController>();
             dashboardController.selectedIndex.value = 4;
           },
-          child: const CircleAvatar(
-            radius: 26,
-            backgroundImage: NetworkImage(
-              'https://randomuser.me/api/portraits/men/11.jpg',
-            ),
-          ),
+          child:   Obx(() => CircleAvatar(
+  radius: 26,
+  backgroundImage: controller.profileImage.value != ''
+      ? NetworkImage(controller.profileImage.value)
+      : const NetworkImage('https://randomuser.me/api/portraits/men/11.jpg'),
+)),
         ),
         const SizedBox(width: 12),
         // Greeting and Location
@@ -39,18 +45,27 @@ class HeaderWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Greeting Text
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Hi, Bidyawant!',
-                  style: GoogleFonts.openSans(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.buttonBg,
-                  ),
-                ),
-              ),
+             FittedBox(
+  fit: BoxFit.scaleDown,
+  alignment: Alignment.centerLeft,
+  child: Obx(() {
+    String name = controller.firstname.value;
+    if (name.isEmpty) name = "Guest";
+
+    // Capitalize first letter
+    String displayName = name[0].toUpperCase() + name.substring(1).toLowerCase();
+
+    return Text(
+      'Hi, $displayName !',
+      style: GoogleFonts.openSans(
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+        color: AppColors.buttonBg,
+      ),
+    );
+  }),
+),
+
               const SizedBox(height: 6),
               // Location Row
               Row(

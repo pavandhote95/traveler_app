@@ -34,28 +34,36 @@ Future<void> likePost(String postId) async {
   final token = box.read('token');
 
   if (token == null) {
-    Get.snackbar("Auth Error", "You must login first",
-        backgroundColor: Colors.red, colorText: Colors.white);
+    Get.snackbar(
+      "Auth Error", 
+      "You must login first",
+      backgroundColor: Colors.red, 
+      colorText: Colors.white,
+    );
     return;
   }
 
   try {
+    // Find the post index
     final index = allPosts.indexWhere((p) => p.id.toString() == postId);
     if (index == -1) return;
 
     final post = allPosts[index];
 
-    // ✅ Toggle logic
+    // Toggle like
     final bool isLiked = post.userReaction == "like";
     final String newReaction = isLiked ? "" : "like";
 
-    // 🔹 Optimistic update (sirf ek post update hoga, list reassign nahi hogi)
+    // Prepare optimistic updated post
     final updatedPost = isLiked
         ? post.copyWith(userReaction: "", likes: (post.likes > 0 ? post.likes - 1 : 0))
         : post.copyWith(userReaction: "like", likes: post.likes + 1);
 
+    // Save original post in case we need to rollback
+    final originalPost = post;
+
+    // ✅ Optimistic update
     allPosts[index] = updatedPost;
- // ✅ sirf ek hi post update hoga, list wahi रहेगी
     updateFilteredPosts();
 
     // 🔹 API call
@@ -72,13 +80,18 @@ Future<void> likePost(String postId) async {
       }),
     );
 
+    // Rollback if API fails
     if (!(response.statusCode == 200 || response.statusCode == 201)) {
       debugPrint("❌ API failed: ${response.body}");
+      allPosts[index] = originalPost; // rollback
+      updateFilteredPosts();
     }
+
   } catch (e) {
     debugPrint("❌ Like failed: $e");
   }
 }
+
 
   Future<void> fetchPosts() async {
     try {

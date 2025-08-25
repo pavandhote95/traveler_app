@@ -30,45 +30,48 @@ class DashboardView extends GetView<DashboardController> {
       body: Obx(() => _pages[controller.selectedIndex.value]),
 
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: isKeyboardVisible
-          ? null
-          : GestureDetector(
+  floatingActionButton: isKeyboardVisible
+    ? null
+    : GestureDetector(
         onTap: () => controller.changeTab(2),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              height: 50,
-              width: 50,
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: AppColors.buttonBg,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.3),
-                    blurRadius: 6,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+        child: Transform.translate(
+          offset: const Offset(0, 15), // move FAB 10 pixels down
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                height: 50,
+                width: 50,
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: AppColors.buttonBg,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.3),
+                      blurRadius: 6,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  CupertinoIcons.star_fill,
+                  color: Colors.black,
+                  size: 20,
+                ),
               ),
-              child: const Icon(
-                CupertinoIcons.star_fill,
-                color: Colors.black,
-                size: 20,
+              const SizedBox(height: 4),
+              Text(
+                'Expert\nTraveler',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: AppColors.buttonBg,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Expert\nTraveler',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: AppColors.buttonBg,
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
 
