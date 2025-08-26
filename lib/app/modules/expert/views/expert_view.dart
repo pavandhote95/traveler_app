@@ -3,9 +3,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 import 'package:travel_app2/app/constants/app_color.dart';
 import 'package:travel_app2/app/modules/experts_profile/views/experts_profile_view.dart';
-import 'package:travel_app2/app/modules/home/views/ExpertProfilePage.dart';
 import '../controllers/expert_controller.dart';
 
+// ignore: must_be_immutable
 class ExpertView extends GetView<ExpertController> {
  ExpertController controller = Get.put(ExpertController());
 

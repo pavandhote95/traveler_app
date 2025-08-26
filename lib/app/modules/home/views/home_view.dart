@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:travel_app2/app/constants/app_color.dart';
 import 'package:travel_app2/app/modules/dashboard/controllers/dashboard_controller.dart';
-import 'package:travel_app2/app/modules/home/controllers/community_controller.dart';
+import 'package:travel_app2/app/modules/home/controllers/community_controller.dart' hide CommunityTab;
 import 'package:travel_app2/app/modules/home/views/Tabes/CommunityTab.dart';
 import 'package:travel_app2/app/widgets/custom_appbar.dart';
 

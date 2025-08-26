@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:travel_app2/app/constants/app_color.dart';
 import 'package:travel_app2/app/modules/expert/views/expert_view.dart';
-import 'package:travel_app2/app/modules/home/views/Tabes/ExpertsTab.dart';
+
 import '../../community_search/views/community_search_view.dart';
 import '../../home/views/home_view.dart';
 import '../../my_profile/views/my_profile_view.dart';

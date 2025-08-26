@@ -9,6 +9,7 @@ import 'package:travel_app2/app/modules/post_quesions/views/bottom_sheet_questio
 import 'package:travel_app2/app/routes/app_pages.dart';
 import '../../../../models/post_model.dart';
 import '../../controllers/community_controller.dart';
+
 class CommunityTab extends StatefulWidget {
   const CommunityTab({super.key});
 
@@ -50,13 +51,12 @@ class _CommunityTabState extends State<CommunityTab> with WidgetsBindingObserver
       body: SafeArea(
         child: Obx(() {
           if (controller.filteredPosts.isEmpty) {
-            return  Center(
-              child:Lottie.asset(
-                  'assets/animations/loading.json',
-                   height:250,
-                 width: 500,
-                  // fit: BoxFit.contain, // Optional: how it scales
-               )
+            return Center(
+              child: Lottie.asset(
+                'assets/animations/loading.json',
+                height: 250,
+                width: 500,
+              ),
             );
           }
 
@@ -111,18 +111,17 @@ class _CommunityTabState extends State<CommunityTab> with WidgetsBindingObserver
     );
   }
 
-
-Widget _buildPostCard(ApiPostModel post, int index) {
+Widget _buildPostCard(Datum post, int index) {
   final isExpanded = controller.isExpanded[index] ?? false;
+  const maxLines = 3;
+
   final textStyle = GoogleFonts.openSans(
     fontSize: 16,
     color: Colors.white,
     fontWeight: FontWeight.w400,
     height: 1.4,
   );
-  const maxLines = 3;
 
-  // Calculate if the text exceeds maxLines
   final textPainter = TextPainter(
     text: TextSpan(text: post.question, style: textStyle),
     maxLines: maxLines,
@@ -131,12 +130,12 @@ Widget _buildPostCard(ApiPostModel post, int index) {
 
   final exceedsMaxLines = textPainter.didExceedMaxLines;
 
+  final commentController = TextEditingController();
 
   return SizedBox(
     height: MediaQuery.of(context).size.height * 0.75,
     child: Card(
       elevation: 6,
-      margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
       color: AppColors.centerright,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
@@ -148,56 +147,35 @@ Widget _buildPostCard(ApiPostModel post, int index) {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 🔹 Header
-              Row(
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      Get.toNamed(
-                        Routes.USER_PROFILE,
-                        arguments: {
-                          "name": "Kunal Patel",
-                          "profileImage":
-                              "https://randomuser.me/api/portraits/men/10.jpg",
-                          "location": "Mumbai, India",
-                          "joinedDate": "2021-06-12",
-                          "bio": "Traveler | Explorer | Content Creator",
-                          "followers": 1500,
-                          "following": 300,
-                          "posts": 120,
-                        },
-                      );
-                    },
-                    child: CircleAvatar(
+              /// 🔹 Header
+              GestureDetector(
+                onTap: () {
+                  Get.toNamed(
+                    Routes.USER_PROFILE,
+                    arguments: {"user_id": post.userId},
+                  );
+                },
+                child: Row(
+                  children: [
+                    CircleAvatar(
                       radius: 24,
-                      backgroundImage: const CachedNetworkImageProvider(
-                        'https://randomuser.me/api/portraits/men/10.jpg',
-                      ),
+                      backgroundImage: post.postuser?.image != null &&
+                              post.postuser!.image.isNotEmpty
+                          ? CachedNetworkImageProvider(post.postuser!.image)
+                          : const AssetImage(
+                                  'assets/images/default_user.png')
+                              as ImageProvider,
                       backgroundColor: Colors.grey.shade800,
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () {
-                        Get.toNamed(
-                          Routes.USER_PROFILE,
-                          arguments: {
-                            "name": "Kunal Patel",
-                            "profileImage":
-                                "https://randomuser.me/api/portraits/men/10.jpg",
-                            "location": post.location,
-                            "joinedDate": post.createdAt.substring(0, 10),
-                          },
-                        );
-                      },
+                    const SizedBox(width: 12),
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
                             children: [
                               Text(
-                                  'Kunal Patel',
+                                post.postuser?.name ?? "Unknown",
                                 style: GoogleFonts.openSans(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 18,
@@ -213,7 +191,7 @@ Widget _buildPostCard(ApiPostModel post, int index) {
                             ],
                           ),
                           Text(
-                            '${post.location} · ${post.createdAt.substring(0, 10)}',
+                            '${post.location ?? " "} · ${post.createdAt != null ? "${post.createdAt!.year}-${post.createdAt!.month.toString().padLeft(2,'0')}-${post.createdAt!.day.toString().padLeft(2,'0')}" : ""}',
                             style: GoogleFonts.inter(
                               fontWeight: FontWeight.w400,
                               fontSize: 14,
@@ -223,36 +201,31 @@ Widget _buildPostCard(ApiPostModel post, int index) {
                         ],
                       ),
                     ),
-                  ),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.more_horiz,
-                        color: Colors.white70, size: 24),
-                  ),
-                ],
+                    IconButton(
+                      onPressed: () {},
+                      icon: const Icon(Icons.more_horiz,
+                          color: Colors.white70, size: 24),
+                    ),
+                  ],
+                ),
               ),
 
               const SizedBox(height: 16),
 
-              // 🔹 Question
+              /// 🔹 Question
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     post.question,
                     maxLines: isExpanded ? null : maxLines,
-                    overflow: isExpanded
-                        ? TextOverflow.visible
-                        : TextOverflow.ellipsis,
+                    overflow:
+                        isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
                     style: textStyle,
                   ),
                   if (exceedsMaxLines)
                     GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          controller.toggleExpanded(index);
-                        });
-                      },
+                      onTap: () => controller.toggleExpanded(index),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 8),
                         child: Text(
@@ -270,43 +243,39 @@ Widget _buildPostCard(ApiPostModel post, int index) {
 
               const SizedBox(height: 16),
 
-              // 🔹 Image
+              /// 🔹 Image
               GestureDetector(
                 onDoubleTap: () {
-                  if (post.images.isNotEmpty) {
+                  if (post.image.isNotEmpty) {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) =>
-                            FullScreenImageGallery(images: post.images),
+                            FullScreenImageGallery(images: post.image),
                       ),
                     );
                   }
                 },
-                child: post.images.isNotEmpty
+                child: post.image.isNotEmpty
                     ? ClipRRect(
                         borderRadius: BorderRadius.circular(12),
                         child: CachedNetworkImage(
-                          imageUrl: post.images[0],
+                          imageUrl: post.image[0],
                           width: double.infinity,
                           height: 200,
                           fit: BoxFit.cover,
                           placeholder: (context, url) => Container(
-                            width: double.infinity,
-                            height: 200,
                             color: Colors.grey.shade800,
+                            height: 200,
                             child: const Center(
                               child: CircularProgressIndicator(
-                                color: AppColors.buttonBg,
-                              ),
+                                  color: AppColors.buttonBg),
                             ),
                           ),
                           errorWidget: (context, url, error) => Container(
-                            width: double.infinity,
                             height: 200,
                             color: Colors.grey.shade800,
-                            child:
-                                const Icon(Icons.error, color: Colors.redAccent),
+                            child: const Icon(Icons.error, color: Colors.redAccent),
                           ),
                         ),
                       )
@@ -318,83 +287,75 @@ Widget _buildPostCard(ApiPostModel post, int index) {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Center(
-                          child: Text(
-                            'No Images',
-                            style: TextStyle(color: Colors.grey, fontSize: 16),
-                          ),
+                          child: Text('No Images',
+                              style: TextStyle(color: Colors.grey, fontSize: 16)),
                         ),
                       ),
               ),
 
               const SizedBox(height: 16),
 
-              GestureDetector(
-                onTap: () => controller.toggleLike(post.id.toString()),
-                child: Row(
-                  children: [
-                    Icon(
-                      post.isLiked
-                          ? Icons.favorite      // 🔴 liked
-                          : Icons.favorite_border, // 🤍 not liked
-                      color: post.isLiked ? Colors.red : Colors.white70,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      '${post.likesCount} Likes',
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-
-              const SizedBox(height: 16),
-
-              // 🔹 Comments Section
-              Column(
+              /// 🔹 Like & Comment Row (LinkedIn style)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildComment(
-                    name: "Tanya Dutta",
-                    text: "It's my dream to visit there someday!",
-                    profileImage:
-                        "https://randomuser.me/api/portraits/women/12.jpg",
-                    likes: 14,
-                    replies: [
-                      {
-                        "name": "Rohit Sharma",
-                        "text": "Same here Tanya! Let's plan together 🚀",
-                        "profileImage":
-                            "https://randomuser.me/api/portraits/men/15.jpg",
-                        "likes": 5,
-                        "replies": [],
-                      },
+                  Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => controller.toggleLike(post.id),
+                        child: Icon(
+                          post.isLiked == 1
+                              ? Icons.favorite
+                              : Icons.favorite_border,
+                          color: post.isLiked == 1 ? Colors.red : Colors.white70,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      if (post.likesCount >= 0)
+                        Text(
+                          '${post.likesCount} Likes',
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
+                          ),
+                        ),
                     ],
                   ),
-                  _buildComment(
-                    name: "Aman Verma",
-                    text: "Beautiful place 😍",
-                    profileImage:
-                        "https://randomuser.me/api/portraits/men/20.jpg",
-                    likes: 7,
-                    replies: [],
+                  GestureDetector(
+                    onTap: () {
+                      // Focus comment field or scroll to comments
+                    },
+                    child: Row(
+                      children: [
+                        const Icon(Icons.comment, color: Colors.white70, size: 20),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${post.comments ?? 0} Comments',
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white70,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
 
               const SizedBox(height: 16),
 
-              // 🔹 Add Comment Field
+              /// 🔹 Comment Input
               Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   CircleAvatar(
                     radius: 18,
-                    backgroundImage: const NetworkImage(
-                        "https://randomuser.me/api/portraits/men/1.jpg"),
+                    backgroundImage: post.postuser?.image != null &&
+                            post.postuser!.image.isNotEmpty
+                        ? CachedNetworkImageProvider(post.postuser!.image)
+                        : const AssetImage('assets/images/default_user.png')
+                            as ImageProvider,
                     backgroundColor: Colors.grey.shade800,
                   ),
                   const SizedBox(width: 12),
@@ -406,174 +367,248 @@ Widget _buildPostCard(ApiPostModel post, int index) {
                         borderRadius: BorderRadius.circular(24),
                       ),
                       child: TextField(
-                        style: GoogleFonts.inter(
-                          color: Colors.white,
-                          fontSize: 14,
-                        ),
+                        controller: commentController,
+                        style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
                         decoration: InputDecoration(
                           hintText: 'Add a comment...',
-                          hintStyle: GoogleFonts.inter(
-                            color: Colors.grey.shade500,
-                            fontSize: 14,
-                          ),
+                          hintStyle:
+                              GoogleFonts.inter(color: Colors.grey.shade500, fontSize: 14),
                           border: InputBorder.none,
                         ),
                       ),
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.send,
-                        color: AppColors.buttonBg, size: 24),
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Comment sent')),
-                      );
+                    icon: const Icon(Icons.send, color: AppColors.buttonBg, size: 24),
+                    onPressed: () async {
+                      final commentText = commentController.text.trim();
+                      if (commentText.isEmpty) {
+                        Get.snackbar("Error", "Comment cannot be empty",
+                            backgroundColor: Colors.red, colorText: Colors.white);
+                        return;
+                      }
+
+                      await controller.addComment(
+                          postId: post.id, comment: commentText);
+                      commentController.clear();
                     },
                   ),
                 ],
               ),
+
+              const SizedBox(height: 12),
+
+              /// 🔹 Comments List with Like & Reply
+          FutureBuilder(
+  future: controller.fetchComments(post.id),
+  builder: (context, snapshot) {
+    final comments = controller.commentsMap[post.id] ?? [];
+
+    if (snapshot.connectionState == ConnectionState.waiting &&
+        comments.isEmpty) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(12.0),
+          child: CircularProgressIndicator(color: AppColors.buttonBg),
+        ),
+      );
+    }
+
+    if (comments.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.all(8.0),
+        child: Text(
+          "No comments yet",
+          style: TextStyle(color: Colors.grey),
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Comments",
+          style: GoogleFonts.inter(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Column(
+          children: comments.map((c) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  /// Main comment
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      CircleAvatar(
+                        radius: 16,
+                        backgroundImage: c.user.image.isNotEmpty
+                            ? CachedNetworkImageProvider(c.user.image)
+                            : const AssetImage('assets/images/default_user.png')
+                                as ImageProvider,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              c.user.name,
+                              style: GoogleFonts.inter(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
+                            Text(
+                              c.comment,
+                              style: GoogleFonts.inter(
+                                fontSize: 14,
+                                color: Colors.grey.shade300,
+                              ),
+                            ),
+                            Row(
+                              children: [
+                                GestureDetector(
+                                  onTap: () {},
+                                  child: Text(
+                                    'Like',
+                                    style: GoogleFonts.inter(
+                                      color: AppColors.buttonBg,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                GestureDetector(
+                                  onTap: () {},
+                                  child: Text(
+                                    'Reply',
+                                    style: GoogleFonts.inter(
+                                      color: Colors.white70,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  /// Static Replies under each comment
+                  Padding(
+                    padding: const EdgeInsets.only(left: 50, top: 8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        /// Reply 1
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const CircleAvatar(
+                              radius: 14,
+                              backgroundImage: AssetImage(
+                                  'assets/images/default_user.png'),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "John Doe",
+                                    style: GoogleFonts.inter(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  Text(
+                                    "I agree with this!",
+                                    style: GoogleFonts.inter(
+                                      fontSize: 13,
+                                      color: Colors.grey.shade300,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+
+                        /// Reply 2
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const CircleAvatar(
+                              radius: 14,
+                              backgroundImage: AssetImage(
+                                  'assets/images/default_user.png'),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Alice",
+                                    style: GoogleFonts.inter(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  Text(
+                                    "Nice point 👍",
+                                    style: GoogleFonts.inter(
+                                      fontSize: 13,
+                                      color: Colors.grey.shade300,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  },
+),
+
+          
             ],
           ),
         ),
       ),
     ),
   );
-}
-Widget _buildComment({
-  required String name,
-  required String text,
-  required String profileImage,
-  required int likes,
-  required List<dynamic> replies,
-  String timeAgo = "2h", // default agar na ho
-}) {
-  return Padding(
-    padding: const EdgeInsets.only(bottom: 16),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // 🔹 Profile Image
-        CircleAvatar(
-          radius: 18,
-          backgroundImage: NetworkImage(profileImage),
-          backgroundColor: Colors.grey.shade800,
-        ),
-        const SizedBox(width: 10),
-
-        // 🔹 Comment body
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Name + Comment
-              RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: "$name ",
-                      style: GoogleFonts.inter(
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                        fontSize: 14,
-                      ),
-                    ),
-                    TextSpan(
-                      text: text,
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        color: Colors.white70,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 6),
-
-              // 🔹 Action Row: Like · Reply · Time · Likes count
-              Row(
-                children: [
-                  GestureDetector(
-                    onTap: () {},
-                    child: Text(
-                      "Like",
-                      style: GoogleFonts.inter(
-                        color: Colors.grey.shade400,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  GestureDetector(
-                    onTap: () {},
-                    child: Text(
-                      "Reply",
-                      style: GoogleFonts.inter(
-                        color: Colors.grey.shade400,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Text(
-                    timeAgo,
-                    style: GoogleFonts.inter(
-                      color: Colors.grey.shade500,
-                      fontSize: 12,
-                    ),
-                  ),
-                  if (likes > 0) ...[
-                    const SizedBox(width: 16),
-                    Text(
-                      "$likes Likes",
-                      style: GoogleFonts.inter(
-                        color: Colors.grey.shade400,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ]
-                ],
-              ),
-
-              // 🔹 Nested replies (indent)
-              if (replies.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                Padding(
-                  padding: const EdgeInsets.only(left: 36),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: replies.map((reply) {
-                      final r = reply as Map<String, dynamic>;
-                      return _buildComment(
-                        name: r["name"] ?? "",
-                        text: r["text"] ?? "",
-                        profileImage: r["profileImage"] ?? "",
-                        likes: r["likes"] ?? 0,
-                        replies: r["replies"] ?? [],
-                        timeAgo: r["timeAgo"] ?? "1h",
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ],
-    ),
-  );
-}
+}}
 
 
-}
-
-// Full Screen Image Gallery Widget
+/// Full screen image gallery
 class FullScreenImageGallery extends StatefulWidget {
   final List<String> images;
-
   const FullScreenImageGallery({super.key, required this.images});
 
   @override
@@ -600,19 +635,12 @@ class _FullScreenImageGalleryState extends State<FullScreenImageGallery> {
           icon: const Icon(Icons.close, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(
-          '${_currentPage + 1}/${widget.images.length}',
-          style: GoogleFonts.inter(color: Colors.white),
-        ),
+        title: Text('${_currentPage + 1}/${widget.images.length}', style: GoogleFonts.inter(color: Colors.white)),
       ),
       body: PageView.builder(
         controller: _pageController,
         itemCount: widget.images.length,
-        onPageChanged: (index) {
-          setState(() {
-            _currentPage = index;
-          });
-        },
+        onPageChanged: (index) => setState(() => _currentPage = index),
         itemBuilder: (context, index) {
           return InteractiveViewer(
             minScale: 1.0,
@@ -620,9 +648,7 @@ class _FullScreenImageGalleryState extends State<FullScreenImageGallery> {
             child: CachedNetworkImage(
               imageUrl: widget.images[index],
               fit: BoxFit.contain,
-              placeholder: (context, url) => const Center(
-                child: CircularProgressIndicator(color: AppColors.buttonBg),
-              ),
+              placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
               errorWidget: (context, url, error) => const Icon(Icons.error, color: Colors.red),
             ),
           );
@@ -630,5 +656,4 @@ class _FullScreenImageGalleryState extends State<FullScreenImageGallery> {
       ),
     );
   }
-  
 }

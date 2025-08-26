@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:travel_app2/app/constants/my_toast.dart';
+import 'package:travel_app2/app/modules/home/controllers/community_controller.dart';
 import 'package:travel_app2/app/modules/my_profile/controllers/my_profile_controller.dart';
 
 class EditProfileController extends GetxController {
@@ -149,6 +150,8 @@ Future<void> updateProfile() async {
 
       // Refresh MyProfileView and local controller
       final myProfileController = Get.find<MyProfileController>();
+      final communityController = Get.find<CommunityController>();
+      await communityController.fetchPosts();
       await myProfileController.fetchProfile();
       await fetchProfile();
     } else {
