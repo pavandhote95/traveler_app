@@ -43,7 +43,6 @@ class ApiPostModel {
       );
 }
 
-/// 🔹 Post Model (Datum)
 class Datum {
   final int id;
   final String pId;
@@ -56,12 +55,12 @@ class Datum {
   final List<int> postId;
   final int likesCount;
   final int dislikesCount;
-  final int isLiked; // 0 or 1
-  final int isDisliked; // 0 or 1
+  final int isLiked;
+  final int isDisliked;
   final DateTime? createdAt;
   final String postUrl;
   final Postuser? postuser;
-  final RxList<Comment> comments; // 🔹 Changed to RxList
+  final RxList<Comment> comments;
 
   Datum({
     required this.id,
@@ -89,7 +88,9 @@ class Datum {
         question: _asString(json['question']),
         location: _asString(json['location']),
         status: _asString(json['status']),
-        image: _asStringList(json['image']),
+        image: _asStringList(json['image']).isEmpty
+            ? ["https://via.placeholder.com/150"]
+            : _asStringList(json['image']),
         userId: _asString(json['user_id'] ?? json['userId']),
         user: json['user'] is Map<String, dynamic>
             ? User.fromJson(json['user'] as Map<String, dynamic>)
@@ -105,7 +106,16 @@ class Datum {
             ? Postuser.fromJson(json['postuser'] as Map<String, dynamic>)
             : (json['post_user'] is Map<String, dynamic>
                 ? Postuser.fromJson(json['post_user'] as Map<String, dynamic>)
-                : null),
+                : Postuser(
+                    id: 0,
+                    name: "Unknown User",
+                    email: "",
+                    phoneNumber: "",
+                    bio: "",
+                    userPoints: 0,
+                    image: "",
+                    travelDetail: null,
+                  )),
         comments: RxList<Comment>(
           json['comments'] is List
               ? (json['comments'] as List)
@@ -175,7 +185,6 @@ class Datum {
       );
 }
 
-/// 🔹 Comment Model
 class Comment {
   final int id;
   final int userId;
@@ -328,7 +337,6 @@ class TravelDetail {
       };
 }
 
-/// --------- Helpers ---------
 int _asInt(dynamic v, [int fallback = 0]) {
   if (v == null) return fallback;
   if (v is int) return v;

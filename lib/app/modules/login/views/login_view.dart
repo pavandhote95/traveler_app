@@ -108,7 +108,7 @@ class LoginView extends GetView<LoginController> {
                   // Google
                   OutlinedButton.icon(
                     icon: Image.asset('assets/icons/google.png', height: 24),
-                    onPressed: (){},
+                    onPressed: controller.loginWithGoogle,
                     style: outlinedButtonStyle(),
                     label: Text('Login with Google', style: GoogleFonts.poppins(fontSize: 15)),
                   ),
@@ -117,15 +117,15 @@ class LoginView extends GetView<LoginController> {
                   // Apple
                   OutlinedButton.icon(
                     icon: Image.asset('assets/icons/apple.png', height: 24),
-                    onPressed: (){}
-,                   style: outlinedButtonStyle(),
+                    onPressed: controller.loginWithApple,
+                    style: outlinedButtonStyle(),
                     label: Text('Login with Apple', style: GoogleFonts.poppins(fontSize: 15)),
                   ),
                   const SizedBox(height: 40),
       
                   // Register Link
                   GestureDetector(
-                    onTap: (){},
+                    onTap: controller.goToRegister,
                     child: RichText(
                       text: TextSpan(
                         text: "Don't have an account ? ",
@@ -142,11 +142,6 @@ class LoginView extends GetView<LoginController> {
                             ),
                           ),
                         ],
-
-
-
-
-                        
                       ),
                     ),
                   ),

@@ -188,83 +188,90 @@ class MyProfileView extends GetView<MyProfileController> {
     );
   }
 
-  Widget _buildUserPosts() {
-    return Obx(() {
-      if (controller.userPosts.isEmpty) {
-        return Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Text(
-            "No posts yet.",
-            style: GoogleFonts.poppins(color: Colors.grey.shade400),
+Widget _buildUserPosts() {
+  return Obx(() {
+    if (controller.userPosts.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Text(
+          "No posts yet.",
+          style: GoogleFonts.poppins(color: Colors.grey.shade400),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      itemCount: controller.userPosts.length,
+      itemBuilder: (context, index) {
+        final post = controller.userPosts[index];
+        final String? mainImage = post['image'];
+
+        return Card(
+          color: AppColors.centerright,
+          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
           ),
-        );
-      }
-
-      return ListView.separated(
-        physics: const NeverScrollableScrollPhysics(),
-        shrinkWrap: true,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: controller.userPosts.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
-        itemBuilder: (context, index) {
-          final post = controller.userPosts[index];
-          String? mainImage = post['image'];
-          List imagesList = post['images'] ?? [];
-
-          return Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white12,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Column(
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(post['title'] ?? "Untitled",
-                    style: GoogleFonts.poppins(
-                        color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14)),
-                const SizedBox(height: 6),
-                Text(post['description'] ?? "",
-                    style: GoogleFonts.poppins(color: Colors.grey.shade300, fontSize: 13)),
-                const SizedBox(height: 8),
+                /// 🔹 Image (fixed height 100, width 100)
                 if (mainImage != null && mainImage.isNotEmpty)
-                  CachedNetworkImage(
-                    imageUrl: baseUrl + mainImage,
-                    placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
-                    errorWidget: (context, url, error) => const Icon(Icons.error),
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
-                const SizedBox(height: 8),
-                if (imagesList.isNotEmpty)
-                  SizedBox(
-                    height: 100,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: imagesList.length,
-                      itemBuilder: (context, i) {
-                        final img = imagesList[i]['image'];
-                        return Container(
-                          margin: const EdgeInsets.only(right: 8),
-                          child: CachedNetworkImage(
-                            imageUrl: baseUrl + img,
-                            placeholder: (context, url) => const CircularProgressIndicator(),
-                            errorWidget: (context, url, error) => const Icon(Icons.error),
-                            width: 100,
-                            height: 100,
-                            fit: BoxFit.cover,
-                          ),
-                        );
-                      },
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: CachedNetworkImage(
+                      imageUrl: baseUrl + mainImage,
+                      placeholder: (context, url) =>
+                          Container(height: 100, width: 100, color: Colors.black26),
+                      errorWidget: (context, url, error) =>
+                          const Icon(Icons.error, color: Colors.redAccent),
+                      width: 100,
+                      height: 100,
+                      fit: BoxFit.cover,
                     ),
                   ),
+
+                const SizedBox(width: 12),
+
+                /// 🔹 Username + Question (expanded to fill remaining space)
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        controller.username.value.isNotEmpty
+                            ? controller.username.value
+                            : "Guest",
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      if ((post['title'] ?? '').isNotEmpty)
+                        Text(
+                          post['title'],
+                          style: GoogleFonts.poppins(
+                            color: Colors.white70,
+                            fontSize: 13,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
               ],
             ),
-          );
-        },
-      );
-    });
-  }
+          ),
+        );
+      },
+    );
+  });
+}
 
   Widget _buildStatColumn(String label, int value) => SizedBox(
         width: 80,
