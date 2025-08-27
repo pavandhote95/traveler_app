@@ -349,14 +349,23 @@ Widget _buildPostCard(Datum post, int index) {
               /// 🔹 Comment Input
               Row(
                 children: [
-                  CircleAvatar(
-                    radius: 18,
-                    backgroundImage: post.postuser?.image != null &&
-                            post.postuser!.image.isNotEmpty
-                        ? CachedNetworkImageProvider(post.postuser!.image)
-                        : const AssetImage('assets/images/default_user.png')
-                            as ImageProvider,
-                    backgroundColor: Colors.grey.shade800,
+                  GestureDetector(
+                    onTap: (){
+                       Get.toNamed(
+                    Routes.USER_PROFILE,
+                    arguments: {"user_id": post.userId},
+                  );
+
+                    },
+                    child: CircleAvatar(
+                      radius: 18,
+                      backgroundImage: post.postuser?.image != null &&
+                              post.postuser!.image.isNotEmpty
+                          ? CachedNetworkImageProvider(post.postuser!.image)
+                          : const AssetImage('assets/images/default_user.png')
+                              as ImageProvider,
+                      backgroundColor: Colors.grey.shade800,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -447,12 +456,20 @@ Widget _buildPostCard(Datum post, int index) {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      CircleAvatar(
-                        radius: 16,
-                        backgroundImage: c.user.image.isNotEmpty
-                            ? CachedNetworkImageProvider(c.user.image)
-                            : const AssetImage('assets/images/default_user.png')
-                                as ImageProvider,
+                      GestureDetector(
+                        onTap: (){
+                           Get.toNamed(
+                    Routes.USER_PROFILE,
+                    arguments: {"user_id": post.userId},
+                  );
+                        },
+                        child: CircleAvatar(
+                          radius: 16,
+                          backgroundImage: c.user.image.isNotEmpty
+                              ? CachedNetworkImageProvider(c.user.image)
+                              : const AssetImage('assets/images/default_user.png')
+                                  as ImageProvider,
+                        ),
                       ),
                       const SizedBox(width: 10),
                       Expanded(
