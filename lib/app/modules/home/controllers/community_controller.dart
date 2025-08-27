@@ -60,67 +60,64 @@ Future<void> fetchComments(int postId) async {
 
 }
 /// ✅ Add Comment API
-Future<void> addComment({
-  required int postId,
-  required String comment,
-  int? parentId,
-}) async {
-  const String baseUrl = 'https://kotiboxglobaltech.com/travel_app/api';
-  final url = Uri.parse('$baseUrl/add-comments');
-  final token = box.read('token');
+  Future<void> addComment({
+    required int postId,
+    required String comment,
+    int? parentId,
+  }) async {
+    const String baseUrl = 'https://kotiboxglobaltech.com/travel_app/api';
+    final url = Uri.parse('$baseUrl/add-comments');
+    final token = box.read('token');
 
-  if (token == null) {
-    Get.snackbar("Auth Error", "You must login first",
-        backgroundColor: Colors.red, colorText: Colors.white);
-    return;
-  }
-
-  try {
-    // ✅ Build form-data
-    final body = {
-      'post_id': postId.toString(),
-      'comment': comment,
-    };
-
-    if (parentId != null) {
-      body['parent_id'] = parentId.toString(); // only include if replying
+    if (token == null) {
+      Get.snackbar("Auth Error", "You must login first",
+          backgroundColor: Colors.red, colorText: Colors.white);
+      return;
     }
 
-    debugPrint("📝 Sending form-data => $body");
+    try {
+      final body = {
+        'post_id': postId.toString(),
+        'comment': comment,
+      };
+      if (parentId != null) {
+        body['parent_id'] = parentId.toString();
+      }
 
-    final response = await http.post(
-      url,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Accept': 'application/json',
-        // 'Content-Type': 'application/x-www-form-urlencoded' // optional
-      },
-      body: body, // this automatically sends as form-data
-    );
+      debugPrint("📝 Sending form-data => $body");
 
-    debugPrint("📥 Raw Response: ${response.body}");
-    debugPrint("📊 Status Code: ${response.statusCode}");
+      final response = await http.post(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+        body: body,
+      );
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      final data = jsonDecode(response.body);
-      debugPrint("✅ Comment Added: $data");
+      debugPrint("📥 Raw Response: ${response.body}");
 
-      Get.snackbar("Success", "Comment added successfully",
-          backgroundColor: Colors.green, colorText: Colors.white);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = jsonDecode(response.body);
+        debugPrint("✅ Comment Added: $data");
 
-      // optional refresh
-      fetchPosts();
-    } else {
-      debugPrint("❌ Failed to add comment: ${response.body}");
-      Get.snackbar("Error", "Failed to add comment",
+        Get.snackbar("Success", "Comment added successfully",
+            backgroundColor: Colors.green, colorText: Colors.white);
+
+        // ✅ Instead of refetching all posts, just refresh that post's comments
+        await fetchComments(postId);
+
+      } else {
+        debugPrint("❌ Failed to add comment: ${response.body}");
+        Get.snackbar("Error", "Failed to add comment",
+            backgroundColor: Colors.red, colorText: Colors.white);
+      }
+    } catch (e) {
+      debugPrint("❌ Error in addComment: $e");
+      Get.snackbar("Error", "Something went wrong",
           backgroundColor: Colors.red, colorText: Colors.white);
     }
-  } catch (e) {
-    debugPrint("❌ Error in addComment: $e");
-    Get.snackbar("Error", "Something went wrong",
-        backgroundColor: Colors.red, colorText: Colors.white);
   }
-}
 
   /// ✅ Like toggle
   Future<void> toggleLike(int postId) async {
