@@ -1,10 +1,10 @@
 import 'dart:convert';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:travel_app2/app/constants/my_toast.dart';
+import 'package:travel_app2/app/routes/app_pages.dart';
 import 'package:travel_app2/app/services/api_service.dart';
-import '../../../routes/app_pages.dart';
 
 class LoginController extends GetxController {
   final emailOrPhoneController = TextEditingController();
@@ -39,18 +39,30 @@ class LoginController extends GetxController {
 
       if (response.statusCode == 200) {
         final token = data['token'];
+        final userData = data['data'] ?? {};
+        final int userId = userData['id'] ?? 0;
+        final int userPoints = userData['user_points'] ?? 0;
+
         if (token != null) {
-          box.write('token', token); // ✅ Store token locally
-          debugPrint("📦 Token saved: $token");
+          // ✅ Save token, userId, userPoints
+          box.write('token', token);
+          box.write('userId', userId);
+          box.write('userPoints', userPoints);
 
-          CustomToast.showSuccess(Get.context!, 'Enter OTP ');
+          debugPrint("📦 Token: $token");
+          debugPrint("🆔 UserId: $userId");
+          debugPrint("⭐ UserPoints: $userPoints");
 
-          // 👉 Navigate to OTP or Home screen based on flow
-  Get.toNamed(Routes.OTP, arguments: {
-  'input': input,
-  'isPhone': isPhone,
-  'token': token, // ✅ Pass the real token to OTP screen
-});
+          CustomToast.showSuccess(Get.context!, 'Enter OTP');
+
+          // Navigate to OTP or Home screen
+          Get.toNamed(Routes.OTP, arguments: {
+            'input': input,
+            'isPhone': isPhone,
+            'token': token,
+            'userId': userId,
+            'userPoints': userPoints,
+          });
         } else {
           CustomToast.showError(Get.context!, 'Token not found');
         }
@@ -63,24 +75,16 @@ class LoginController extends GetxController {
       CustomToast.showError(Get.context!, 'Something went wrong. Try again.');
     }
   }
+    void goToRegister() {
+    Get.toNamed(Routes.REGISTER);
+  }
+
 
   void logout() {
-    box.remove('token'); // ❌ Clear token
-    debugPrint("🔒 Token removed");
-    Get.offAllNamed(Routes.LOGIN); // 🔄 Navigate to login screen
+    box.erase();
+    debugPrint("🔒 Cleared all storage");
+    Get.offAllNamed(Routes.LOGIN);
     CustomToast.showSuccess(Get.context!, 'Logged out successfully');
-  }
-
-  void loginWithGoogle() {
-    Get.snackbar("Google Login", "Coming soon!");
-  }
-
-  void loginWithApple() {
-    Get.snackbar("Apple Login", "Coming soon!");
-  }
-
-  void goToRegister() {
-    Get.toNamed(Routes.REGISTER);
   }
 
   @override

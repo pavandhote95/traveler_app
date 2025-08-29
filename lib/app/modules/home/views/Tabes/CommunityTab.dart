@@ -5,7 +5,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
 import 'package:swipe_cards/swipe_cards.dart';
 import 'package:travel_app2/app/constants/app_color.dart';
-import 'package:travel_app2/app/modules/home/views/Tabes/comment_model.dart';
 import 'package:travel_app2/app/modules/post_quesions/views/bottom_sheet_questions.dart';
 import 'package:travel_app2/app/routes/app_pages.dart';
 import '../../../../models/post_model.dart';
@@ -354,7 +353,7 @@ Widget _buildPostCard(Datum post, int index) {
                     onTap: (){
                        Get.toNamed(
                     Routes.USER_PROFILE,
-                    arguments: {"user_id": 31},
+                    arguments: {"user_id": post.userId},
                   );
 
                     },
@@ -409,11 +408,10 @@ Widget _buildPostCard(Datum post, int index) {
               const SizedBox(height: 12),
 
               /// 🔹 Comments List with Like & Reply
-       /// 🔹 Comments List with Like & Reply
-FutureBuilder<List<CommentDatum>>(
+          FutureBuilder(
   future: controller.fetchComments(post.id),
   builder: (context, snapshot) {
-    final comments = snapshot.data ?? [];
+    final comments = controller.commentsMap[post.id] ?? [];
 
     if (snapshot.connectionState == ConnectionState.waiting &&
         comments.isEmpty) {
@@ -448,7 +446,7 @@ FutureBuilder<List<CommentDatum>>(
         ),
         const SizedBox(height: 8),
         Column(
-          children: comments.map((CommentDatum c) {
+          children: comments.map((c) {
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 6.0),
               child: Column(
@@ -459,21 +457,31 @@ FutureBuilder<List<CommentDatum>>(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       GestureDetector(
-                        onTap: () {
-                          print("User ID: ${c.user.id}");
+                        onTap: (){
+                            print("User ID: ${c.user.id}");
                           Get.toNamed(
                             Routes.USER_PROFILE,
                             arguments: {"user_id": c.user.id},
                           );
                         },
-                        child: CircleAvatar(
-                          radius: 16,
-                          backgroundImage: c.user.image.isNotEmpty
-                              ? CachedNetworkImageProvider(c.user.image)
-                              : const AssetImage(
-                                      'assets/images/default_user.png')
-                                  as ImageProvider,
-                        ),
+                        child:CircleAvatar(
+  radius: 16,
+  backgroundColor: Colors.grey.shade300, // Insta jaisa background
+  backgroundImage: c.user.image.isNotEmpty
+      ? CachedNetworkImageProvider(c.user.image)
+      : null, // agar image hai to show karo, nahi to initials
+  child: c.user.image.isEmpty
+      ? Text(
+          c.user.name.isNotEmpty ? c.user.name[0].toUpperCase() : "?",
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: Colors.black, // text color
+          ),
+        )
+      : null,
+),
+
                       ),
                       const SizedBox(width: 10),
                       Expanded(
@@ -498,11 +506,9 @@ FutureBuilder<List<CommentDatum>>(
                             Row(
                               children: [
                                 GestureDetector(
-                                  onTap: () {
-                                    // TODO: Like logic
-                                  },
+                                  onTap: () {},
                                   child: Text(
-                                    'Like (${c.likesCount})',
+                                    'Like',
                                     style: GoogleFonts.inter(
                                       color: AppColors.buttonBg,
                                       fontSize: 12,
@@ -512,9 +518,7 @@ FutureBuilder<List<CommentDatum>>(
                                 ),
                                 const SizedBox(width: 16),
                                 GestureDetector(
-                                  onTap: () {
-                                    // TODO: Reply logic
-                                  },
+                                  onTap: () {},
                                   child: Text(
                                     'Reply',
                                     style: GoogleFonts.inter(
@@ -526,66 +530,90 @@ FutureBuilder<List<CommentDatum>>(
                                 ),
                               ],
                             ),
-
-                            /// Nested replies
-                            if (c.replies.isNotEmpty)
-                              Padding(
-                                padding:
-                                    const EdgeInsets.only(top: 8.0, left: 32),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: c.replies.map((reply) {
-                                    return Padding(
-                                      padding:
-                                          const EdgeInsets.only(bottom: 6.0),
-                                      child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          CircleAvatar(
-                                            radius: 14,
-                                            backgroundImage:
-                                                reply.user.image.isNotEmpty
-                                                    ? CachedNetworkImageProvider(
-                                                        reply.user.image)
-                                                    : const AssetImage(
-                                                            'assets/images/default_user.png')
-                                                        as ImageProvider,
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Expanded(
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  reply.user.name,
-                                                  style: GoogleFonts.inter(
-                                                    fontSize: 13,
-                                                    fontWeight: FontWeight.w600,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  reply.comment,
-                                                  style: GoogleFonts.inter(
-                                                    fontSize: 13,
-                                                    color: Colors.grey.shade300,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          )
-                                        ],
-                                      ),
-                                    );
-                                  }).toList(),
-                                ),
-                              ),
                           ],
                         ),
                       ),
                     ],
+                  ),
+
+                  /// Static Replies under each comment
+                  Padding(
+                    padding: const EdgeInsets.only(left: 50, top: 8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        /// Reply 1
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const CircleAvatar(
+                              radius: 14,
+                              backgroundImage: AssetImage(
+                                  'assets/images/default_user.png'),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "John Doe",
+                                    style: GoogleFonts.inter(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  Text(
+                                    "I agree with this!",
+                                    style: GoogleFonts.inter(
+                                      fontSize: 13,
+                                      color: Colors.grey.shade300,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+
+                        /// Reply 2
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const CircleAvatar(
+                              radius: 14,
+                              backgroundImage: AssetImage(
+                                  'assets/images/default_user.png'),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Alice",
+                                    style: GoogleFonts.inter(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  Text(
+                                    "Nice point 👍",
+                                    style: GoogleFonts.inter(
+                                      fontSize: 13,
+                                      color: Colors.grey.shade300,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -595,7 +623,7 @@ FutureBuilder<List<CommentDatum>>(
       ],
     );
   },
-)
+),
 
           
             ],

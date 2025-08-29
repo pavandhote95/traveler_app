@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -6,7 +7,6 @@ import 'package:swipe_cards/swipe_cards.dart';
 import 'package:travel_app2/app/modules/home/views/Tabes/comment_model.dart';
 import 'package:travel_app2/app/services/api_service.dart';
 import '../../../models/post_model.dart';
-import 'dart:convert';
 
 class CommunityController extends GetxController {
   RxList<Datum> allPosts = <Datum>[].obs;
@@ -19,8 +19,7 @@ class CommunityController extends GetxController {
   final ApiService apiService = Get.find<ApiService>();
   final RxString searchQuery = ''.obs;
   final GetStorage box = GetStorage();
-  var commentsMap = <int, List<CommentDatum>>{}.obs;
-
+var commentsMap = <int, List<CommentDatum>>{}.obs;
   @override
   void onInit() {
     super.onInit();
@@ -28,44 +27,45 @@ class CommunityController extends GetxController {
     fetchPosts();
   }
 
-  Future<List<CommentDatum>> fetchComments(int postId) async {
-    const String baseUrl = 'https://kotiboxglobaltech.com/travel_app/api';
-    final url = Uri.parse('$baseUrl/comments/$postId');
-    final token = box.read('token');
 
-    try {
-      final response = await http.get(
-        url,
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-        },
-      );
+Future<void> fetchComments(int postId) async {
+  const String baseUrl = 'https://kotiboxglobaltech.com/travel_app/api';
+  final url = Uri.parse('$baseUrl/comments/$postId');
+  final token = box.read('token');
 
-      debugPrint("📥 Comment Response: ${response.body}");
+  try {
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      },
+    );
 
-      if (response.statusCode == 200) {
-        final data = commentPostModelFromJson(response.body);
-        if (data.status) {
-          commentsMap[postId] = data.data;
-          update();
-          return data.data;
-        }
-      } else {
-        debugPrint("❌ Failed to fetch comments: ${response.body}");
+    debugPrint("📥 Comment Response: ${response.body}");
+
+    if (response.statusCode == 200) {
+      final data = commentPostModelFromJson(response.body);
+
+      if (data.status) {
+        commentsMap[postId] = data.data;
+        update();
       }
-    } catch (e) {
-      debugPrint("❌ Error in fetchComments: $e");
+    } else {
+      debugPrint("❌ Failed to fetch comments: ${response.body}");
     }
-    return [];
+  } catch (e) {
+    debugPrint("❌ Error in fetchComments: $e");
   }
 
+}
+/// ✅ Add Comment API
   Future<void> addComment({
     required int postId,
     required String comment,
     int? parentId,
   }) async {
-    const String baseUrl = ' cố://kotiboxglobaltech.com/travel_app/api';
+    const String baseUrl = 'https://kotiboxglobaltech.com/travel_app/api';
     final url = Uri.parse('$baseUrl/add-comments');
     final token = box.read('token');
 
@@ -100,9 +100,13 @@ class CommunityController extends GetxController {
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(response.body);
         debugPrint("✅ Comment Added: $data");
+
         Get.snackbar("Success", "Comment added successfully",
             backgroundColor: Colors.green, colorText: Colors.white);
+
+        // ✅ Instead of refetching all posts, just refresh that post's comments
         await fetchComments(postId);
+
       } else {
         debugPrint("❌ Failed to add comment: ${response.body}");
         Get.snackbar("Error", "Failed to add comment",
@@ -115,6 +119,7 @@ class CommunityController extends GetxController {
     }
   }
 
+  /// ✅ Like toggle
   Future<void> toggleLike(int postId) async {
     const String baseUrl = 'https://kotiboxglobaltech.com/travel_app/api';
     final url = Uri.parse('$baseUrl/post/react');
@@ -165,6 +170,7 @@ class CommunityController extends GetxController {
         final finalPost = updatedPost.copyWith(likesCount: likesFromApi);
         allPosts[indexAll] = finalPost;
         if (indexFiltered != -1) filteredPosts[indexFiltered] = finalPost;
+
         debugPrint('✅ Like API success: $newReaction for post $postId');
       } else {
         allPosts[indexAll] = post;
@@ -181,7 +187,6 @@ class CommunityController extends GetxController {
   Future<void> fetchPosts() async {
     try {
       final data = await apiService.fetchPosts();
-      debugPrint("📥 fetchPosts Response: ${jsonEncode(data)}");
       if (data['status'] == true && data['data'] is List) {
         allPosts.value = (data['data'] as List)
             .map((e) => Datum.fromJson(e as Map<String, dynamic>))
@@ -191,22 +196,6 @@ class CommunityController extends GetxController {
       }
     } catch (e) {
       debugPrint('❌ Error in fetchPosts: $e');
-    }
-  }
-
-  Future<void> fetchPostsByLocation(String location) async {
-    try {
-      final data = await apiService.fetchPostsByLocation(location);
-      debugPrint("📥 fetchPostsByLocation Response: ${jsonEncode(data)}");
-      if (data['status'] == true && data['data'] is List) {
-        locationPosts.value = (data['data'] as List)
-            .map((e) => Datum.fromJson(e as Map<String, dynamic>))
-            .toList();
-        updateFilteredPosts();
-        initializeSwipeEngine();
-      }
-    } catch (e) {
-      debugPrint('❌ Error in fetchPostsByLocation: $e');
     }
   }
 
@@ -224,13 +213,12 @@ class CommunityController extends GetxController {
         ),
       );
     }
-    debugPrint("📋 Filtered Posts: ${filteredPosts.length}");
-    initializeSwipeEngine();
   }
 
   void searchPosts(String keyword) {
     searchQuery.value = keyword;
     updateFilteredPosts();
+    initializeSwipeEngine();
   }
 
   void initializeSwipeEngine() {
@@ -265,9 +253,27 @@ class CommunityController extends GetxController {
     isExpanded[index] = !(isExpanded[index] ?? false);
     update();
   }
+    Future<void> fetchPostsByLocation(String location) async {
+    try {
+      final data = await apiService.fetchPostsByLocation(location);
+      if (data['status'] == true && data['data'] is List) {
+        locationPosts.value = (data['data'] as List)
+            .map((e) => Datum.fromJson(e))
+            .toList();
+          updateFilteredPosts();
+          fetchPosts();
+            initializeSwipeEngine(); 
+      }
+    } catch (e) {
+      debugPrint('❌ Error in fetchPostsByLocation: $e');
+    }
+  }
+  
 
   void setTravelingMode(bool isTraveling) {
     isTravelingMode.value = isTraveling;
     updateFilteredPosts();
   }
+
+
 }
