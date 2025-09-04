@@ -4,8 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:travel_app2/app/constants/app_color.dart';
 import 'package:travel_app2/app/constants/custom_button.dart';
 import 'package:travel_app2/app/modules/forgot_password/views/forgot_password_view.dart';
-
-
 import '../controllers/login_controller.dart';
 
 class LoginView extends GetView<LoginController> {

@@ -24,35 +24,71 @@ class ExpertView extends GetView<ExpertController> {
         elevation: 1,
         centerTitle: true,
       ),
-      body: Obx(() {
-        if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
+body: Obx(() {
+  if (controller.isLoading.value) {
+    return const Center(child: CircularProgressIndicator());
+  }
 
-        if (controller.experts.isEmpty) {
-          return const Center(
-            child: Text("No Experts Found", style: TextStyle(color: Colors.white)),
-          );
-        }
-
-        return GridView.builder(
-          padding: EdgeInsets.all(screenWidth * 0.04),
-          itemCount: controller.experts.length,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossAxisCount,
-            mainAxisSpacing: screenWidth * 0.04,
-            crossAxisSpacing: screenWidth * 0.04,
-            childAspectRatio: childAspectRatio,
+  return Column(
+    children: [
+      // 🔍 Search Bar (ये हमेशा दिखेगा)
+      Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: TextField(
+          controller: controller.searchController,
+          onChanged: controller.searchExperts,
+          style: const TextStyle(color: Colors.white),
+          decoration: InputDecoration(
+            hintText: "Search experts...",
+            hintStyle: const TextStyle(color: Colors.white70),
+            prefixIcon: const Icon(Icons.search, color: Colors.white70),
+            filled: true,
+            fillColor: AppColors.cardBg,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
           ),
-          itemBuilder: (context, index) {
-            final expert = controller.experts[index];
-            return ExpertCard(
-              expert: expert,
-              screenWidth: screenWidth,
-            );
-          },
-        );
-      }),
+        ),
+      ),
+
+      // 🟢 Experts Grid OR Empty Text
+      Expanded(
+        child: controller.experts.isEmpty
+            ? const Center(
+                child: Text(
+                  "No Experts Found",
+                  style: TextStyle(color: Colors.white),
+                ),
+              )
+            : GridView.builder(
+                padding: EdgeInsets.all(
+                    MediaQuery.of(context).size.width * 0.04),
+                itemCount: controller.experts.length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount:
+                      MediaQuery.of(context).size.width < 600 ? 2 : 3,
+                  mainAxisSpacing:
+                      MediaQuery.of(context).size.width * 0.04,
+                  crossAxisSpacing:
+                      MediaQuery.of(context).size.width * 0.04,
+                  childAspectRatio:
+                      MediaQuery.of(context).size.width < 600 ? 0.65 : 0.75,
+                ),
+                itemBuilder: (context, index) {
+                  final expert = controller.experts[index];
+                  return ExpertCard(
+                    expert: expert,
+                    screenWidth: MediaQuery.of(context).size.width,
+                  );
+                },
+              ),
+      ),
+    ],
+  );
+}),
+
+   
     );
   }
 }

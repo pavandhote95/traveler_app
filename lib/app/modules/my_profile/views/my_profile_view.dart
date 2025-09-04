@@ -300,7 +300,7 @@ Widget _buildUserPosts() {
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                "Get rewards by completing your travel profile.",
+                "Ask,anwer,ear -every questin and reply gives you reward",
                 style: GoogleFonts.poppins(fontSize: 14, color: Colors.white),
               ),
             ),
