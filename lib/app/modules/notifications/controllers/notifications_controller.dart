@@ -1,55 +1,70 @@
-// controllers/notification_controller.dart
 import 'package:get/get.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-import '../notifications_model.dart';
+class NotificationModel {
+  final String title;
+  final String message;
+  final String time;
 
+  NotificationModel({required this.title, required this.message, required this.time});
+}
 
 class NotificationController extends GetxController {
   var notifications = <NotificationModel>[].obs;
 
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
   @override
   void onInit() {
     super.onInit();
-    fetchNotifications();
+    _initNotifications();
   }
 
-  void fetchNotifications() {
-    notifications.value = [
-      NotificationModel(
-        title: "New Comment",
-        message: "Someone commented on your post.",
-        time: "2 mins ago",
-      ),
-      NotificationModel(
-        title: "New Follower",
-        message: "John Doe started following you.",
-        time: "10 mins ago",
-      ),
-      NotificationModel(
-        title: "Update Available",
-        message: "A new version of the app is available.",
-        time: "1 hour ago",
-      ),
+  void _initNotifications() async {
+    // Local notifications setup
+    const AndroidInitializationSettings androidSettings =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+    const InitializationSettings initSettings =
+        InitializationSettings(android: androidSettings);
 
+    await flutterLocalNotificationsPlugin.initialize(initSettings);
 
-      NotificationModel(
-        title: "Reminder",
-        message: "Don't forget your meeting at 5 PM.",
-        time: "4 hours ago",
-      ),
-      NotificationModel(
-        title: "Security Alert",
-        message: "Unusual login activity detected.",
-        time: "5 hours ago",
-      ),
+    // Foreground message
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      final notification = message.notification;
+      final android = message.notification?.android;
 
+      if (notification != null && android != null) {
+        flutterLocalNotificationsPlugin.show(
+          notification.hashCode,
+          notification.title,
+          notification.body,
+          NotificationDetails(
+            android: AndroidNotificationDetails(
+              'high_importance_channel',
+              'High Importance Notifications',
+              importance: Importance.high,
+              icon: '@mipmap/ic_launcher',
+            ),
+          ),
+        );
 
-      NotificationModel(
-        title: "Offer Unlocked",
-        message: "You have unlocked a 20% discount coupon.",
-        time: "Yesterday",
-      ),
-    ];
+        notifications.insert(
+          0,
+          NotificationModel(
+            title: notification.title ?? 'No Title',
+            message: notification.body ?? 'No Message',
+            time: DateTime.now().toString(),
+          ),
+        );
+      }
+    });
+
+    // When app opened from notification
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      print("🔔 Notification Clicked: ${message.notification?.title}");
+    });
   }
-
 }

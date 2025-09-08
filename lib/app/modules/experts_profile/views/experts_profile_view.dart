@@ -37,8 +37,18 @@ class ExpertsProfileView extends StatelessWidget {
         final expert = controller.expert;
 
         if (expert.isEmpty) {
-          return const Center(child: Text("No data found", style: TextStyle(color: Colors.white)));
+          return const Center(
+            child: Text(
+              "No data found",
+              style: TextStyle(color: Colors.white),
+            ),
+          );
         }
+
+        final imageUrl = (expert['image'] != null &&
+                expert['image'].toString().isNotEmpty)
+            ? expert['image']
+            : "https://via.placeholder.com/600x400"; // ✅ fallback
 
         return SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
@@ -51,7 +61,7 @@ class ExpertsProfileView extends StatelessWidget {
                 width: double.infinity,
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: NetworkImage(expert['image']),
+                    image: NetworkImage(imageUrl),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -61,7 +71,7 @@ class ExpertsProfileView extends StatelessWidget {
                     gradient: LinearGradient(
                       colors: [
                         Colors.black.withOpacity(0.1),
-                        Colors.black.withOpacity(0.7)
+                        Colors.black.withOpacity(0.7),
                       ],
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
@@ -106,9 +116,10 @@ class ExpertsProfileView extends StatelessWidget {
                             color: Colors.redAccent, size: 18),
                         const SizedBox(width: 6),
                         Expanded(
-                          child: Text(expert['location'] ?? '',
-                              style: GoogleFonts.poppins(
-                                  color: Colors.white70)),
+                          child: Text(
+                            expert['location'] ?? '',
+                            style: GoogleFonts.poppins(color: Colors.white70),
+                          ),
                         ),
                       ],
                     ),
@@ -140,9 +151,13 @@ class ExpertsProfileView extends StatelessWidget {
                             color: AppColors.buttonBg, size: 18),
                         const SizedBox(width: 6),
                         Expanded(
-                          child: Text(expert['days'] ?? '',
-                              style: GoogleFonts.openSans(
-                                  color: Colors.white60, fontSize: 13)),
+                          child: Text(
+                            expert['days'] ?? '',
+                            style: GoogleFonts.openSans(
+                              color: Colors.white60,
+                              fontSize: 13,
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -156,7 +171,9 @@ class ExpertsProfileView extends StatelessWidget {
                         Text(
                           expert['guided'] ?? '',
                           style: GoogleFonts.poppins(
-                              color: Colors.white60, fontSize: 13),
+                            color: Colors.white60,
+                            fontSize: 13,
+                          ),
                         ),
                       ],
                     ),
@@ -165,16 +182,21 @@ class ExpertsProfileView extends StatelessWidget {
                     Divider(color: Colors.white24),
                     const SizedBox(height: 12),
 
-                    Text('About the Expert',
-                        style: GoogleFonts.poppins(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600)),
+                    Text(
+                      'About the Expert',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                     const SizedBox(height: 8),
                     Text(
                       expert['about'] ?? '',
                       style: GoogleFonts.poppins(
-                          color: Colors.white70, fontSize: 14),
+                        color: Colors.white70,
+                        fontSize: 14,
+                      ),
                     ),
                   ],
                 ).animate().fadeIn(delay: 300.ms).slideX(begin: -0.3),
@@ -202,7 +224,8 @@ class ExpertsProfileView extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.buttonBg,
               foregroundColor: AppColors.appbar,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),

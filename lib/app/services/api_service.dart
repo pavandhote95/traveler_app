@@ -110,6 +110,54 @@ class ApiService extends GetxService {
       throw Exception('Failed to fetch posts: $e');
     }
   }
+    // Send OTP
+  Future<http.Response> sendOtp(String phoneNumber) async {
+    final url = Uri.parse('$baseUrl/send-otp');
+    try {
+      final response = await http
+          .post(
+            url,
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+            body: jsonEncode({"phone_number": phoneNumber}),
+          )
+          .timeout(Duration(seconds: _timeoutSeconds));
+
+      return response;
+    } catch (e) {
+      throw Exception('Failed to send OTP: $e');
+    }
+  }
+
+  // Verify OTP
+  Future<http.Response> verifyOtp({
+    required String phoneNumber,
+    required String otp,
+  }) async {
+    final url = Uri.parse('$baseUrl/verify-otp');
+    try {
+      final response = await http
+          .post(
+            url,
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+            body: jsonEncode({
+              "phone_number": phoneNumber,
+              "otp": otp,
+            }),
+          )
+          .timeout(Duration(seconds: _timeoutSeconds));
+
+      return response;
+    } catch (e) {
+      throw Exception('Failed to verify OTP: $e');
+    }
+  }
+
 
   // Fetch Posts by Location
   Future<Map<String, dynamic>> fetchPostsByLocation(String location) async {

@@ -25,6 +25,10 @@ abstract class Routes {
   static const My_PROFILE = _Paths.USER_PROFILE;
   static const EXPERT = _Paths.EXPERT;
   static const EXPERTS_PROFILE = _Paths.EXPERTS_PROFILE;
+  static const PHONE_LOGIN = _Paths.PHONE_LOGIN;
+  static const OTP_VERIFICATION = _Paths.OTP_VERIFICATION;
+  static const DM = _Paths.DM;
+  static const CHAT = _Paths.CHAT;
 }
 
 abstract class _Paths {
@@ -52,4 +56,8 @@ abstract class _Paths {
   static const USER_PROFILE = '/user-profile';
   static const EXPERT = '/expert';
   static const EXPERTS_PROFILE = '/experts-profile';
+  static const PHONE_LOGIN = '/phone-login';
+  static const OTP_VERIFICATION = '/otp-verification';
+  static const DM = '/dm';
+  static const CHAT = '/chat';
 }

@@ -3,17 +3,30 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:travel_app2/app/constants/my_toast.dart';
+import 'package:travel_app2/app/modules/otp_verification/views/otp_verification_view.dart';
+import 'package:travel_app2/app/modules/phone_login/views/phone_login_view.dart';
 import 'package:travel_app2/app/routes/app_pages.dart';
 import 'package:travel_app2/app/services/api_service.dart';
 
 class LoginController extends GetxController {
-  final emailOrPhoneController = TextEditingController();
-  final passwordController = TextEditingController();
-
+  // Common
   final isLoading = false.obs;
   final apiService = Get.find<ApiService>();
   final box = GetStorage();
 
+  // Email/Password Controllers
+  final emailOrPhoneController = TextEditingController();
+  final passwordController = TextEditingController();
+
+  // Phone OTP Controllers
+  final phoneController = TextEditingController();
+  List<TextEditingController> otpControllers =
+      List.generate(6, (_) => TextEditingController());
+  List<FocusNode> otpFocusNodes = List.generate(6, (_) => FocusNode());
+
+  var secondsRemaining = 30.obs;
+
+  // ✅ Email/Password Login → Go to Dashboard
   void login() async {
     final input = emailOrPhoneController.text.trim();
     final password = passwordController.text.trim();
@@ -44,25 +57,18 @@ class LoginController extends GetxController {
         final int userPoints = userData['user_points'] ?? 0;
 
         if (token != null) {
-          // ✅ Save token, userId, userPoints
+          // Save token, userId, userPoints
           box.write('token', token);
           box.write('userId', userId);
           box.write('userPoints', userPoints);
+          box.write('isLoggedIn', true);
 
           debugPrint("📦 Token: $token");
           debugPrint("🆔 UserId: $userId");
           debugPrint("⭐ UserPoints: $userPoints");
 
-          CustomToast.showSuccess(Get.context!, 'Enter OTP');
-
-          // Navigate to OTP or Home screen
-          Get.toNamed(Routes.OTP, arguments: {
-            'input': input,
-            'isPhone': isPhone,
-            'token': token,
-            'userId': userId,
-            'userPoints': userPoints,
-          });
+          CustomToast.showSuccess(Get.context!, 'Login Successful');
+          Get.offAllNamed(Routes.DASHBOARD); // ✅ Always go to Dashboard
         } else {
           CustomToast.showError(Get.context!, 'Token not found');
         }
@@ -75,11 +81,67 @@ class LoginController extends GetxController {
       CustomToast.showError(Get.context!, 'Something went wrong. Try again.');
     }
   }
-    void goToRegister() {
+
+  // ✅ Navigate to registration page
+  void goToRegister() {
     Get.toNamed(Routes.REGISTER);
   }
 
+  // ✅ Navigate to Phone Login page
+  void loginWithPhone() {
+    Get.to(() => PhoneLoginView());
+  }
 
+  // ✅ Send OTP (for phone login flow only)
+  void sendPhoneOtp() async {
+    String phone = phoneController.text.trim();
+    if (phone.isEmpty || phone.length < 10) {
+      Get.snackbar('Error', 'Enter a valid phone number');
+      return;
+    }
+
+    isLoading(true);
+    try {
+      // Simulate API call / Firebase OTP
+      await Future.delayed(const Duration(seconds: 2));
+      isLoading(false);
+
+      Get.to(() => OtpVerificationView(phoneNumber: phone));
+    } catch (e) {
+      isLoading(false);
+      Get.snackbar('Error', e.toString());
+    }
+  }
+
+  // ✅ Verify OTP
+  void verifyOtp(String phone) async {
+    String otp = otpControllers.map((e) => e.text).join();
+    if (otp.length < 4) {
+      Get.snackbar('Error', 'Enter complete OTP');
+      return;
+    }
+
+    isLoading(true);
+    try {
+      // Simulate OTP verification
+      await Future.delayed(const Duration(seconds: 2));
+      isLoading(false);
+
+      CustomToast.showSuccess(Get.context!, 'Phone login successful');
+      box.write('isLoggedIn', true);
+      Get.offAllNamed(Routes.DASHBOARD);
+    } catch (e) {
+      isLoading(false);
+      Get.snackbar('Error', e.toString());
+    }
+  }
+
+  // ✅ Resend OTP
+  void resendOtp() {
+    sendPhoneOtp();
+  }
+
+  // ✅ Logout
   void logout() {
     box.erase();
     debugPrint("🔒 Cleared all storage");
@@ -91,6 +153,13 @@ class LoginController extends GetxController {
   void onClose() {
     emailOrPhoneController.dispose();
     passwordController.dispose();
+    phoneController.dispose();
+    for (var c in otpControllers) {
+      c.dispose();
+    }
+    for (var f in otpFocusNodes) {
+      f.dispose();
+    }
     super.onClose();
   }
 }

@@ -69,14 +69,18 @@ class UserProfileView extends StatelessWidget {
               Center(
                 child: Column(
                   children: [
-                 CircleAvatar(
+               CircleAvatar(
   radius: 50,
   backgroundColor: Colors.grey.shade800,
   backgroundImage: profileImage.isNotEmpty
       ? CachedNetworkImageProvider(profileImage)
-      : const AssetImage('assets/images/default_user.png') as ImageProvider,
-)
-,
+      : const AssetImage('assets/images/default_user.png'),
+  child: profileImage.isEmpty
+      ? const Icon(Icons.person, size: 50, color: Colors.white70)
+      : null, // ✅ fallback icon if no image
+),
+
+
                     const SizedBox(height: 16),
                     Text(
                       name,

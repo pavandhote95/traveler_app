@@ -1,9 +1,13 @@
 import 'package:get/get.dart';
 
+import '../modules/chat/bindings/chat_binding.dart';
+import '../modules/chat/views/chat_view.dart';
 import '../modules/community_search/bindings/community_search_binding.dart';
 import '../modules/community_search/views/community_search_view.dart';
 import '../modules/dashboard/bindings/dashboard_binding.dart';
 import '../modules/dashboard/views/dashboard_view.dart';
+import '../modules/dm/bindings/dm_binding.dart';
+import '../modules/dm/views/dm_view.dart';
 import '../modules/edit_profile/bindings/edit_profile_binding.dart';
 import '../modules/edit_profile/views/edit_profile_view.dart';
 import '../modules/expert/bindings/expert_binding.dart';
@@ -26,6 +30,10 @@ import '../modules/onboarding/bindings/onboarding_binding.dart';
 import '../modules/onboarding/views/onboarding_view.dart';
 import '../modules/otp/bindings/otp_binding.dart';
 import '../modules/otp/views/otp_view.dart';
+import '../modules/otp_verification/bindings/otp_verification_binding.dart';
+import '../modules/otp_verification/views/otp_verification_view.dart';
+import '../modules/phone_login/bindings/phone_login_binding.dart';
+import '../modules/phone_login/views/phone_login_view.dart';
 import '../modules/post_quesions/bindings/post_quesions_binding.dart';
 import '../modules/post_quesions/views/bottom_sheet_questions.dart';
 import '../modules/register/bindings/register_binding.dart';
@@ -108,7 +116,7 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.USER_PROFILE,
-      page: () =>  UserProfileView(),
+      page: () => UserProfileView(),
       binding: UserProfileBinding(),
     ),
 
@@ -138,14 +146,39 @@ class AppPages {
       page: () => ExpertView(),
       binding: ExpertBinding(),
     ),
- GetPage(
-  name: _Paths.EXPERTS_PROFILE,
-  page: () {
-    final args = Get.arguments as Map<String, dynamic>;
-    return ExpertsProfileView(expertId: args['expertId']);
-  },
-  binding: ExpertsProfileBinding(),
-),
-
+    GetPage(
+      name: _Paths.EXPERTS_PROFILE,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>;
+        return ExpertsProfileView(expertId: args['expertId']);
+      },
+      binding: ExpertsProfileBinding(),
+    ),
+    GetPage(
+      name: _Paths.PHONE_LOGIN,
+      page: () => PhoneLoginView(),
+      binding: PhoneLoginBinding(),
+    ),
+    GetPage(
+      name: _Paths.OTP_VERIFICATION,
+      page: () => OtpVerificationView(
+        phoneNumber: Get.parameters['phone'] ?? '', // Pass phone via parameters
+      ),
+      binding: OtpVerificationBinding(),
+    ),
+    GetPage(
+      name: _Paths.DM,
+      page: () =>  DmView(),
+      binding: DmBinding(),
+    ),
+    GetPage(
+      name: _Paths.CHAT,
+      page: () =>  ChatView(
+        currentUser: Get.parameters['currentUser'] ?? '',
+        otherUser: Get.parameters['otherUser'] ?? '',
+        chatId: Get.parameters['chatId'] ?? '',
+      ),
+      binding: ChatBinding(),
+    ),
   ];
 }

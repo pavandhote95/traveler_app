@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:travel_app2/app/constants/app_color.dart';
 import 'package:travel_app2/app/constants/my_toast.dart';
 import 'package:travel_app2/app/modules/dashboard/controllers/dashboard_controller.dart';
@@ -11,49 +12,77 @@ import 'package:travel_app2/app/widgets/custom_appbar_controller.dart';
 class HeaderWidget extends StatelessWidget {
   HeaderWidget({Key? key}) : super(key: key);
 
-  // Initialize controllers
   final LocationController locationController = Get.put(LocationController());
-  final RxBool isToggled = false.obs; // For switch toggle state
+  final RxBool isToggled = false.obs;
   final MyProfileController controller = Get.find<MyProfileController>();
+
   @override
   Widget build(BuildContext context) {
-    String _capitalize(String s) {
-  if (s.isEmpty) return s;
-  return s[0].toUpperCase() + s.substring(1).toLowerCase();
-}
-
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        // Profile Avatar
         InkWell(
           onTap: () {
             final dashboardController = Get.find<DashboardController>();
             dashboardController.selectedIndex.value = 4;
           },
-          child:   Obx(() => CircleAvatar(
-  radius: 26,
-  backgroundImage: controller.profileImage.value != ''
-      ? NetworkImage(controller.profileImage.value)
-      : const NetworkImage('https://randomuser.me/api/portraits/men/11.jpg'),
-)),
+          child:
+          
+        Obx(() {
+  if (controller.profileImage.value.isEmpty && controller.isLoading.value) {
+    return _buildShimmerAvatar(); // While loading
+  }
+
+  return CircleAvatar(
+    radius: 26,
+    backgroundColor: Colors.white24,
+    child: controller.profileImage.value.isNotEmpty
+        ? ClipOval(
+            child: Image.network(
+              controller.profileImage.value,
+              width: 52,
+              height: 52,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => const Icon(
+                Icons.person,
+                size: 28,
+                color: Colors.white70,
+              ),
+            ),
+          )
+        : const Icon(Icons.person, size: 28, color: Colors.white70),
+  );
+}),
+
+      
         ),
         const SizedBox(width: 12),
-        // Greeting and Location
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Greeting Text
-             FittedBox(
+            // Inside HeaderWidget build()
+
+FittedBox(
   fit: BoxFit.scaleDown,
   alignment: Alignment.centerLeft,
   child: Obx(() {
     String name = controller.firstname.value;
-    if (name.isEmpty) name = "Guest";
 
-    // Capitalize first letter
-    String displayName = name[0].toUpperCase() + name.substring(1).toLowerCase();
+    if (name.isEmpty) {
+      // Show "Loading..." instead of shimmer
+      return Text(
+        'Loading...',
+        style: GoogleFonts.openSans(
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          color: Colors.grey.shade500,
+        ),
+      );
+    }
+
+    String displayName =
+        name[0].toUpperCase() + name.substring(1).toLowerCase();
 
     return Text(
       'Hi, $displayName !',
@@ -64,33 +93,50 @@ class HeaderWidget extends StatelessWidget {
       ),
     );
   }),
+
+          
+  
+),
+const SizedBox(height: 6),
+Row(
+  children: [
+    const Icon(Icons.location_on, color: AppColors.buttonBg, size: 18),
+    const SizedBox(width: 4),
+    Expanded(
+      child: Obx(() {
+        final address = locationController.currentAddress.value;
+
+        if (address.isEmpty) {
+          // Show shimmer instead of blank
+          return Shimmer.fromColors(
+            baseColor: Colors.grey[800]!,
+            highlightColor: Colors.grey[600]!,
+            child: Container(
+              height: 14,
+              width: 140,
+              color: Colors.grey[800],
+            ),
+          );
+        }
+
+        return Text(
+          address,
+          overflow: TextOverflow.ellipsis,
+          style: GoogleFonts.openSans(
+            fontSize: 13,
+            color: Colors.grey[400],
+          ),
+        );
+      }),
+    ),
+  ],
 ),
 
-              const SizedBox(height: 6),
-              // Location Row
-              Row(
-                children: [
-                  const Icon(Icons.location_on, color: AppColors.buttonBg, size: 18),
-                  const SizedBox(width: 4),
-                  Expanded(
-                    child: Obx(
-                          () => Text(
-                        locationController.currentAddress.value,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.openSans(
-                          fontSize: 13,
-                          color: Colors.grey[400],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+           
             ],
           ),
         ),
-        // Toggle Switch and Icon
-        Obx(
+     Obx(
               () => Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -159,8 +205,8 @@ class HeaderWidget extends StatelessWidget {
                 },
                 child: Image.asset(
                   'assets/icons/telegram.png',
-                  height: 35,
-                  width: 35,
+                  height: 32,
+                  width: 32,
                   fit: BoxFit.contain,
                   color: AppColors.buttonBg,
                 ),
@@ -169,7 +215,19 @@ class HeaderWidget extends StatelessWidget {
             ],
           ),
         ),
+    
       ],
+    );
+  }
+
+  Widget _buildShimmerAvatar() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[800]!,
+      highlightColor: Colors.grey[600]!,
+      child: const CircleAvatar(
+        radius: 26,
+        backgroundColor: Colors.grey,
+      ),
     );
   }
 }
@@ -203,7 +261,6 @@ class DMPage extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(
             children: [
-              // Search Bar
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 16),
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -227,10 +284,9 @@ class DMPage extends StatelessWidget {
                   ),
                 ),
               ),
-              // Conversation List
               Expanded(
                 child: ListView.builder(
-                  itemCount: 10, // Placeholder for conversation list
+                  itemCount: 10,
                   itemBuilder: (context, index) {
                     return GestureDetector(
                       onTap: () {
@@ -245,13 +301,7 @@ class DMPage extends StatelessWidget {
                         ),
                         child: Row(
                           children: [
-                            CircleAvatar(
-                              radius: 24,
-                              backgroundImage: NetworkImage(
-                                'https://randomuser.me/api/portraits/men/${index + 10}.jpg',
-                              ),
-                              backgroundColor: Colors.grey.shade800,
-                            ),
+                            _buildShimmerAvatarSmall(index),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Column(
@@ -297,6 +347,17 @@ class DMPage extends StatelessWidget {
       ),
     );
   }
+
+  Widget _buildShimmerAvatarSmall(int index) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[800]!,
+      highlightColor: Colors.grey[600]!,
+      child: const CircleAvatar(
+        radius: 24,
+        backgroundColor: Colors.grey,
+      ),
+    );
+  }
 }
 
 class ChatScreen extends StatelessWidget {
@@ -317,13 +378,7 @@ class ChatScreen extends StatelessWidget {
         ),
         title: Row(
           children: [
-            CircleAvatar(
-              radius: 18,
-              backgroundImage: const NetworkImage(
-                'https://randomuser.me/api/portraits/men/10.jpg',
-              ),
-              backgroundColor: Colors.grey.shade800,
-            ),
+            _buildShimmerAvatarSmall(),
             const SizedBox(width: 12),
             Text(
               userName,
@@ -339,20 +394,23 @@ class ChatScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            // Chat Messages
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.all(16),
-                itemCount: 5, // Placeholder for messages
+                itemCount: 5,
                 itemBuilder: (context, index) {
                   bool isSentByMe = index % 2 == 0;
                   return Align(
-                    alignment: isSentByMe ? Alignment.centerRight : Alignment.centerLeft,
+                    alignment: isSentByMe
+                        ? Alignment.centerRight
+                        : Alignment.centerLeft,
                     child: Container(
                       margin: const EdgeInsets.only(bottom: 12),
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: isSentByMe ? AppColors.buttonBg : const Color(0xFF252525),
+                        color: isSentByMe
+                            ? AppColors.buttonBg
+                            : const Color(0xFF252525),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -368,7 +426,6 @@ class ChatScreen extends StatelessWidget {
                 },
               ),
             ),
-            // Message Input
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
@@ -379,7 +436,8 @@ class ChatScreen extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 10),
                       decoration: BoxDecoration(
                         color: const Color(0xFF252525),
                         borderRadius: BorderRadius.circular(24),
@@ -402,7 +460,8 @@ class ChatScreen extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   IconButton(
-                    icon: const Icon(Icons.send, color: AppColors.buttonBg, size: 24),
+                    icon: const Icon(Icons.send,
+                        color: AppColors.buttonBg, size: 24),
                     onPressed: () {
                       CustomToast.showSuccessHome(context, 'Message sent');
                     },
@@ -412,6 +471,17 @@ class ChatScreen extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildShimmerAvatarSmall() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[800]!,
+      highlightColor: Colors.grey[600]!,
+      child: const CircleAvatar(
+        radius: 18,
+        backgroundColor: Colors.grey,
       ),
     );
   }

@@ -7,13 +7,11 @@ import '../controllers/expert_controller.dart';
 
 // ignore: must_be_immutable
 class ExpertView extends GetView<ExpertController> {
- ExpertController controller = Get.put(ExpertController());
+  ExpertController controller = Get.put(ExpertController());
 
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
-    final int crossAxisCount = screenWidth < 600 ? 2 : 3;
-    final double childAspectRatio = screenWidth < 600 ? 0.65 : 0.75;
 
     return Scaffold(
       backgroundColor: AppColors.mainBg,
@@ -24,71 +22,64 @@ class ExpertView extends GetView<ExpertController> {
         elevation: 1,
         centerTitle: true,
       ),
-body: Obx(() {
-  if (controller.isLoading.value) {
-    return const Center(child: CircularProgressIndicator());
-  }
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-  return Column(
-    children: [
-      // 🔍 Search Bar (ये हमेशा दिखेगा)
-      Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: TextField(
-          controller: controller.searchController,
-          onChanged: controller.searchExperts,
-          style: const TextStyle(color: Colors.white),
-          decoration: InputDecoration(
-            hintText: "Search experts...",
-            hintStyle: const TextStyle(color: Colors.white70),
-            prefixIcon: const Icon(Icons.search, color: Colors.white70),
-            filled: true,
-            fillColor: AppColors.cardBg,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
-          ),
-        ),
-      ),
-
-      // 🟢 Experts Grid OR Empty Text
-      Expanded(
-        child: controller.experts.isEmpty
-            ? const Center(
-                child: Text(
-                  "No Experts Found",
-                  style: TextStyle(color: Colors.white),
+        return Column(
+          children: [
+            // 🔍 Search Bar
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: TextField(
+                controller: controller.searchController,
+                onChanged: controller.searchExperts,
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  hintText: "Search experts...",
+                  hintStyle: const TextStyle(color: Colors.white70),
+                  prefixIcon: const Icon(Icons.search, color: Colors.white70),
+                  filled: true,
+                  fillColor: AppColors.cardBg,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
-              )
-            : GridView.builder(
-                padding: EdgeInsets.all(
-                    MediaQuery.of(context).size.width * 0.04),
-                itemCount: controller.experts.length,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount:
-                      MediaQuery.of(context).size.width < 600 ? 2 : 3,
-                  mainAxisSpacing:
-                      MediaQuery.of(context).size.width * 0.04,
-                  crossAxisSpacing:
-                      MediaQuery.of(context).size.width * 0.04,
-                  childAspectRatio:
-                      MediaQuery.of(context).size.width < 600 ? 0.65 : 0.75,
-                ),
-                itemBuilder: (context, index) {
-                  final expert = controller.experts[index];
-                  return ExpertCard(
-                    expert: expert,
-                    screenWidth: MediaQuery.of(context).size.width,
-                  );
-                },
               ),
-      ),
-    ],
-  );
-}),
+            ),
 
-   
+            // 🟢 Experts Grid OR Empty Text
+            Expanded(
+              child: controller.experts.isEmpty
+                  ? const Center(
+                      child: Text(
+                        "No Experts Found",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    )
+                  : GridView.builder(
+                      padding: EdgeInsets.all(screenWidth * 0.04),
+                      itemCount: controller.experts.length,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: screenWidth < 600 ? 2 : 3,
+                        mainAxisSpacing: screenWidth * 0.04,
+                        crossAxisSpacing: screenWidth * 0.04,
+                        childAspectRatio: screenWidth < 600 ? 0.65 : 0.75,
+                      ),
+                      itemBuilder: (context, index) {
+                        final expert = controller.experts[index];
+                        return ExpertCard(
+                          expert: expert,
+                          screenWidth: screenWidth,
+                        );
+                      },
+                    ),
+            ),
+          ],
+        );
+      }),
     );
   }
 }
@@ -105,11 +96,14 @@ class ExpertCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final imageUrl = (expert['image'] != null && expert['image'].toString().isNotEmpty)
+        ? expert['image']
+        : "https://via.placeholder.com/150"; // 🔄 fallback
+
     return GestureDetector(
       onTap: () {
         Get.to(() => ExpertsProfileView(
-              expertId: expert['id'], // ✅ Pass ID so profile fetches full details
-            
+              expertId: expert['id'],
             ));
       },
       child: Card(
@@ -123,9 +117,14 @@ class ExpertCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              CircleAvatar(
-                radius: screenWidth * 0.08,
-                backgroundImage: NetworkImage(expert['image'] ?? ""),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(screenWidth * 0.08),
+                child: Image.network(
+                  imageUrl,
+                  height: screenWidth * 0.18,
+                  width: screenWidth * 0.18,
+                  fit: BoxFit.cover,
+                ),
               ),
               SizedBox(height: screenWidth * 0.03),
               Text(

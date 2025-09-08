@@ -96,13 +96,7 @@ Future<void> updateProfile() async {
   try {
     // Don't require image if profileImageUrl already exists
     if (selectedImage.value == null && profileImageUrl.value.isEmpty) {
-      Get.snackbar(
-        'Error',
-        'Please select a profile image',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.shade600,
-        colorText: Colors.white,
-      );
+     CustomToast.showError(Get.context!, 'Please select a profile image');
       return;
     }
 

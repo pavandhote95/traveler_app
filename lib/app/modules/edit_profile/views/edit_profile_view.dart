@@ -183,42 +183,61 @@ CustomButton(
   }
 
   // Profile Image Widget
-  Widget _buildProfileImage() {
-    return Center(
-      child: Stack(
-        children: [
-          Obx(() {
-            final imageFile = controller.selectedImage.value;
-            final apiImage = controller.profileImageUrl.value;
-            return CircleAvatar(
+Widget _buildProfileImage() {
+  return Center(
+    child: Stack(
+      children: [
+        Obx(() {
+          final imageFile = controller.selectedImage.value;
+          final apiImage = controller.profileImageUrl.value;
+
+          // Logic to decide what to show:
+          Widget imageWidget;
+          if (imageFile != null) {
+            imageWidget = CircleAvatar(
               radius: 55,
-              backgroundImage: imageFile != null
-                  ? FileImage(imageFile)
-                  : (apiImage.isNotEmpty
-                      ? NetworkImage(apiImage)
-                      : const NetworkImage('https://randomuser.me/api/portraits/men/11.jpg')) as ImageProvider,
+              backgroundImage: FileImage(imageFile),
             );
-          }),
-          Positioned(
-            bottom: 0,
-            right: 4,
-            child: GestureDetector(
-              onTap: controller.pickImage,
-              child: Container(
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white,
-                  boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4)],
-                ),
-                padding: const EdgeInsets.all(6),
-                child: const Icon(Icons.edit, size: 20, color: Colors.black87),
+          } else if (apiImage.isNotEmpty) {
+            imageWidget = CircleAvatar(
+              radius: 55,
+              backgroundImage: NetworkImage(apiImage),
+            );
+          } else {
+            // Instagram-like: Default person icon
+            imageWidget = CircleAvatar(
+              radius: 55,
+              backgroundColor: Colors.white24,
+              child: const Icon(
+                Icons.person,
+                size: 50,
+                color: Colors.white70,
               ),
+            );
+          }
+
+          return imageWidget;
+        }),
+        Positioned(
+          bottom: 0,
+          right: 4,
+          child: GestureDetector(
+            onTap: controller.pickImage,
+            child: Container(
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white,
+                boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4)],
+              ),
+              padding: const EdgeInsets.all(6),
+              child: const Icon(Icons.edit, size: 20, color: Colors.black87),
             ),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
 
   Widget _buildCard({required String title, required List<Widget> children}) {
     return Container(

@@ -4,17 +4,18 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:travel_app2/app/constants/app_color.dart';
 import 'package:travel_app2/app/constants/custom_button.dart';
 import 'package:travel_app2/app/modules/forgot_password/views/forgot_password_view.dart';
+
 import '../controllers/login_controller.dart';
 
 class LoginView extends GetView<LoginController> {
-   LoginView({super.key});
-   LoginController controller = LoginController();
+  LoginView({super.key});
+  final LoginController controller = Get.put(LoginController());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
-        backgroundColor: AppColors.mainBg,
+      backgroundColor: AppColors.mainBg,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -40,8 +41,8 @@ class LoginView extends GetView<LoginController> {
                     ),
                   ),
                   const SizedBox(height: 40),
-      
-                  // Email or Mobile (Unified Field)
+
+                  // Email or Phone Field
                   TextField(
                     controller: controller.emailOrPhoneController,
                     keyboardType: TextInputType.emailAddress,
@@ -49,86 +50,99 @@ class LoginView extends GetView<LoginController> {
                     decoration: inputDecoration('Email or Phone', Icons.person),
                   ),
                   const SizedBox(height: 20),
-      
+
                   // Password
                   TextField(
                     controller: controller.passwordController,
                     obscureText: true,
                     style: const TextStyle(color: Colors.white),
-                    decoration: inputDecoration('Enter Password', Icons.lock),
+                    decoration:
+                        inputDecoration('Enter Password', Icons.lock),
                   ),
                   const SizedBox(height: 10),
-                  // Forgot Password
-      Align(
-        alignment: Alignment.centerRight,
-        child: TextButton(
-          onPressed:(){
-            Get.to(() => ForgotPasswordView());
-      
-          },
-          child: Text(
-            'Forgot Password?',
-            style: GoogleFonts.poppins(
-      color: AppColors.buttonBg,
-      fontSize: 14,
-      fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
-      ),
-      const SizedBox(height: 10),
-      
-      
-                  // Login Button
-             CustomButton(
-        isLoading: controller.isLoading,
-        onPressed: controller.login,
-        text: 'Login',
 
-        textColor: Colors.white,
-      ),
-      
+                  // Forgot Password
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () {
+                        Get.to(() => ForgotPasswordView());
+                      },
+                      child: Text(
+                        'Forgot Password?',
+                        style: GoogleFonts.poppins(
+                          color: AppColors.buttonBg,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+
+                  // Login Button
+                  CustomButton(
+                    isLoading: controller.isLoading,
+                    onPressed: controller.login,
+                    text: 'Login',
+                    textColor: Colors.white,
+                  ),
                   const SizedBox(height: 20),
-      
+
                   // OR Divider
                   Row(
                     children: [
-                      const Expanded(child: Divider(color: Colors.white24, thickness: 1)),
+                      const Expanded(
+                          child:
+                              Divider(color: Colors.white24, thickness: 1)),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Text("OR", style: GoogleFonts.poppins(color: Colors.white54)),
+                        child: Text("OR",
+                            style: GoogleFonts.poppins(color: Colors.white54)),
                       ),
-                      const Expanded(child: Divider(color: Colors.white24, thickness: 1)),
+                      const Expanded(
+                          child:
+                              Divider(color: Colors.white24, thickness: 1)),
                     ],
                   ),
                   const SizedBox(height: 20),
-      
-                  // Google
+
+                  // Google Login
                   OutlinedButton.icon(
                     icon: Image.asset('assets/icons/google.png', height: 24),
-                    onPressed: (){},
+                    onPressed: () {},
                     style: outlinedButtonStyle(),
-                    label: Text('Login with Google', style: GoogleFonts.poppins(fontSize: 15)),
+                    label: Text('Login with Google',
+                        style: GoogleFonts.poppins(fontSize: 15)),
                   ),
                   const SizedBox(height: 12),
-      
-                  // Apple
+
+                  // Apple Login
                   OutlinedButton.icon(
                     icon: Image.asset('assets/icons/apple.png', height: 24),
-                    onPressed: (){}
-,                   style: outlinedButtonStyle(),
-                    label: Text('Login with Apple', style: GoogleFonts.poppins(fontSize: 15)),
+                    onPressed: () {},
+                    style: outlinedButtonStyle(),
+                    label: Text('Login with Apple',
+                        style: GoogleFonts.poppins(fontSize: 15)),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Phone Number Login
+                  OutlinedButton.icon(
+                    icon: const Icon(Icons.phone, color: Colors.white),
+                    onPressed: controller.loginWithPhone,
+                    style: outlinedButtonStyle(),
+                    label: Text('Login with Phone',
+                        style: GoogleFonts.poppins(fontSize: 15)),
                   ),
                   const SizedBox(height: 40),
-      
+
                   // Register Link
                   GestureDetector(
-                    onTap: (){
-                                  controller.goToRegister();
-                    },
+                    onTap: controller.goToRegister,
                     child: RichText(
                       text: TextSpan(
-                        text: "Don't have an account ? ",
+                        text: "Don't have an account? ",
                         style: GoogleFonts.poppins(
                           color: Colors.white60,
                           fontSize: 14,
