@@ -14,6 +14,7 @@ class SplashController extends GetxController with GetSingleTickerProviderStateM
   void onInit() {
     super.onInit();
 
+    // Animation setup
     animationController = AnimationController(
       duration: const Duration(milliseconds: 1800),
       vsync: this,
@@ -29,19 +30,25 @@ class SplashController extends GetxController with GetSingleTickerProviderStateM
 
     animationController.forward();
 
+    // Navigate after 2 seconds
     Future.delayed(const Duration(seconds: 2), () {
-      final isFirstTime = box.read('isFirstTime') ?? true;
-      final isLoggedIn = box.read('isLoggedIn') ?? false;
-
-      if (isFirstTime) {
-        box.write('isFirstTime', false); // set once only
-        Get.offAllNamed(Routes.ONBOARDING);
-      } else if (isLoggedIn) {
-        Get.offAllNamed(Routes.DASHBOARD);
-      } else {
-        Get.offAllNamed(Routes.LOGIN);
-      }
+      _navigateUser();
     });
+  }
+
+  void _navigateUser() {
+    // Check if first time opening app
+    final isFirstTime = box.read('isFirstTime') ?? true;
+    final isLoggedIn = box.read('isLoggedIn') ?? false;
+
+    if (isFirstTime) {
+      box.write('isFirstTime', false); // Mark that onboarding has been shown
+      Get.offAllNamed(Routes.ONBOARDING);
+    } else if (isLoggedIn) {
+      Get.offAllNamed(Routes.DASHBOARD);
+    } else {
+      Get.offAllNamed(Routes.LOGIN);
+    }
   }
 
   @override

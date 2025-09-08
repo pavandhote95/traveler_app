@@ -446,14 +446,19 @@ class _CommunityTabState extends State<CommunityTab>
                   final loading = controller.commentsLoading[post.id] ?? false;
                   final comments = controller.commentsMap[post.id] ?? [];
 
-                  if (loading && comments.isEmpty) {
-                    return const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(12.0),
-                        child: CircularProgressIndicator(color: AppColors.buttonBg),
-                      ),
-                    );
-                  }
+                 if (loading && comments.isEmpty) {
+  return Center(
+    child: Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: Lottie.asset(
+        'assets/lottie/Loading.json',   // yaha apni file ka path do
+        width: 60,
+        height: 60,
+        fit: BoxFit.contain,
+      ),
+    ),
+  );
+}
 
                   if (comments.isEmpty) {
                     return const Padding(

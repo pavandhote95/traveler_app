@@ -74,25 +74,39 @@ class MyProfileController extends GetxController {
       CustomToast.showError(Get.context!, 'Profile fetch error: $e');
     }
   }
-
-  void logoutUser() async {
-    final token = box.read('token');
-    if (token == null) return;
-
-    isLoading.value = true;
-    try {
-      final response = await apiService.logoutUser(token);
-      if (response.statusCode == 200) {
-        await box.erase();
-        CustomToast.showSuccess(Get.context!, 'Logout successful');
-        Get.offAllNamed(Routes.LOGIN);
-      } else {
-        CustomToast.showError(Get.context!, 'Logout failed');
-      }
-    } catch (e) {
-      CustomToast.showError(Get.context!, 'Logout error: $e');
-    } finally {
-      isLoading.value = false;
-    }
+void logoutUser() async {
+  final token = box.read('token');
+  if (token == null) {
+    // Already logged out
+    Get.offAllNamed(Routes.LOGIN);
+    return;
   }
+
+  isLoading.value = true;
+
+  try {
+    final response = await apiService.logoutUser(token);
+
+    if (response.statusCode == 200) {
+      // Clear all storage
+      await box.erase();
+
+      // Show toast
+      CustomToast.showSuccess(Get.context!, 'Logout successful');
+
+      // Navigate to login safely
+      Get.offAllNamed(Routes.LOGIN);
+    } else {
+      CustomToast.showError(
+        Get.context!, 
+        'Logout failed: ${response.statusCode}'
+      );
+    }
+  } catch (e) {
+    CustomToast.showError(Get.context!, 'Logout error: $e');
+  } finally {
+    isLoading.value = false;
+  }
+}
+
 }
