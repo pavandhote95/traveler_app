@@ -94,13 +94,41 @@ class EditProfileController extends GetxController {
   }
 Future<void> updateProfile() async {
   try {
-    // Don't require image if profileImageUrl already exists
-    if (selectedImage.value == null && profileImageUrl.value.isEmpty) {
-     CustomToast.showError(Get.context!, 'Please select a profile image');
+    // Required field validations
+    if (firstNameController.text.trim().isEmpty) {
+      CustomToast.showError(Get.context!, "First name is required");
+      return;
+    }
+    if (lastNameController.text.trim().isEmpty) {
+      CustomToast.showError(Get.context!, "Last name is required");
+      return;
+    }
+    if (emailController.text.trim().isEmpty) {
+      CustomToast.showError(Get.context!, "Email is required");
+      return;
+    }
+    if (!GetUtils.isEmail(emailController.text.trim())) {
+      CustomToast.showError(Get.context!, "Enter a valid email address");
+      return;
+    }
+    if (phoneController.text.trim().isEmpty) {
+      CustomToast.showError(Get.context!, "Phone number is required");
+      return;
+    }
+    if (phoneController.text.trim().length < 8) {
+      CustomToast.showError(Get.context!, "Enter a valid phone number");
+      return;
+    }
+    if (locationController.text.trim().isEmpty) {
+      CustomToast.showError(Get.context!, "Location is required");
       return;
     }
 
-
+    // 🔴 Image strict validation (image is mandatory every time)
+    if (selectedImage.value == null) {
+      CustomToast.showError(Get.context!, "Please select a profile image");
+      return;
+    }
 
     isUpdating.value = true;
 
@@ -116,33 +144,32 @@ Future<void> updateProfile() async {
     request.fields['location'] = locationController.text.trim();
     request.fields['travel_interest'] = travelInterestController.text.trim();
     request.fields['visited_place'] = jsonEncode(
-        visitedPlacesController.text.split(',').map((e) => e.trim()).toList());
+      visitedPlacesController.text.split(',').map((e) => e.trim()).toList(),
+    );
     request.fields['dream_destination'] = dreamDestinationController.text.trim();
     request.fields['language'] = languageController.text.trim();
     request.fields['travel_type'] = jsonEncode(selectedTravelTypes);
 
-    // Add new image if selected
-    if (selectedImage.value != null) {
-      request.files.add(
-          await http.MultipartFile.fromPath('image', selectedImage.value!.path));
-    }
+    // ✅ Add image (mandatory)
+    request.files.add(
+      await http.MultipartFile.fromPath('image', selectedImage.value!.path),
+    );
 
     var response = await request.send();
     var responseBody = await response.stream.bytesToString();
     var jsonResponse = jsonDecode(responseBody);
 
     if (response.statusCode == 201 && jsonResponse['status'] == true) {
-      CustomToast.showSuccess(Get.context!, 'Profile updated successfully');
+      CustomToast.showSuccess(Get.context!, "Profile updated successfully");
 
-      // Update the profile image URL if returned from API
-      if (jsonResponse['data'] != null && jsonResponse['data']['image_url'] != null) {
+      if (jsonResponse['data']?['image_url'] != null) {
         profileImageUrl.value = jsonResponse['data']['image_url'];
       }
 
-      // Clear selectedImage to avoid re-uploading
+      // Reset selected image
       selectedImage.value = null;
 
-      // Refresh MyProfileView and local controller
+      // Refresh other controllers
       final myProfileController = Get.find<MyProfileController>();
       final communityController = Get.find<CommunityController>();
       await communityController.fetchPosts();
@@ -150,18 +177,18 @@ Future<void> updateProfile() async {
       await fetchProfile();
     } else {
       Get.snackbar(
-        'Error',
-        jsonResponse['message'] ?? 'Failed to update profile',
+        "Error",
+        jsonResponse['message'] ?? "Failed to update profile",
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red.shade600,
         colorText: Colors.white,
       );
     }
   } catch (e) {
-    debugPrint('Update profile error: $e');
+    debugPrint("Update profile error: $e");
     Get.snackbar(
-      'Error',
-      'Something went wrong. Please try again.',
+      "Error",
+      "Something went wrong. Please try again.",
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: Colors.red.shade600,
       colorText: Colors.white,

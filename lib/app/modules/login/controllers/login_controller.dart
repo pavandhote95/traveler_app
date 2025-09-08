@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:travel_app2/app/constants/my_toast.dart';
 import 'package:travel_app2/app/modules/otp_verification/views/otp_verification_view.dart';
 import 'package:travel_app2/app/modules/phone_login/views/phone_login_view.dart';
@@ -13,6 +15,7 @@ class LoginController extends GetxController {
   final isLoading = false.obs;
   final apiService = Get.find<ApiService>();
   final box = GetStorage();
+  var isGoogleLoading = false.obs;
 
   // Email/Password Controllers
   final emailOrPhoneController = TextEditingController();
@@ -128,8 +131,8 @@ class LoginController extends GetxController {
       isLoading(false);
 
       CustomToast.showSuccess(Get.context!, 'Phone login successful');
-      box.write('isLoggedIn', true);
-      Get.offAllNamed(Routes.DASHBOARD);
+
+      Get.offAllNamed(Routes.LOGIN);
     } catch (e) {
       isLoading(false);
       Get.snackbar('Error', e.toString());
@@ -140,6 +143,64 @@ class LoginController extends GetxController {
   void resendOtp() {
     sendPhoneOtp();
   }
+
+   Future<void> googleLogin() async {
+  final _auth = FirebaseAuth.instance;
+  final googleSignIn = GoogleSignIn();
+
+  try {
+    isGoogleLoading.value = true;
+
+    // Trigger the sign-in flow
+    final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+    if (googleUser == null) {
+      // User canceled the login
+      isGoogleLoading.value = false;
+      return;
+    }
+
+    // Obtain the auth details from the request
+    final GoogleSignInAuthentication googleAuth =
+        await googleUser.authentication;
+
+    // Create a new credential
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    // Sign in to Firebase
+    final UserCredential userCredential =
+        await _auth.signInWithCredential(credential);
+
+    final user = userCredential.user;
+    isGoogleLoading.value = false;
+
+    if (user != null) {
+      // ✅ Save login info locally
+      box.write('isLoggedIn', true);
+      box.write('userEmail', user.email);
+      box.write('userName', user.displayName);
+      box.write('userUid', user.uid);
+
+      debugPrint("✅ Google Login Successful");
+      debugPrint("👤 Name: ${user.displayName}");
+      debugPrint("📧 Email: ${user.email}");
+      debugPrint("🆔 UID: ${user.uid}");
+
+      CustomToast.showSuccess(Get.context!, "Google Login Successful");
+
+      // ✅ Navigate to Dashboard
+      Get.offAllNamed(Routes.LOGIN);
+    } else {
+      CustomToast.showError(Get.context!, "Google login failed");
+    }
+  } catch (e) {
+    isGoogleLoading.value = false;
+    debugPrint("❌ Google Login Error: $e");
+    CustomToast.showError(Get.context!, "Google login error: $e");
+  }
+}
 
   // ✅ Logout
   void logout() {

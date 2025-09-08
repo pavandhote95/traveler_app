@@ -110,7 +110,9 @@ class LoginView extends GetView<LoginController> {
                   // Google Login
                   OutlinedButton.icon(
                     icon: Image.asset('assets/icons/google.png', height: 24),
-                    onPressed: () {},
+                    onPressed: () {
+                      controller.googleLogin();
+                    },
                     style: outlinedButtonStyle(),
                     label: Text('Login with Google',
                         style: GoogleFonts.poppins(fontSize: 15)),
