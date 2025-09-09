@@ -5,6 +5,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:travel_app2/app/constants/app_color.dart';
 import 'package:travel_app2/app/constants/my_toast.dart';
 import 'package:travel_app2/app/modules/dashboard/controllers/dashboard_controller.dart';
+import 'package:travel_app2/app/modules/dm/views/dm_view.dart';
 import 'package:travel_app2/app/modules/home/controllers/community_controller.dart';
 import 'package:travel_app2/app/modules/my_profile/controllers/my_profile_controller.dart';
 import 'package:travel_app2/app/widgets/custom_appbar_controller.dart';
@@ -201,7 +202,7 @@ Row(
               // Telegram Icon with Navigation to DM Page
               InkWell(
                 onTap: () {
-                  Get.to(() => const DMPage());
+                  Get.to(() =>  DmView());
                 },
                 child: Image.asset(
                   'assets/icons/telegram.png',

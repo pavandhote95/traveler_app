@@ -14,7 +14,6 @@ class OtpController extends GetxController {
   // OTP input controllers
   final List<TextEditingController> otpControllers =
       List.generate(4, (_) => TextEditingController());
-
   final String mockOtp = "1234"; // ✅ Hardcoded OTP for now
 
   late String receivedToken; // ✅ Token from LoginController
@@ -61,7 +60,7 @@ class OtpController extends GetxController {
 
     if (otp == mockOtp) {
       /// ✅ Save token received from login
-      box.write('isLoggedIn', true);
+
       box.write('token', receivedToken); // ✅ Save the real token
 
       debugPrint("✅ Token saved: ${box.read('token')}");

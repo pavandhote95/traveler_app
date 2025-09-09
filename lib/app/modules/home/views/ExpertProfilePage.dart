@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:travel_app2/app/constants/app_color.dart';
+import 'package:travel_app2/app/modules/dm/views/dm_view.dart';
+import 'package:travel_app2/app/modules/expert/views/expert_view.dart';
+import 'package:travel_app2/app/modules/login/views/login_view.dart';
+import 'package:travel_app2/app/routes/app_pages.dart';
+
+import '../../dm/views/dm_view.dart';
 
 class ExpertProfilePage extends StatelessWidget {
   final String expertImage;
@@ -178,9 +186,14 @@ SizedBox(height: 80,),
               const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16),
               child: ElevatedButton.icon(
                 onPressed: () {
+                  print("pavankkkkkkkkkkk");
+                  // Get.toNamed(Routes.CHAT);
+                  Get.to(LoginView());
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Chat feature coming soon!')),
+            
                   );
+              
                 },
                 icon: const Icon(Icons.chat),
                 label: Text(

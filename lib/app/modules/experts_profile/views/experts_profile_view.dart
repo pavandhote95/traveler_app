@@ -233,6 +233,8 @@ class ExpertsProfileView extends StatelessWidget {
           ).animate().fadeIn().slideX(begin: -0.2),
         ),
       ),
+   
+   
     );
   }
 }
