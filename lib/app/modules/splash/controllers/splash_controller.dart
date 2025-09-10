@@ -57,3 +57,4 @@ class SplashController extends GetxController with GetSingleTickerProviderStateM
     super.onClose();
   }
 }
+
