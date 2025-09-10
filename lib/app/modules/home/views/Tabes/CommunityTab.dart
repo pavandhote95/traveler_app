@@ -283,40 +283,57 @@ class _CommunityTabState extends State<CommunityTab>
                 const SizedBox(height: 16),
 
                 /// Image
-                post.image.isNotEmpty
-                    ? GestureDetector(
-                        onDoubleTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => FullScreenImageGallery(images: post.image),
-                            ),
-                          );
-                        },
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: CachedNetworkImage(
-                            imageUrl: post.image[0],
-                            width: double.infinity,
-                            height: 200,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      )
-                    : Container(
-                        height: 200,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade800,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Center(
-                          child: Text(
-                            'No Images',
-                            style: TextStyle(color: Colors.grey, fontSize: 16),
-                          ),
-                        ),
-                      ),
+              /// Image
+/// Image
+post.image.isNotEmpty
+    ? GestureDetector(
+        onDoubleTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => FullScreenImageGallery(images: post.image),
+            ),
+          );
+        },
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: CachedNetworkImage(
+            imageUrl: post.image[0],
+            width: double.infinity,
+            height: 200,
+            fit: BoxFit.cover,
+
+            // 👇 Ye loader dikhayega jab tak image load ho rahi hai
+            placeholder: (context, url) => const Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(AppColors.buttonBg),
+                strokeWidth: 2.5,
+              ),
+            ),
+
+            // 👇 Agar image load fail ho jaye to ye dikhayega
+            errorWidget: (context, url, error) => Container(
+              color: Colors.grey.shade800,
+              child: const Icon(Icons.broken_image,
+                  color: Colors.white70, size: 40),
+            ),
+          ),
+        ),
+      )
+    : Container(
+        height: 200,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Colors.grey.shade800,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Center(
+          child: Text(
+            'No Images',
+            style: TextStyle(color: Colors.grey, fontSize: 16),
+          ),
+        ),
+      ),
 
                 const SizedBox(height: 16),
 

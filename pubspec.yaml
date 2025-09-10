@@ -95,7 +95,7 @@ flutter:
     - assets/images/
     - assets/icons/
     - assets/animations/
-    - assets/service-account.json
+    # - assets/service-account.json
     - assets/lottie/
   #   - images/a_dot_ham.jpeg
 

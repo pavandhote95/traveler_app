@@ -132,7 +132,7 @@ class LoginController extends GetxController {
 
       CustomToast.showSuccess(Get.context!, 'Phone login successful');
 
-      Get.offAllNamed(Routes.LOGIN);
+     Get.toNamed(Routes.LOGIN);
     } catch (e) {
       isLoading(false);
       Get.snackbar('Error', e.toString());
