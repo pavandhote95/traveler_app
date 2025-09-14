@@ -33,6 +33,15 @@ class CommunityController extends GetxController {
     fetchPosts();
   }
 
+  // CommunityController ke andar
+var repliesExpanded = <int, bool>{}.obs;
+
+void toggleReplies(int commentId) {
+  repliesExpanded[commentId] = !(repliesExpanded[commentId] ?? false);
+  repliesExpanded.refresh();
+}
+
+
   // ----------------- POSTS / SWIPE -----------------
   Future<void> fetchPosts() async {
     try {

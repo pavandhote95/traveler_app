@@ -9,6 +9,64 @@ class ApiService extends GetxService {
   final String baseUrl = 'https://kotiboxglobaltech.com/travel_app/api';
   final GetStorage box = GetStorage();
   static const int _timeoutSeconds = 30;
+    final GetConnect _client = GetConnect();
+  // Generic POST helper with logging
+  Future<Response> postData(
+    String url,
+    Map<String, dynamic> body, {
+    Map<String, String>? headers,
+    int timeoutSeconds = 30,
+  }) async {
+    try {
+      print("🌍 POST Request to: $url");
+      print("📦 Request Body: $body");
+      if (headers != null) print("🧾 Request Headers: $headers");
+
+      final response = await _client
+          .post(url, body, headers: headers)
+          .timeout(Duration(seconds: timeoutSeconds));
+
+      print("📥 Response Status: ${response.statusCode}");
+      print("📥 Response Body: ${response.body}");
+      print("📥 Response Headers: ${response.headers}");
+      if (response.hasError) {
+        print("⚠️ Response Error: ${response.statusText}");
+      }
+
+      return response;
+    } catch (e, st) {
+      print("❌ API Error: $e");
+      print("📍 StackTrace: $st");
+      rethrow;
+    }
+  }
+
+  // Convenience wrapper specifically for saving device token
+  Future<bool> saveDeviceToken({
+    required int userId,
+    required String deviceType,
+    required String deviceToken,
+  }) async {
+    const String url =
+        'https://kotiboxglobaltech.com/travel_app/api/push/save-token';
+
+    final body = {
+      'user_id': userId.toString(),
+      'device_type': deviceType,
+      'device_token': deviceToken,
+    };
+
+    final response = await postData(url, body);
+
+    // adjust condition depending on your API (200/201 etc.)
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      print("✅ saveDeviceToken success for user $userId");
+      return true;
+    } else {
+      print("❌ saveDeviceToken failed: ${response.statusCode}");
+      return false;
+    }
+  }
 
   // Register User
   Future<http.Response> registerUser(Map<String, dynamic> body) async {

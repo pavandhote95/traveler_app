@@ -4,11 +4,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:travel_app2/app/constants/app_color.dart';
 import 'package:travel_app2/app/constants/custom_button.dart';
 import 'package:travel_app2/app/modules/login/controllers/login_controller.dart';
+import 'package:travel_app2/app/modules/phone_login/controllers/phone_login_controller.dart';
 
 
-class PhoneLoginView extends GetView<LoginController> {
+class PhoneLoginView extends GetView<PhoneAuthController> {
   PhoneLoginView({super.key});
-  final controller = Get.put(LoginController());
+  final controller = Get.put(PhoneAuthController());
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +54,7 @@ class PhoneLoginView extends GetView<LoginController> {
                   // Send OTP Button
                   CustomButton(
                     isLoading: controller.isLoading,
-                    onPressed: controller.sendPhoneOtp,
+                    onPressed: controller.sendOtp,
                     text: 'Send OTP',
                     textColor: Colors.white,
                   ),

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../constants/app_color.dart';
 import '../controllers/user_profile_controller.dart';
+import '../../chat/controllers/chat_controller.dart';
 
 class UserProfileView extends StatelessWidget {
   const UserProfileView({super.key});
@@ -11,6 +12,7 @@ class UserProfileView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final UserProfileController controller = Get.put(UserProfileController());
+    final ChatController chatController = Get.put(ChatController());
 
     return Scaffold(
       backgroundColor: AppColors.mainBg,
@@ -69,39 +71,97 @@ class UserProfileView extends StatelessWidget {
               Center(
                 child: Column(
                   children: [
-               CircleAvatar(
-  radius: 50,
-  backgroundColor: Colors.grey.shade800,
-  backgroundImage: profileImage.isNotEmpty
-      ? CachedNetworkImageProvider(profileImage)
-      : const AssetImage('assets/images/default_user.png'),
-  child: profileImage.isEmpty
-      ? const Icon(Icons.person, size: 50, color: Colors.white70)
-      : null, // ✅ fallback icon if no image
-),
-
-
+                    CircleAvatar(
+                      radius: 50,
+                      backgroundColor: Colors.grey.shade800,
+                      child: profileImage.isNotEmpty
+                          ? ClipOval(
+                              child: Image.network(
+                                profileImage,
+                                fit: BoxFit.cover,
+                                width: 100,
+                                height: 100,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const Icon(
+                                    Icons.person,
+                                    size: 50,
+                                    color: Colors.white70,
+                                  );
+                                },
+                              ),
+                            )
+                          : const Icon(
+                              Icons.person,
+                              size: 50,
+                              color: Colors.white70,
+                            ),
+                    ),
                     const SizedBox(height: 16),
                     Text(
                       name,
                       style: GoogleFonts.openSans(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white),
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       location,
-                      style: GoogleFonts.inter(fontSize: 16, color: Colors.grey),
+                      style: GoogleFonts.inter(
+                        fontSize: 16,
+                        color: Colors.grey,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       "Joined: $joinedDate",
-                      style: GoogleFonts.inter(fontSize: 14, color: Colors.grey),
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        color: Colors.grey,
+                      ),
                     ),
+                    const SizedBox(height: 16),
+
+                    // ✅ Message Button
+              ElevatedButton.icon(
+  style: ElevatedButton.styleFrom(
+    backgroundColor: AppColors.buttonBg,
+    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+    ),
+  ),
+onPressed: () {
+  final otherUserId = profile['id'];
+  if (otherUserId != null) {
+    chatController.startChatWithUser(profile);
+  } else {
+    Get.snackbar(
+      "Error",
+      "Cannot start chat: user ID missing",
+      backgroundColor: Colors.redAccent,
+      colorText: Colors.white,
+    );
+  }
+},
+
+  icon: const Icon(Icons.message, color: Colors.white),
+  label: Text(
+    "Message",
+    style: GoogleFonts.openSans(
+      fontSize: 16,
+      fontWeight: FontWeight.w600,
+      color: Colors.white,
+    ),
+  ),
+),
+
+                 
                   ],
                 ),
               ),
+
               const SizedBox(height: 20),
 
               // 🔹 Stats Row
@@ -165,10 +225,7 @@ class UserProfileView extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 4),
-        Text(
-          label,
-          style: GoogleFonts.inter(fontSize: 14, color: Colors.grey),
-        ),
+        Text(label, style: GoogleFonts.inter(fontSize: 14, color: Colors.grey)),
       ],
     );
   }
@@ -223,10 +280,7 @@ class UserProfileView extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             value,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: Colors.white70,
-            ),
+            style: GoogleFonts.inter(fontSize: 14, color: Colors.white70),
           ),
         ],
       ),

@@ -1,9 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:http/http.dart' as http;
 import 'package:travel_app2/app/constants/my_toast.dart';
 import 'package:travel_app2/app/modules/otp_verification/views/otp_verification_view.dart';
 import 'package:travel_app2/app/modules/phone_login/views/phone_login_view.dart';
@@ -29,7 +32,7 @@ class LoginController extends GetxController {
 
   var secondsRemaining = 30.obs;
 
-  // ✅ Email/Password Login → Go to Dashboard
+  /// ✅ Login API → Dashboard → Save Token
   void login() async {
     final input = emailOrPhoneController.text.trim();
     final password = passwordController.text.trim();
@@ -71,7 +74,12 @@ class LoginController extends GetxController {
           debugPrint("⭐ UserPoints: $userPoints");
 
           CustomToast.showSuccess(Get.context!, 'Login Successful');
-          Get.offAllNamed(Routes.DASHBOARD); // ✅ Always go to Dashboard
+
+          // ✅ Save FCM Device Token after login
+          await saveDeviceToken(userId);
+
+          // ✅ Go to Dashboard
+          Get.offAllNamed(Routes.DASHBOARD);
         } else {
           CustomToast.showError(Get.context!, 'Token not found');
         }
@@ -85,17 +93,56 @@ class LoginController extends GetxController {
     }
   }
 
-  // ✅ Navigate to registration page
-  void goToRegister() {
-    Get.toNamed(Routes.REGISTER);
+  /// ✅ Save Device Token API
+// 👈 add this import at top
+
+/// ✅ Save Device Token API
+Future<void> saveDeviceToken(int userId) async {
+  try {
+    String? deviceToken = await FirebaseMessaging.instance.getToken();
+    String? token = box.read('token'); // ✅ read saved login token
+
+    if (deviceToken == null || token == null) {
+      debugPrint("⚠️ Device token or user token is null");
+      return;
+    }
+
+    // 👇 detect device type
+    String deviceType = Platform.isAndroid ? "android" : "ios";
+
+    final url = Uri.parse("https://kotiboxglobaltech.com/travel_app/api/push/save-token");
+    final response = await http.post(
+      url,
+      headers: {
+        "Authorization": "Bearer $token",   // ✅ auth header
+        "Accept": "application/json",
+      },
+      body: {
+        "user_id": userId.toString(),
+        "device_token": deviceToken,
+        "device_type": deviceType, // ✅ send device type
+      },
+    );
+
+    debugPrint("📡 Save Token Response: ${response.body}");
+
+    if (response.statusCode == 200) {
+      debugPrint("✅ Device token saved successfully");
+    } else {
+      debugPrint("❌ Failed to save device token: ${response.statusCode}");
+    }
+  } catch (e) {
+    debugPrint("🔥 Error saving device token: $e");
   }
+}
+
+  // ✅ Navigate to registration page
+  void goToRegister() => Get.toNamed(Routes.REGISTER);
 
   // ✅ Navigate to Phone Login page
-  void loginWithPhone() {
-    Get.to(() => PhoneLoginView());
-  }
+  void loginWithPhone() => Get.to(() => PhoneLoginView());
 
-  // ✅ Send OTP (for phone login flow only)
+  // ✅ Send OTP
   void sendPhoneOtp() async {
     String phone = phoneController.text.trim();
     if (phone.isEmpty || phone.length < 10) {
@@ -105,10 +152,8 @@ class LoginController extends GetxController {
 
     isLoading(true);
     try {
-      // Simulate API call / Firebase OTP
       await Future.delayed(const Duration(seconds: 2));
       isLoading(false);
-
       Get.to(() => OtpVerificationView(phoneNumber: phone));
     } catch (e) {
       isLoading(false);
@@ -126,13 +171,11 @@ class LoginController extends GetxController {
 
     isLoading(true);
     try {
-      // Simulate OTP verification
       await Future.delayed(const Duration(seconds: 2));
       isLoading(false);
 
       CustomToast.showSuccess(Get.context!, 'Phone login successful');
-
-     Get.toNamed(Routes.LOGIN);
+      Get.toNamed(Routes.LOGIN);
     } catch (e) {
       isLoading(false);
       Get.snackbar('Error', e.toString());
@@ -140,69 +183,57 @@ class LoginController extends GetxController {
   }
 
   // ✅ Resend OTP
-  void resendOtp() {
-    sendPhoneOtp();
-  }
+  void resendOtp() => sendPhoneOtp();
 
-   Future<void> googleLogin() async {
-  final _auth = FirebaseAuth.instance;
-  final googleSignIn = GoogleSignIn();
+  /// ✅ Google Login
+  Future<void> googleLogin() async {
+    final _auth = FirebaseAuth.instance;
+    final googleSignIn = GoogleSignIn();
 
-  try {
-    isGoogleLoading.value = true;
+    try {
+      isGoogleLoading.value = true;
 
-    // Trigger the sign-in flow
-    final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-    if (googleUser == null) {
-      // User canceled the login
+      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+      if (googleUser == null) {
+        isGoogleLoading.value = false;
+        return;
+      }
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final UserCredential userCredential =
+          await _auth.signInWithCredential(credential);
+
+      final user = userCredential.user;
       isGoogleLoading.value = false;
-      return;
+
+      if (user != null) {
+        box.write('isLoggedIn', true);
+        box.write('userEmail', user.email);
+        box.write('userName', user.displayName);
+        box.write('userUid', user.uid);
+
+        debugPrint("✅ Google Login Successful");
+        CustomToast.showSuccess(Get.context!, "Google Login Successful");
+
+        Get.offAllNamed(Routes.LOGIN);
+      } else {
+        CustomToast.showError(Get.context!, "Google login failed");
+      }
+    } catch (e) {
+      isGoogleLoading.value = false;
+      debugPrint("❌ Google Login Error: $e");
+      CustomToast.showError(Get.context!, "Google login error: $e");
     }
-
-    // Obtain the auth details from the request
-    final GoogleSignInAuthentication googleAuth =
-        await googleUser.authentication;
-
-    // Create a new credential
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
-    );
-
-    // Sign in to Firebase
-    final UserCredential userCredential =
-        await _auth.signInWithCredential(credential);
-
-    final user = userCredential.user;
-    isGoogleLoading.value = false;
-
-    if (user != null) {
-      // ✅ Save login info locally
-      box.write('isLoggedIn', true);
-      box.write('userEmail', user.email);
-      box.write('userName', user.displayName);
-      box.write('userUid', user.uid);
-
-      debugPrint("✅ Google Login Successful");
-      debugPrint("👤 Name: ${user.displayName}");
-      debugPrint("📧 Email: ${user.email}");
-      debugPrint("🆔 UID: ${user.uid}");
-
-      CustomToast.showSuccess(Get.context!, "Google Login Successful");
-
-      // ✅ Navigate to Dashboard
-      Get.offAllNamed(Routes.LOGIN);
-    } else {
-      CustomToast.showError(Get.context!, "Google login failed");
-    }
-  } catch (e) {
-    isGoogleLoading.value = false;
-    debugPrint("❌ Google Login Error: $e");
-    CustomToast.showError(Get.context!, "Google login error: $e");
   }
-}
 
-  // ✅ Logout
+  /// ✅ Logout
   void logout() {
     box.erase();
     debugPrint("🔒 Cleared all storage");

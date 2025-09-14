@@ -171,14 +171,16 @@ class AppPages {
       page: () =>  DmView(),
       binding: DmBinding(),
     ),
-    GetPage(
-      name: _Paths.CHAT,
-      page: () =>  ChatView(
-        currentUser: Get.parameters['currentUser'] ?? '',
-        otherUser: Get.parameters['otherUser'] ?? '',
-        chatId: Get.parameters['chatId'] ?? '',
-      ),
-      binding: ChatBinding(),
-    ),
+GetPage(
+  name: _Paths.CHAT,
+  page: () => ChatView(
+    currentUser: Get.parameters['currentUser'] ?? '',
+    otherUser: Get.parameters['otherUser'] ?? '',
+    chatId: Get.parameters['chatId'] ?? '',
+    otherUserImage: Get.parameters['otherUserImage'] ?? '', // ✅ profile image added
+  ),
+  binding: ChatBinding(),
+),
+
   ];
 }

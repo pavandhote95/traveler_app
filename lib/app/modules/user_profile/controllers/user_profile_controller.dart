@@ -5,7 +5,7 @@ import 'package:get_storage/get_storage.dart';
 
 class UserProfileController extends GetxController {
   var isLoading = true.obs;
-  var profile = {}.obs;
+  var profile = <String, dynamic>{}.obs;
 
   final box = GetStorage();
   late int userId;

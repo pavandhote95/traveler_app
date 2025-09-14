@@ -45,7 +45,7 @@ class SplashController extends GetxController with GetSingleTickerProviderStateM
       box.write('isFirstTime', false); // Mark that onboarding has been shown
       Get.offAllNamed(Routes.ONBOARDING);
     } else if (isLoggedIn) {
-         Get.offAllNamed(Routes.LOGIN);
+         Get.offAllNamed(Routes.DASHBOARD);
     } else {
       Get.offAllNamed(Routes.LOGIN);
     }

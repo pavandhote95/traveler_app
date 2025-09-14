@@ -67,6 +67,7 @@ dependencies:
   firebase_messaging: ^16.0.1
   cloud_firestore: ^6.0.1
   googleapis_auth: ^1.6.0
+  timeago: ^3.7.1
 
 dev_dependencies:
   flutter_test:
@@ -95,7 +96,7 @@ flutter:
     - assets/images/
     - assets/icons/
     - assets/animations/
-    # - assets/service-account.json
+    - assets/service-account.json
     - assets/lottie/
   #   - images/a_dot_ham.jpeg
 

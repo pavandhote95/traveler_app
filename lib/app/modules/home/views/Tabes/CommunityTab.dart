@@ -582,111 +582,132 @@ post.image.isNotEmpty
                             ),
 
                             /// Replies
-                        /// Replies
+/// Replies
 if (c.replies.isNotEmpty)
   Padding(
     padding: const EdgeInsets.only(left: 40, top: 8),
-    child: Column(
-      children: c.replies.map((r) {
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 8.0),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CircleAvatar(
-                radius: 14,
-                backgroundColor: Colors.grey.shade800,
-                backgroundImage: r.user.image.isNotEmpty
-                    ? CachedNetworkImageProvider(r.user.image)
-                    : null,
-                child: r.user.image.isEmpty
-                    ? const Icon(Icons.person, size: 20, color: Colors.white70)
-                    : null,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      r.user.name,
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
+    child: Obx(() {
+      final expanded = controller.repliesExpanded[c.id] ?? false;
+      final repliesToShow = expanded ? c.replies : c.replies.take(1).toList();
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ...repliesToShow.map((r) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      Get.toNamed(
+                        Routes.USER_PROFILE,
+                        arguments: {"user_id": r.user.id},
+                      );
+                    },
+                    child: CircleAvatar(
+                      radius: 14,
+                      backgroundColor: Colors.grey.shade800,
+                      backgroundImage: r.user.image.isNotEmpty
+                          ? CachedNetworkImageProvider(r.user.image)
+                          : null,
+                      child: r.user.image.isEmpty
+                          ? const Icon(Icons.person,
+                              size: 20, color: Colors.white70)
+                          : null,
                     ),
-                    Text(
-                      r.comment,
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        color: Colors.grey.shade300,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        GestureDetector(
-                          onTap: () {
-                            controller.toggleCommentLike(
-                              postId: post.id,
-                              commentId: r.id, // Use reply ID
-                            );
-                          },
-                          child: Row(
-                            children: [
-                              Icon(
-                                r.userLiked == 1
-                                    ? Icons.thumb_up
-                                    : Icons.thumb_up_outlined,
-                                size: 14,
-                                color: r.userLiked == 1
-                                    ? AppColors.buttonBg
-                                    : Colors.white70,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                "${r.likesCount} Likes",
-                                style: GoogleFonts.inter(
-                                  color: Colors.white70,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        GestureDetector(
-                          onTap: () {
-                            Get.bottomSheet(
-                              _buildReplyBottomSheet(
-                                context,
-                                post.id,
-                                c.id,
-                                r.user.name,
-                              ),
-                            );
-                          },
-                          child: Text(
-                            'Reply',
+                        Text(r.user.name,
                             style: GoogleFonts.inter(
-                              color: Colors.white70,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white)),
+                        Text(r.comment,
+                            style: GoogleFonts.inter(
+                                fontSize: 13, color: Colors.grey.shade300)),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                controller.toggleCommentLike(
+                                    postId: post.id, commentId: r.id);
+                              },
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    r.userLiked == 1
+                                        ? Icons.thumb_up
+                                        : Icons.thumb_up_outlined,
+                                    size: 14,
+                                    color: r.userLiked == 1
+                                        ? AppColors.buttonBg
+                                        : Colors.white70,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text("${r.likesCount} Likes",
+                                      style: GoogleFonts.inter(
+                                          color: Colors.white70, fontSize: 12)),
+                                ],
+                              ),
                             ),
-                          ),
+                            const SizedBox(width: 16),
+                            GestureDetector(
+                              onTap: () {
+                                Get.bottomSheet(
+                                  _buildReplyBottomSheet(
+                                    context,
+                                    post.id,
+                                    c.id,
+                                    r.user.name,
+                                  ),
+                                );
+                              },
+                              child: Text('Reply',
+                                  style: GoogleFonts.inter(
+                                      color: Colors.white70,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500)),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
+                  ),
+                ],
+              ),
+            );
+          }),
+
+          // 👇 See more/less button
+          if (c.replies.length > 1)
+            GestureDetector(
+              onTap: () => controller.toggleReplies(c.id),
+              child: Padding(
+                padding: const EdgeInsets.only(top: 4, left: 4),
+                child: Text(
+                  expanded
+                      ? "Hide replies"
+                      : "See more replies (${c.replies.length - 1})",
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.buttonBg,
+                  ),
                 ),
               ),
-            ],
-          ),
-        );
-      }).toList(),
-    ),
+            ),
+        ],
+      );
+    }),
   ),
+                     
                           ],
                         ),
                       );
