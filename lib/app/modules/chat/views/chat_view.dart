@@ -31,7 +31,6 @@ class _ChatViewState extends State<ChatView> {
   final ChatController controller = Get.put(ChatController());
   final box = GetStorage();
   final ScrollController _scrollController = ScrollController();
-
   late String receiverId;
 
   @override
@@ -40,6 +39,7 @@ class _ChatViewState extends State<ChatView> {
     final parts = widget.chatId.split('_');
     receiverId = (parts[0] == widget.currentUser) ? parts[1] : parts[0];
   }
+
 
   @override
   void dispose() {
