@@ -83,6 +83,7 @@ class _CommunityTabState extends State<CommunityTab>
           return Stack(
             children: [
               SwipeCards(
+                rightSwipeAllowed: false,
                 matchEngine: controller.matchEngine,
                 itemBuilder: (context, index) {
                   if (controller.filteredPosts.isEmpty) return const SizedBox();

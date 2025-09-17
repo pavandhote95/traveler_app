@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 
 class AppColors {
   // 🎨 Base Theme Colors
-
-
   // 🧱 Backgrounds
    // Soft pastel blue
   static const Color mainBg = Color(0xFF0D0D0D);            // Dark Main BG

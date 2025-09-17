@@ -39,14 +39,11 @@ dependencies:
   flutter_animate: ^4.5.2
   shimmer: ^3.0.0
   get: ^4.6.6
-
   fluttertoast: ^8.2.1
   get_storage: ^2.1.1
   animate_do: ^4.2.0
   transformer_page_view_tv: ^0.1.7-nullsafety
   flutter_card_swiper: ^3.0.1
-
-
   swipe_cards: ^2.0.0
   google_nav_bar: ^5.0.7
   image_picker: ^1.1.2
@@ -68,7 +65,7 @@ dependencies:
   cloud_firestore: ^6.0.1
   googleapis_auth: ^1.6.0
   timeago: ^3.7.1
-
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -96,7 +93,7 @@ flutter:
     - assets/images/
     - assets/icons/
     - assets/animations/
-    - assets/service-account.json
+    # - assets/service-account.json
     - assets/lottie/
   #   - images/a_dot_ham.jpeg
 

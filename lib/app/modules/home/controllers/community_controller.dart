@@ -88,7 +88,7 @@ void toggleReplies(int commentId) {
             (index) => SwipeItem(
               content: filteredPosts[index % filteredPosts.length],
               likeAction: () => incrementIndex(index % filteredPosts.length),
-              nopeAction: () => incrementIndex(index % filteredPosts.length),
+              nopeAction: () =>   debugPrint('⛔ Left swipe disabled')
             ),
           );
     matchEngine = MatchEngine(swipeItems: swipeItems);

@@ -1,10 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:travel_app2/app/constants/app_color.dart';
-import 'package:travel_app2/app/modules/chat/controllers/chat_controller.dart';
-import 'package:travel_app2/app/modules/chat/views/chat_view.dart';
 import 'package:travel_app2/app/modules/expert/views/expert_view.dart';
 
 class UserModel {
@@ -19,12 +18,14 @@ class UserModel {
     required this.role,
     required this.image,
   });
+  
 }
 
 class DmView extends StatelessWidget {
   const DmView({Key? key, this.initialIndex = 0}) : super(key: key);
 
   final int initialIndex;
+     
 
   // 🔹 Dummy current userId
   static const String currentUserId = "100";
@@ -74,23 +75,27 @@ class DmView extends StatelessWidget {
                 onTap: () {
                   Get.to(ExpertView()); // Navigate to Experts tab
                 },
-                child: Container(
-                  margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 25, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: AppColors.buttonBg, // button background
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  child: Text(
-                    "Experts",
-                    style: GoogleFonts.openSans(
-                      color: Colors.white, // text color
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
+                child:  Container(
+                height: 50,
+                width: 50,
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: AppColors.buttonBg,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.3),
+                      blurRadius: 6,
+                      offset: const Offset(0, 4),
                     ),
-                  ),
+                  ],
                 ),
+                child: const Icon(
+                  CupertinoIcons.star_fill,
+                  color: Colors.black,
+                  size: 20,
+                ),
+              ),
               ),
             ),
           ],
@@ -111,8 +116,8 @@ class DmView extends StatelessWidget {
             unselectedLabelColor: Colors.white70,
             labelStyle: GoogleFonts.openSans(fontWeight: FontWeight.w600),
             tabs: const [
-              Tab(text: "Travellers"), // 🔹 Now on the left
-              Tab(text: "Talk to Experts"), // 🔹 Now on the right
+              Tab(text: "users"), // 🔹 Now on the left
+              Tab(text: "Talk to travellers"), // 🔹 Now on the right
             ],
           ),
         ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 import 'package:travel_app2/app/constants/app_color.dart';
+import 'package:travel_app2/app/modules/dm/views/dm_view.dart';
 import 'package:travel_app2/app/modules/experts_profile/views/experts_profile_view.dart';
 import '../controllers/expert_controller.dart';
 
@@ -21,6 +22,23 @@ class ExpertView extends GetView<ExpertController> {
         foregroundColor: Colors.white,
         elevation: 1,
         centerTitle: true,
+        actions: [
+               Padding(
+                 padding: const EdgeInsets.only(right:20.0),
+                 child: InkWell(
+                  onTap: () {
+                    Get.to(() =>  DmView());
+                  },
+                  child: Image.asset(
+                    'assets/icons/telegram.png',
+                    height: 32,
+                    width: 32,
+                    fit: BoxFit.contain,
+                    color: AppColors.buttonBg,
+                  ),
+                               ),
+               ),
+        ],
       ),
       body: Obx(() {
         if (controller.isLoading.value) {

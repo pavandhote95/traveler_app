@@ -1,7 +1,8 @@
 import 'package:get/get.dart';
-
 import '../modules/chat/bindings/chat_binding.dart';
 import '../modules/chat/views/chat_view.dart';
+import '../modules/chat_with_expert/bindings/chat_with_expert_binding.dart';
+import '../modules/chat_with_expert/views/chat_with_expert_view.dart';
 import '../modules/community_search/bindings/community_search_binding.dart';
 import '../modules/community_search/views/community_search_view.dart';
 import '../modules/dashboard/bindings/dashboard_binding.dart';
@@ -14,8 +15,6 @@ import '../modules/expert/bindings/expert_binding.dart';
 import '../modules/expert/views/expert_view.dart';
 import '../modules/experts_profile/bindings/experts_profile_binding.dart';
 import '../modules/experts_profile/views/experts_profile_view.dart';
-import '../modules/expertsprofile/bindings/expertsprofile_binding.dart';
-import '../modules/expertsprofile/views/expertsprofile_view.dart';
 import '../modules/forgot_password/bindings/forgot_password_binding.dart';
 import '../modules/forgot_password/views/forgot_password_view.dart';
 import '../modules/home/bindings/home_binding.dart';
@@ -44,7 +43,6 @@ import '../modules/splash/bindings/splash_binding.dart';
 import '../modules/splash/views/splash_view.dart';
 import '../modules/user_profile/bindings/user_profile_binding.dart';
 import '../modules/user_profile/views/user_profile_view.dart';
-
 part 'app_routes.dart';
 
 class AppPages {
@@ -94,11 +92,7 @@ class AppPages {
       binding: DashboardBinding(),
     ),
 
-    GetPage(
-      name: _Paths.EXPERTSPROFILE,
-      page: () => ExpertsprofileView(),
-      binding: ExpertsprofileBinding(),
-    ),
+
     GetPage(
       name: _Paths.COMMUNITY_SEARCH,
       page: () => CommunitySearchView(),
@@ -168,18 +162,24 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.DM,
-      page: () =>  DmView(),
+      page: () => DmView(),
       binding: DmBinding(),
     ),
+    GetPage(
+      name: _Paths.CHAT,
+      page: () => ChatView(
+        currentUser: Get.parameters['currentUser'] ?? '',
+        otherUser: Get.parameters['otherUser'] ?? '',
+        chatId: Get.parameters['chatId'] ?? '',
+        otherUserImage:
+            Get.parameters['otherUserImage'] ?? '', // ✅ profile image added
+      ),
+      binding: ChatBinding(),
+    ),
 GetPage(
-  name: _Paths.CHAT,
-  page: () => ChatView(
-    currentUser: Get.parameters['currentUser'] ?? '',
-    otherUser: Get.parameters['otherUser'] ?? '',
-    chatId: Get.parameters['chatId'] ?? '',
-    otherUserImage: Get.parameters['otherUserImage'] ?? '', // ✅ profile image added
-  ),
-  binding: ChatBinding(),
+  name: _Paths.CHAT_WITH_EXPERT,
+  page: () => const ExpertChatView(),
+  binding: ChatWithExpertBinding(),
 ),
 
   ];

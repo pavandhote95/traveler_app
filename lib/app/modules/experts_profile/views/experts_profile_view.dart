@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:travel_app2/app/constants/app_color.dart';
+import 'package:travel_app2/app/routes/app_pages.dart';
 import '../controllers/experts_profile_controller.dart';
 
 class ExpertsProfileView extends StatelessWidget {
@@ -12,6 +13,7 @@ class ExpertsProfileView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(ExpertsProfileController());
+final expert = controller.expert;
 
     // 🔥 Load expert detail
     controller.fetchExpertDetail(expertId);
@@ -210,11 +212,18 @@ class ExpertsProfileView extends StatelessWidget {
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16),
-          child: ElevatedButton.icon(
+          child:
+          
+           ElevatedButton.icon(
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Chat feature coming soon!')),
-              );
+             Get.toNamed(
+      Routes.CHAT_WITH_EXPERT,
+      arguments: {
+        "expertId": expertId,
+        "expertName": expert['title'] ?? 'Expert',
+        "expertImage":expert['image']
+      },
+    );
             },
             icon: const Icon(Icons.chat),
             label: Text(
