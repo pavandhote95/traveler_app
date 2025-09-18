@@ -58,12 +58,6 @@ class _ChatViewState extends State<ChatView> {
 
   @override
   Widget build(BuildContext context) {
-    final profileImage = widget.otherUserImage.isNotEmpty
-        ? (widget.otherUserImage.startsWith("http")
-            ? widget.otherUserImage
-            : "https://kotiboxglobaltech.com/${widget.otherUserImage}")
-        : "https://via.placeholder.com/150";
-
     return Scaffold(
       backgroundColor: const Color(0xFF121B22),
       appBar: AppBar(
@@ -71,7 +65,7 @@ class _ChatViewState extends State<ChatView> {
         elevation: 0,
         title: Row(
           children: [
-            CircleAvatar(radius: 20, backgroundImage: NetworkImage(profileImage)),
+            _buildAvatar(widget.otherUserImage, widget.otherUser), // ✅ Same avatar as DmView
             const SizedBox(width: 12),
             Text(
               widget.otherUser,
@@ -227,5 +221,41 @@ class _ChatViewState extends State<ChatView> {
         ],
       ),
     );
+  }
+
+  /// 🔹 Avatar function (same as in DmView)
+  Widget _buildAvatar(String? imageUrl, String name) {
+    if (imageUrl != null && imageUrl.isNotEmpty && imageUrl.startsWith("http")) {
+      return CircleAvatar(
+        radius: 20,
+        backgroundImage: NetworkImage(imageUrl),
+        backgroundColor: Colors.grey[800],
+        onBackgroundImageError: (_, __) {},
+      );
+    } else {
+      final initials = (name.isNotEmpty ? name[0] : "?").toUpperCase();
+      final bgColors = [
+        Colors.redAccent,
+        Colors.blueAccent,
+        Colors.green,
+        Colors.orange,
+        Colors.purple,
+        Colors.teal,
+      ];
+      final colorIndex = name.hashCode % bgColors.length;
+
+      return CircleAvatar(
+        radius: 20,
+        backgroundColor: bgColors[colorIndex],
+        child: Text(
+          initials,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+      );
+    }
   }
 }

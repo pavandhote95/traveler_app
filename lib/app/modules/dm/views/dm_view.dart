@@ -2,12 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:travel_app2/app/constants/app_color.dart';
 import 'package:travel_app2/app/modules/chat/controllers/chat_controller.dart';
 import 'package:travel_app2/app/modules/expert/views/expert_view.dart';
 import '../controllers/dm_controller.dart';
-
 import 'user_model.dart';
 
 class DmView extends StatelessWidget {
@@ -73,7 +71,7 @@ class DmView extends StatelessWidget {
             unselectedLabelColor: Colors.white70,
             labelStyle: GoogleFonts.openSans(fontWeight: FontWeight.w600),
             tabs: const [
-              Tab(text: "users"),
+              Tab(text: "Users"),
               Tab(text: "Talk to travellers"),
             ],
           ),
@@ -112,19 +110,20 @@ class DmView extends StatelessWidget {
                     if (controller.isLoading.value) {
                       return const Center(child: CircularProgressIndicator());
                     }
-                    return _buildUserList(controller.users, "No Users Found", chatController);
+                    return _buildUserList(
+                        controller.users, "No Users Found", chatController);
                   }),
 
                   // 🔹 Travellers tab (static for now)
-                  Center(
-                    child: Text(
-                      "No Travellers Found",
-                      style: GoogleFonts.inter(
-                        fontSize: 16,
-                        color: Colors.grey.shade500,
-                      ),
-                    ),
-                  ),
+                // 🔹 Travellers tab
+Obx(() {
+  if (controller.isTravellersLoading.value) {
+    return const Center(child: CircularProgressIndicator());
+  }
+  return _buildUserList(
+      controller.travellers, "No Travellers Found", chatController);
+}),
+
                 ],
               ),
             ),
@@ -135,7 +134,8 @@ class DmView extends StatelessWidget {
   }
 
   /// 🔹 Common User List
-  Widget _buildUserList(List<UserModel> userList, String emptyMsg, ChatController chatController) {
+  Widget _buildUserList(
+      List<UserModel> userList, String emptyMsg, ChatController chatController) {
     if (userList.isEmpty) {
       return Center(
         child: Text(
@@ -154,13 +154,17 @@ class DmView extends StatelessWidget {
       separatorBuilder: (context, index) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         final user = userList[index];
+
+        // ✅ Debug print for profile in terminal
+        print("User ${user.name} profile-----: ${user.profile}");
+
         return GestureDetector(
           onTap: () {
             // ✅ Start chat on tap
             final otherUser = {
               "id": user.userId,
               "name": user.name,
-              "image_url": user.profile ?? "",
+              "profile": user.profile, // pass correct key
             };
             chatController.startChatWithUser(otherUser);
           },
@@ -172,7 +176,7 @@ class DmView extends StatelessWidget {
             ),
             child: Row(
               children: [
-                _buildAvatar(user.profile),
+                _buildAvatar(user.profile,user.name), // ✅ Correct avatar
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -208,37 +212,43 @@ class DmView extends StatelessWidget {
   }
 
   /// 🔹 Avatar with shimmer & fallback
-  Widget _buildAvatar(String? imageUrl) {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[800]!,
-      highlightColor: Colors.grey[600]!,
-      child: CircleAvatar(
-        radius: 24,
-        child: ClipOval(
-          child: (imageUrl != null && imageUrl.isNotEmpty)
-              ? FadeInImage.assetNetwork(
-                  placeholder: 'assets/images/default_user.png',
-                  image: imageUrl,
-                  width: 48,
-                  height: 48,
-                  fit: BoxFit.cover,
-                  imageErrorBuilder: (context, error, stackTrace) {
-                    return Image.asset(
-                      'assets/images/default_user.png',
-                      width: 48,
-                      height: 48,
-                      fit: BoxFit.cover,
-                    );
-                  },
-                )
-              : Image.asset(
-                  'assets/images/default_user.png',
-                  width: 48,
-                  height: 48,
-                  fit: BoxFit.cover,
-                ),
+Widget _buildAvatar(String? imageUrl, String name) {
+  if (imageUrl != null && imageUrl.isNotEmpty) {
+    return CircleAvatar(
+      radius: 24,
+      backgroundColor: Colors.grey[800],
+      backgroundImage: NetworkImage(imageUrl),
+      onBackgroundImageError: (_, __) {
+        // agar network image fail ho jaye to fallback icon show hoga
+      },
+    );
+  } else {
+    // initials (first letter ya "?" if name empty)
+    final initials = (name.isNotEmpty ? name[0] : "?").toUpperCase();
+
+    // background colors list (random feel ke liye)
+    final bgColors = [
+      Colors.redAccent,
+      Colors.blueAccent,
+      Colors.green,
+      Colors.orange,
+      Colors.purple,
+      Colors.teal,
+    ];
+    final colorIndex = name.hashCode % bgColors.length;
+
+    return CircleAvatar(
+      radius: 24,
+      backgroundColor: bgColors[colorIndex],
+      child: Text(
+        initials,
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 18,
         ),
       ),
     );
   }
+}
 }

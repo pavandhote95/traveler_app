@@ -113,19 +113,29 @@ class ChatController extends GetxController {
   }
 
   /// Start chat with user and navigate to ChatView
-  void startChatWithUser(Map<String, dynamic> otherUserProfile) {
-    final currentUserId = box.read('user_id').toString();
-    final otherUserId = otherUserProfile['id'].toString();
-    final otherUserName = otherUserProfile['name'] ?? "Unknown";
-    final otherUserImage = otherUserProfile['image_url'] ?? "";
-    final chatId = getChatId(currentUserId, otherUserId);
+/// Start chat with user and navigate to ChatView
+void startChatWithUser(Map<String, dynamic> otherUserProfile) {
+  final currentUserId = box.read('user_id').toString();
+  final otherUserId = otherUserProfile['id'].toString();
+  final otherUserName = otherUserProfile['name'] ?? "Unknown";
+  final otherUserImage = otherUserProfile['profile'] ?? "";
+  final chatId = getChatId(currentUserId, otherUserId);
 
-    Get.to(() => ChatView(
-          currentUser: currentUserId,
-          otherUser: otherUserName,
-          otherUserImage: otherUserImage,
-          otherUserId: otherUserId,
-          chatId: chatId,
-        ));
-  }
+  // ✅ Debug prints for terminal
+  print("========= Chat Debug Info =========");
+  print("Current User ID: $currentUserId");
+  print("Other User ID: $otherUserId");
+  print("Other User Name: $otherUserName");
+  print("Other User Image: $otherUserImage");
+  print("Generated Chat ID: $chatId");
+  print("===================================");
+
+  Get.to(() => ChatView(
+        currentUser: currentUserId,
+        otherUser: otherUserName,
+        otherUserImage: otherUserImage,
+        otherUserId: otherUserId,
+        chatId: chatId,
+      ));
+}
 }
