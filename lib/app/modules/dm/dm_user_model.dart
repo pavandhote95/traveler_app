@@ -2,26 +2,26 @@ class UserModel {
   final int userId;
   final String name;
   final String? profile;
-  final String? lastMessage;
-  final String? lastMessageTime;
+  final String lastMessage;
+  final String lastMessageTime;
   final int unreadCount;
 
   UserModel({
     required this.userId,
     required this.name,
     this.profile,
-    this.lastMessage,
-    this.lastMessageTime,
-    this.unreadCount = 0,
+    required this.lastMessage,
+    required this.lastMessageTime,
+    required this.unreadCount,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      userId: json['user_id'] ?? 0,
-      name: json['name'] ?? '',
+      userId: json['user_id'],
+      name: json['name'],
       profile: json['profile'],
-      lastMessage: json['last_message'],
-      lastMessageTime: json['last_message_time'],
+      lastMessage: json['last_message'] ?? "",
+      lastMessageTime: json['last_message_time'] ?? "",
       unreadCount: json['unread_count'] ?? 0,
     );
   }

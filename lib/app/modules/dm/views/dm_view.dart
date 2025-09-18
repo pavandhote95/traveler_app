@@ -4,64 +4,21 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:travel_app2/app/constants/app_color.dart';
+import 'package:travel_app2/app/modules/chat/controllers/chat_controller.dart';
 import 'package:travel_app2/app/modules/expert/views/expert_view.dart';
+import '../controllers/dm_controller.dart';
 
-class UserModel {
-  final String id;
-  final String name;
-  final String role;
-  final String image; // network url
-
-  UserModel({
-    required this.id,
-    required this.name,
-    required this.role,
-    required this.image,
-  });
-  
-}
+import 'user_model.dart';
 
 class DmView extends StatelessWidget {
   const DmView({Key? key, this.initialIndex = 0}) : super(key: key);
 
   final int initialIndex;
-     
-
-  // 🔹 Dummy current userId
-  static const String currentUserId = "100";
-
-  // 🔹 Dummy static users list
-  static final List<UserModel> users = [
-    UserModel(
-      id: "201",
-      name: "Dr. Smith",
-      role: "expert",
-      image: "https://i.pravatar.cc/150?img=3",
-    ),
-    UserModel(
-      id: "202",
-      name: "Chef Oliver",
-      role: "expert",
-      image: "https://i.pravatar.cc/150?img=4",
-    ),
-    UserModel(
-      id: "301",
-      name: "Alice Johnson",
-      role: "user",
-      image: "https://i.pravatar.cc/150?img=5",
-    ),
-    UserModel(
-      id: "302",
-      name: "Michael Brown",
-      role: "user",
-      image: "https://i.pravatar.cc/150?img=6",
-    ),
-  ];
 
   @override
   Widget build(BuildContext context) {
-    final expertsList = users.where((u) => u.role == "expert").toList();
-    final travellersList = users.where((u) => u.role == "user").toList();
+    final DmController controller = Get.put(DmController());
+    final ChatController chatController = Get.put(ChatController());
 
     return DefaultTabController(
       length: 2,
@@ -75,27 +32,27 @@ class DmView extends StatelessWidget {
                 onTap: () {
                   Get.to(ExpertView()); // Navigate to Experts tab
                 },
-                child:  Container(
-                height: 50,
-                width: 50,
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: AppColors.buttonBg,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.3),
-                      blurRadius: 6,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
+                child: Container(
+                  height: 50,
+                  width: 50,
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: AppColors.buttonBg,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.3),
+                        blurRadius: 6,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    CupertinoIcons.star_fill,
+                    color: Colors.black,
+                    size: 20,
+                  ),
                 ),
-                child: const Icon(
-                  CupertinoIcons.star_fill,
-                  color: Colors.black,
-                  size: 20,
-                ),
-              ),
               ),
             ),
           ],
@@ -116,8 +73,8 @@ class DmView extends StatelessWidget {
             unselectedLabelColor: Colors.white70,
             labelStyle: GoogleFonts.openSans(fontWeight: FontWeight.w600),
             tabs: const [
-              Tab(text: "users"), // 🔹 Now on the left
-              Tab(text: "Talk to travellers"), // 🔹 Now on the right
+              Tab(text: "users"),
+              Tab(text: "Talk to travellers"),
             ],
           ),
         ),
@@ -150,8 +107,24 @@ class DmView extends StatelessWidget {
             Expanded(
               child: TabBarView(
                 children: [
-                  _buildUserList(travellersList, "No Travellers Found"),
-                  _buildUserList(expertsList, "No Experts Found"),
+                  // 🔹 Dynamic Users Tab
+                  Obx(() {
+                    if (controller.isLoading.value) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    return _buildUserList(controller.users, "No Users Found", chatController);
+                  }),
+
+                  // 🔹 Travellers tab (static for now)
+                  Center(
+                    child: Text(
+                      "No Travellers Found",
+                      style: GoogleFonts.inter(
+                        fontSize: 16,
+                        color: Colors.grey.shade500,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -162,7 +135,7 @@ class DmView extends StatelessWidget {
   }
 
   /// 🔹 Common User List
-  Widget _buildUserList(List<UserModel> userList, String emptyMsg) {
+  Widget _buildUserList(List<UserModel> userList, String emptyMsg, ChatController chatController) {
     if (userList.isEmpty) {
       return Center(
         child: Text(
@@ -183,13 +156,13 @@ class DmView extends StatelessWidget {
         final user = userList[index];
         return GestureDetector(
           onTap: () {
-            // Get.put(ChatController()); // register controller
-            // final chatId = "chat_${currentUserId}_${user.id}";
-            // Get.to(() => ChatView(
-            //       currentUser: currentUserId,
-            //       otherUser: user.name,
-            //       chatId: chatId,
-            //     ));
+            // ✅ Start chat on tap
+            final otherUser = {
+              "id": user.userId,
+              "name": user.name,
+              "image_url": user.profile ?? "",
+            };
+            chatController.startChatWithUser(otherUser);
           },
           child: Container(
             padding: const EdgeInsets.all(12),
@@ -199,7 +172,7 @@ class DmView extends StatelessWidget {
             ),
             child: Row(
               children: [
-                _buildAvatar(user.image),
+                _buildAvatar(user.profile),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -215,7 +188,7 @@ class DmView extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        "Tap to chat",
+                        user.lastMessage ?? "Tap to chat",
                         style: GoogleFonts.inter(
                           fontSize: 14,
                           color: Colors.grey.shade500,

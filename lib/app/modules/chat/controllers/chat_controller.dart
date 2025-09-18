@@ -7,28 +7,31 @@ import 'package:travel_app2/app/modules/chat/views/chat_view.dart';
 class ChatController extends GetxController {
   final box = GetStorage();
 
-  /// messages list
+  /// Messages list
   RxList<Map<String, dynamic>> messages = <Map<String, dynamic>>[].obs;
 
-  /// Fetch all messages from API
-  Future<void> fetchMessages(dynamic receiverId) async {
+  /// Add message instantly (optimistic UI)
+  void addLocalMessage(Map<String, dynamic> msg) {
+    messages.insert(0, msg); // reverse list
+  }
+
+  /// Fetch messages from API
+  Future<void> fetchMessages(String receiverId) async {
     final userId = box.read('user_id').toString();
     final token = box.read('token');
-    final url = Uri.parse("https://kotiboxglobaltech.com/travel_app/api/messages");
-
-    if (token == null) {
-      print("⚠️ Error: Token not found");
-      return;
-    }
+    if (token == null) return;
 
     try {
-      final request = http.MultipartRequest('POST', url)
+      final request = http.MultipartRequest(
+          'POST',
+          Uri.parse(
+              "https://kotiboxglobaltech.com/travel_app/api/messages"))
         ..headers.addAll({
           'Accept': 'application/json',
           'Authorization': 'Bearer $token',
         })
         ..fields['sender_id'] = userId
-        ..fields['receiver_id'] = receiverId.toString();
+        ..fields['receiver_id'] = receiverId;
 
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
@@ -37,42 +40,46 @@ class ChatController extends GetxController {
         final data = jsonDecode(response.body);
         if (data['status'] == true && data['data'] != null) {
           messages.value = List<Map<String, dynamic>>.from(data['data']);
-        } else {
-          print("❌ Fetch error: ${data['message']}");
         }
-      } else {
-        print("❌ HTTP error: ${response.statusCode}");
       }
     } catch (e) {
-      print("⚠️ Exception: $e");
+      print("⚠️ Fetch exception: $e");
     }
   }
 
-  /// Send message
+  /// Send message instantly (optimistic UI)
   Future<void> sendMessageApi({
-    required dynamic receiverId,
-    required dynamic message,
-    dynamic messageType = "text",
+    required String receiverId,
+    required String message,
+    String messageType = "text",
   }) async {
-    final url = Uri.parse("https://kotiboxglobaltech.com/travel_app/api/messages/send");
-    final token = box.read('token');
     final userId = box.read('user_id').toString();
+    final token = box.read('token');
+    if (token == null) return;
 
-    if (token == null) {
-      print("⚠️ Error: Token not found");
-      return;
-    }
+    // Instant UI update
+    addLocalMessage({
+      "sender_id": userId,
+      "receiver_id": receiverId,
+      "message": message,
+      "created_at": DateTime.now().toIso8601String(),
+      "is_read": 0,
+    });
 
+    // Send to server
     try {
-      final request = http.MultipartRequest('POST', url)
+      final request = http.MultipartRequest(
+          'POST',
+          Uri.parse(
+              "https://kotiboxglobaltech.com/travel_app/api/messages/send"))
         ..headers.addAll({
           'Accept': 'application/json',
           'Authorization': 'Bearer $token',
         })
-        ..fields['receiver_id'] = receiverId.toString()
+        ..fields['receiver_id'] = receiverId
         ..fields['sender_id'] = userId
-        ..fields['message'] = message.toString()
-        ..fields['message_type'] = messageType.toString();
+        ..fields['message'] = message
+        ..fields['message_type'] = messageType;
 
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
@@ -80,40 +87,21 @@ class ChatController extends GetxController {
       if (response.body.isNotEmpty) {
         final data = jsonDecode(response.body);
         if (data['status'] == true) {
-          fetchMessages(receiverId); // refresh
-        } else {
-          print("❌ Error sending: ${data['message']}");
+          // Refresh immediately
+          await fetchMessages(receiverId);
         }
       }
     } catch (e) {
-      print("⚠️ Exception sending message: $e");
+      print("⚠️ Send exception: $e");
     }
   }
 
-  /// Start chat with user and navigate to ChatView
-  void startChatWithUser(Map<String, dynamic> otherUserProfile) {
-    final currentUserId = box.read('user_id').toString();
-    final otherUserId = otherUserProfile['id'];
-    final otherUserName = otherUserProfile['name'] ?? "Unknown";
-    final otherUserImage = otherUserProfile['image_url'] ?? "";
-    final chatId = getChatId(currentUserId, otherUserId);
-
-    Get.to(
-      () => ChatView(
-        currentUser: currentUserId,
-        otherUser: otherUserName,
-        otherUserImage: otherUserImage,
-        chatId: chatId,
-      ),
-    );
-  }
-
-  /// Polling Stream for messages
+  /// Fast Stream (poll every 1 second using async* and yield)
   Stream<List<Map<String, dynamic>>> messageStream(String receiverId) async* {
     while (true) {
-      await fetchMessages(receiverId);
-      await Future.delayed(const Duration(seconds: 3));
+      await fetchMessages(receiverId); // fast fetch
       yield messages;
+      await Future.delayed(const Duration(seconds: 1)); // fast polling
     }
   }
 
@@ -122,5 +110,22 @@ class ChatController extends GetxController {
     final idA = userA.toString();
     final idB = userB.toString();
     return idA.hashCode <= idB.hashCode ? '${idA}_$idB' : '${idB}_$idA';
+  }
+
+  /// Start chat with user and navigate to ChatView
+  void startChatWithUser(Map<String, dynamic> otherUserProfile) {
+    final currentUserId = box.read('user_id').toString();
+    final otherUserId = otherUserProfile['id'].toString();
+    final otherUserName = otherUserProfile['name'] ?? "Unknown";
+    final otherUserImage = otherUserProfile['image_url'] ?? "";
+    final chatId = getChatId(currentUserId, otherUserId);
+
+    Get.to(() => ChatView(
+          currentUser: currentUserId,
+          otherUser: otherUserName,
+          otherUserImage: otherUserImage,
+          otherUserId: otherUserId,
+          chatId: chatId,
+        ));
   }
 }
