@@ -17,12 +17,16 @@ class UserModel {
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      userId: json['user_id'] ?? 0,
+      userId: json['user_id'] is int
+          ? json['user_id']
+          : int.tryParse(json['user_id'].toString()) ?? 0,
       name: json['name'] ?? '',
       profile: json['profile'],
       lastMessage: json['last_message'],
       lastMessageTime: json['last_message_time'],
-      unreadCount: json['unread_count'] ?? 0,
+      unreadCount: json['unread_count'] is int
+          ? json['unread_count']
+          : int.tryParse(json['unread_count'].toString()) ?? 0,
     );
   }
 }

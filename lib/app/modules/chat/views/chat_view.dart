@@ -6,11 +6,11 @@ import 'package:lottie/lottie.dart';
 import '../controllers/chat_controller.dart';
 
 class ChatView extends StatefulWidget {
-  final String currentUser;
-  final String otherUser;
-  final String chatId;
-  final String otherUserImage;
-  final String otherUserId;
+  final String currentUser;      // logged in user id
+  final String otherUser;        // name of other user
+  final String chatId;           // combined id (for history / stream)
+  final String otherUserImage;   // profile image url
+  final String otherUserId;      // receiver user id
 
   const ChatView({
     super.key,
@@ -29,22 +29,26 @@ class _ChatViewState extends State<ChatView> {
   final TextEditingController _messageController = TextEditingController();
   final ChatController controller = Get.put(ChatController());
   final ScrollController _scrollController = ScrollController();
+
   late String receiverId;
 
   @override
   void initState() {
     super.initState();
-    final parts = widget.chatId.split('_');
-    receiverId = (parts[0] == widget.currentUser) ? parts[1] : parts[0];
+    // ✅ Always take direct receiverId
+    receiverId = widget.otherUserId;
   }
 
   void _sendMessage() {
     final text = _messageController.text.trim();
     if (text.isEmpty) return;
 
+    // ✅ API call
     controller.sendMessageApi(receiverId: receiverId, message: text);
+
     _messageController.clear();
 
+    // ✅ Auto scroll to bottom after sending
     Future.delayed(const Duration(milliseconds: 100), () {
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
@@ -65,7 +69,7 @@ class _ChatViewState extends State<ChatView> {
         elevation: 0,
         title: Row(
           children: [
-            _buildAvatar(widget.otherUserImage, widget.otherUser), // ✅ Same avatar as DmView
+            _buildAvatar(widget.otherUserImage, widget.otherUser),
             const SizedBox(width: 12),
             Text(
               widget.otherUser,
@@ -105,7 +109,8 @@ class _ChatViewState extends State<ChatView> {
                 return ListView.builder(
                   controller: _scrollController,
                   reverse: true,
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   itemCount: messages.length,
                   itemBuilder: (context, index) {
                     final msg = messages[messages.length - 1 - index];
@@ -119,11 +124,12 @@ class _ChatViewState extends State<ChatView> {
                     final time = DateFormat('hh:mm a').format(date);
 
                     return Align(
-                      alignment:
-                          isMe ? Alignment.centerRight : Alignment.centerLeft,
+                      alignment: isMe
+                          ? Alignment.centerRight
+                          : Alignment.centerLeft,
                       child: Container(
-                        margin:
-                            const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
+                        margin: const EdgeInsets.symmetric(
+                            vertical: 4, horizontal: 6),
                         padding: const EdgeInsets.symmetric(
                             horizontal: 14, vertical: 10),
                         constraints: BoxConstraints(
@@ -136,10 +142,12 @@ class _ChatViewState extends State<ChatView> {
                           borderRadius: BorderRadius.only(
                             topLeft: const Radius.circular(18),
                             topRight: const Radius.circular(18),
-                            bottomLeft:
-                                isMe ? const Radius.circular(18) : Radius.zero,
-                            bottomRight:
-                                isMe ? Radius.zero : const Radius.circular(18),
+                            bottomLeft: isMe
+                                ? const Radius.circular(18)
+                                : Radius.zero,
+                            bottomRight: isMe
+                                ? Radius.zero
+                                : const Radius.circular(18),
                           ),
                         ),
                         child: Column(
@@ -183,7 +191,8 @@ class _ChatViewState extends State<ChatView> {
           ),
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8),
               child: Row(
                 children: [
                   Expanded(
@@ -225,7 +234,9 @@ class _ChatViewState extends State<ChatView> {
 
   /// 🔹 Avatar function (same as in DmView)
   Widget _buildAvatar(String? imageUrl, String name) {
-    if (imageUrl != null && imageUrl.isNotEmpty && imageUrl.startsWith("http")) {
+    if (imageUrl != null &&
+        imageUrl.isNotEmpty &&
+        imageUrl.startsWith("http")) {
       return CircleAvatar(
         radius: 20,
         backgroundImage: NetworkImage(imageUrl),

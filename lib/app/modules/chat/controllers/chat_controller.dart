@@ -23,9 +23,9 @@ class ChatController extends GetxController {
 
     try {
       final request = http.MultipartRequest(
-          'POST',
-          Uri.parse(
-              "https://kotiboxglobaltech.com/travel_app/api/messages"))
+        'POST',
+        Uri.parse("https://kotiboxglobaltech.com/travel_app/api/messages"),
+      )
         ..headers.addAll({
           'Accept': 'application/json',
           'Authorization': 'Bearer $token',
@@ -39,7 +39,25 @@ class ChatController extends GetxController {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['status'] == true && data['data'] != null) {
-          messages.value = List<Map<String, dynamic>>.from(data['data']);
+          final serverMessages = List<Map<String, dynamic>>.from(data['data']);
+
+          // convert all server times to local
+          for (var msg in serverMessages) {
+            if (msg['created_at'] != null) {
+              msg['created_at'] =
+                  DateTime.parse(msg['created_at']).toLocal().toIso8601String();
+            }
+          }
+
+          // merge with local (avoid duplicates)
+          messages.removeWhere((m) =>
+              m['is_local'] == true &&
+              serverMessages.any((s) => s['message'] == m['message']));
+
+          messages.value = [
+            ...serverMessages,
+            ...messages.where((m) => m['is_local'] == true),
+          ];
         }
       }
     } catch (e) {
@@ -57,21 +75,23 @@ class ChatController extends GetxController {
     final token = box.read('token');
     if (token == null) return;
 
-    // Instant UI update
+    // Add local message
     addLocalMessage({
       "sender_id": userId,
       "receiver_id": receiverId,
       "message": message,
-      "created_at": DateTime.now().toIso8601String(),
+      "created_at": DateTime.now().toLocal().toIso8601String(),
       "is_read": 0,
+      "is_local": true,
     });
 
     // Send to server
     try {
       final request = http.MultipartRequest(
-          'POST',
-          Uri.parse(
-              "https://kotiboxglobaltech.com/travel_app/api/messages/send"))
+        'POST',
+        Uri.parse(
+            "https://kotiboxglobaltech.com/travel_app/api/messages/send"),
+      )
         ..headers.addAll({
           'Accept': 'application/json',
           'Authorization': 'Bearer $token',
@@ -96,12 +116,12 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Fast Stream (poll every 1 second using async* and yield)
+  /// Fast Stream (poll every 3 seconds instead of 1 to avoid flicker)
   Stream<List<Map<String, dynamic>>> messageStream(String receiverId) async* {
     while (true) {
-      await fetchMessages(receiverId); // fast fetch
+      await fetchMessages(receiverId);
       yield messages;
-      await Future.delayed(const Duration(seconds: 1)); // fast polling
+      await Future.delayed(const Duration(seconds: 1));
     }
   }
 
@@ -113,29 +133,29 @@ class ChatController extends GetxController {
   }
 
   /// Start chat with user and navigate to ChatView
-/// Start chat with user and navigate to ChatView
-void startChatWithUser(Map<String, dynamic> otherUserProfile) {
-  final currentUserId = box.read('user_id').toString();
-  final otherUserId = otherUserProfile['id'].toString();
-  final otherUserName = otherUserProfile['name'] ?? "Unknown";
-  final otherUserImage = otherUserProfile['profile'] ?? "";
-  final chatId = getChatId(currentUserId, otherUserId);
+  void startChatWithUser(Map<String, dynamic> otherUserProfile) {
+    final currentUserId = box.read('user_id').toString();
+    final otherUserId = otherUserProfile['id'].toString();
+    final otherUserName = otherUserProfile['name'] ?? "Unknown";
+    final otherUserImage = otherUserProfile['profile'] ?? "";
+    final chatId = getChatId(currentUserId, otherUserId);
 
-  // ✅ Debug prints for terminal
-  print("========= Chat Debug Info =========");
-  print("Current User ID: $currentUserId");
-  print("Other User ID: $otherUserId");
-  print("Other User Name: $otherUserName");
-  print("Other User Image: $otherUserImage");
-  print("Generated Chat ID: $chatId");
-  print("===================================");
+    Get.to(() => ChatView(
+          currentUser: currentUserId,
+          otherUser: otherUserName,
+          otherUserImage: otherUserImage,
+          otherUserId: otherUserId,
+          chatId: chatId,
+        ));
+  }
 
-  Get.to(() => ChatView(
-        currentUser: currentUserId,
-        otherUser: otherUserName,
-        otherUserImage: otherUserImage,
-        otherUserId: otherUserId,
-        chatId: chatId,
-      ));
-}
+  /// Format message time nicely (HH:mm)
+  String formatLocalTime(String utcTime) {
+    try {
+      final dateTime = DateTime.parse(utcTime).toLocal();
+      return "${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}";
+    } catch (e) {
+      return utcTime;
+    }
+  }
 }
