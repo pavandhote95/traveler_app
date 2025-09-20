@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:travel_app2/app/constants/app_color.dart';
 import 'package:travel_app2/app/modules/chat/controllers/chat_controller.dart';
 import 'package:travel_app2/app/modules/expert/views/expert_view.dart';
+import 'package:travel_app2/app/routes/app_pages.dart';
 import '../controllers/dm_controller.dart';
 import 'user_model.dart';
 
@@ -20,6 +21,7 @@ class DmView extends StatelessWidget {
 
     return DefaultTabController(
       length: 2,
+      initialIndex: initialIndex,
       child: Scaffold(
         backgroundColor: AppColors.mainBg,
         appBar: AppBar(
@@ -28,7 +30,7 @@ class DmView extends StatelessWidget {
               padding: const EdgeInsets.only(right: 20),
               child: GestureDetector(
                 onTap: () {
-                  Get.to(ExpertView()); // Navigate to Experts tab
+                  Get.to(() =>  ExpertView()); // ✅ Correct navigation
                 },
                 child: Container(
                   height: 50,
@@ -72,7 +74,7 @@ class DmView extends StatelessWidget {
             labelStyle: GoogleFonts.openSans(fontWeight: FontWeight.w600),
             tabs: const [
               Tab(text: "Users"),
-              Tab(text: "Talk to travellers"),
+              Tab(text: "Talk to Travellers"),
             ],
           ),
         ),
@@ -105,7 +107,7 @@ class DmView extends StatelessWidget {
             Expanded(
               child: TabBarView(
                 children: [
-                  // 🔹 Dynamic Users Tab
+                  // 🔹 Users tab
                   Obx(() {
                     if (controller.isLoading.value) {
                       return const Center(child: CircularProgressIndicator());
@@ -114,16 +116,16 @@ class DmView extends StatelessWidget {
                         controller.users, "No Users Found", chatController);
                   }),
 
-                  // 🔹 Travellers tab (static for now)
-                // 🔹 Travellers tab
-Obx(() {
-  if (controller.isTravellersLoading.value) {
-    return const Center(child: CircularProgressIndicator());
-  }
-  return _buildUserList(
-      controller.travellers, "No Travellers Found", chatController);
-}),
-
+                  // 🔹 Travellers tab
+                  Obx(() {
+                    if (controller.isTravellersLoading.value) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    return _buildUserList(
+                        controller.travellers, "No Travellers Found", chatController);
+                 
+                 
+                  }),
                 ],
               ),
             ),
@@ -148,107 +150,100 @@ Obx(() {
       );
     }
 
-    return ListView.separated(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      itemCount: userList.length,
-      separatorBuilder: (context, index) => const SizedBox(height: 12),
-      itemBuilder: (context, index) {
-        final user = userList[index];
+ return ListView.separated(
+  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+  itemCount: userList.length,
+  separatorBuilder: (context, index) => const SizedBox(height: 12),
+  itemBuilder: (context, index) {
+    final user = userList[index];
 
-        // ✅ Debug print for profile in terminal
-        print("User ${user.name} profile-----: ${user.profile}");
-
-        return GestureDetector(
-          onTap: () {
-            // ✅ Start chat on tap
-            final otherUser = {
-              "id": user.userId,
-              "name": user.name,
-              "profile": user.profile, // pass correct key
-            };
-            chatController.startChatWithUser(otherUser);
+    return GestureDetector(
+      onTap: () {
+        // If it's a traveller, navigate to CHAT_WITH_EXPERT
+        Get.toNamed(
+          Routes.CHAT_WITH_EXPERT,
+          arguments: {
+            "expertId": user.userId,
+            "expertName": user.name,
+            // "experttitle": user.title ?? "Traveller",
+            "expertImage": user.profile,
           },
-          child: Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1F1F1F),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              children: [
-                _buildAvatar(user.profile,user.name), // ✅ Correct avatar
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        user.name,
-                        style: GoogleFonts.openSans(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        user.lastMessage ?? "Tap to chat",
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          color: Colors.grey.shade500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const Icon(Icons.arrow_forward_ios,
-                    size: 16, color: Colors.grey),
-              ],
-            ),
-          ),
         );
       },
-    );
-  }
-
-  /// 🔹 Avatar with shimmer & fallback
-Widget _buildAvatar(String? imageUrl, String name) {
-  if (imageUrl != null && imageUrl.isNotEmpty) {
-    return CircleAvatar(
-      radius: 24,
-      backgroundColor: Colors.grey[800],
-      backgroundImage: NetworkImage(imageUrl),
-      onBackgroundImageError: (_, __) {
-        // agar network image fail ho jaye to fallback icon show hoga
-      },
-    );
-  } else {
-    // initials (first letter ya "?" if name empty)
-    final initials = (name.isNotEmpty ? name[0] : "?").toUpperCase();
-
-    // background colors list (random feel ke liye)
-    final bgColors = [
-      Colors.redAccent,
-      Colors.blueAccent,
-      Colors.green,
-      Colors.orange,
-      Colors.purple,
-      Colors.teal,
-    ];
-    final colorIndex = name.hashCode % bgColors.length;
-
-    return CircleAvatar(
-      radius: 24,
-      backgroundColor: bgColors[colorIndex],
-      child: Text(
-        initials,
-        style: const TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-          fontSize: 18,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1F1F1F),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            _buildAvatar(user.profile, user.name),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    user.name,
+                    style: GoogleFonts.openSans(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    user.lastMessage ?? "Tap to chat",
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      color: Colors.grey.shade500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+          ],
         ),
       ),
     );
+  },
+);
+      }
+
+  /// 🔹 Avatar with fallback
+  Widget _buildAvatar(String? imageUrl, String name) {
+    if (imageUrl != null && imageUrl.isNotEmpty) {
+      return CircleAvatar(
+        radius: 24,
+        backgroundColor: Colors.grey[800],
+        backgroundImage: NetworkImage(imageUrl),
+      );
+    } else {
+      final initials = (name.isNotEmpty ? name[0] : "?").toUpperCase();
+      final bgColors = [
+        Colors.redAccent,
+        Colors.blueAccent,
+        Colors.green,
+        Colors.orange,
+        Colors.purple,
+        Colors.teal,
+      ];
+      final colorIndex = name.hashCode % bgColors.length;
+
+      return CircleAvatar(
+        radius: 24,
+        backgroundColor: bgColors[colorIndex],
+        child: Text(
+          initials,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
+        ),
+      );
+    }
   }
-}
 }

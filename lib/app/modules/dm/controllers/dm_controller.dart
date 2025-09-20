@@ -52,34 +52,41 @@ class DmController extends GetxController {
   }
 
   /// ✅ Fetch Travellers
-  Future<void> fetchTravellers() async {
-    try {
-      isTravellersLoading.value = true;
-      final token = box.read('token');
-      if (token == null) {
-        Get.snackbar('Error', 'Auth token not found');
-        return;
-      }
+/// ✅ Fetch Travellers (Users available for experts to chat with)
+Future<void> fetchTravellers() async {
+  try {
+    isTravellersLoading.value = true;
 
-      final url = 'https://kotiboxglobaltech.com/travel_app/api/chat/expert-users';
-      final response = await http.get(
-        Uri.parse(url),
-        headers: {'Authorization': 'Bearer $token'},
-      );
-
-      if (response.statusCode == 200) {
-        final jsonBody = jsonDecode(response.body);
-        if (jsonBody['status'] == true) {
-          final List data = jsonBody['data'];
-          travellers.value = data.map((e) => UserModel.fromJson(e)).toList();
-        }
-      } else {
-        Get.snackbar('Error', 'Failed to fetch travellers');
-      }
-    } catch (e) {
-      Get.snackbar('Error', e.toString());
-    } finally {
-      isTravellersLoading.value = false;
+    final token = box.read('token');
+    if (token == null) {
+      Get.snackbar('Error', 'Auth token not found');
+      return;
     }
+
+    const url = 'https://kotiboxglobaltech.com/travel_app/api/chat/expert-users';
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    if (response.statusCode == 200) {
+      final jsonBody = jsonDecode(response.body);
+
+      if (jsonBody['status'] == true && jsonBody['data'] != null) {
+        final List data = jsonBody['data'];
+        travellers.value = data.map((e) => UserModel.fromJson(e)).toList();
+      } else {
+        travellers.clear();
+        Get.snackbar('Info', jsonBody['message'] ?? 'No travellers found');
+      }
+    } else {
+      Get.snackbar('Error', 'Failed to fetch travellers (Code: ${response.statusCode})');
+    }
+  } catch (e) {
+    Get.snackbar('Error', 'Failed to fetch travellers: $e');
+  } finally {
+    isTravellersLoading.value = false;
   }
+}
+
 }

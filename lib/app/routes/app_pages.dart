@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import '../modules/chat/bindings/chat_binding.dart';
 import '../modules/chat/views/chat_view.dart';
 import '../modules/chat_with_expert/bindings/chat_with_expert_binding.dart';
-import '../modules/chat_with_expert/views/chat_with_expert_view.dart';
+import '../modules/chat_with_expert/views/expertt_chat_view.dart';
 import '../modules/community_search/bindings/community_search_binding.dart';
 import '../modules/community_search/views/community_search_view.dart';
 import '../modules/dashboard/bindings/dashboard_binding.dart';

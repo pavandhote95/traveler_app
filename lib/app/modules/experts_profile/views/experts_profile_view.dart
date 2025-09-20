@@ -81,7 +81,7 @@ final expert = controller.expert;
                   ),
                   padding: const EdgeInsets.all(16),
                   child: Text(
-                    expert['title'] ?? '',
+                    expert['expert_name'] ?? '',
                     style: GoogleFonts.poppins(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
@@ -103,7 +103,7 @@ final expert = controller.expert;
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      expert['sub_title'] ?? '',
+                      expert['title'] ?? '',
                       style: GoogleFonts.poppins(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
@@ -220,7 +220,8 @@ final expert = controller.expert;
       Routes.CHAT_WITH_EXPERT,
       arguments: {
         "expertId": expertId,
-        "expertName": expert['title'] ?? 'Expert',
+        "expertName": expert['expert_name'] ?? 'Expert',
+        "experttitle": expert['title'] ?? 'Expert',
         "expertImage":expert['image']
       },
     );

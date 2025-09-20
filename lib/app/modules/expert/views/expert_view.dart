@@ -3,12 +3,14 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 import 'package:travel_app2/app/constants/app_color.dart';
 import 'package:travel_app2/app/modules/dm/views/dm_view.dart';
+import 'package:travel_app2/app/modules/experts_profile/controllers/experts_profile_controller.dart';
 import 'package:travel_app2/app/modules/experts_profile/views/experts_profile_view.dart';
 import '../controllers/expert_controller.dart';
 
 // ignore: must_be_immutable
 class ExpertView extends GetView<ExpertController> {
   ExpertController controller = Get.put(ExpertController());
+  final ExpertsProfileController profileController = Get.put(ExpertsProfileController());
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +29,11 @@ class ExpertView extends GetView<ExpertController> {
                  padding: const EdgeInsets.only(right:20.0),
                  child: InkWell(
                   onTap: () {
-                    Get.to(() =>  DmView());
+    //                Get.to(() => DmView(
+    //   expertId: controller.exper,
+    //   expert: controller.expert,
+    // ));
+
                   },
                   child: Image.asset(
                     'assets/icons/telegram.png',
@@ -145,6 +151,17 @@ class ExpertCard extends StatelessWidget {
                 ),
               ),
               SizedBox(height: screenWidth * 0.03),
+               Text(
+                expert['expert_name'] ?? "",
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.poppins(
+                  fontSize: screenWidth * 0.035,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+              SizedBox(height: screenWidth * 0.03),
               Text(
                 expert['title'] ?? "",
                 textAlign: TextAlign.center,
@@ -155,15 +172,15 @@ class ExpertCard extends StatelessWidget {
                   color: Colors.white,
                 ),
               ),
-              Text(
-                expert['sub_title'] ?? "",
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.poppins(
-                  fontSize: screenWidth * 0.03,
-                  color: Colors.white70,
-                ),
-              ),
+              // Text(
+              //   expert['sub_title'] ?? "",
+              //   textAlign: TextAlign.center,
+              //   overflow: TextOverflow.ellipsis,
+              //   style: GoogleFonts.poppins(
+              //     fontSize: screenWidth * 0.03,
+              //     color: Colors.white70,
+              //   ),
+              // ),
               Text(
                 expert['location'] ?? "",
                 textAlign: TextAlign.center,
