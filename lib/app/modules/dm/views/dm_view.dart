@@ -5,9 +5,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:travel_app2/app/constants/app_color.dart';
 import 'package:travel_app2/app/modules/chat/controllers/chat_controller.dart';
 import 'package:travel_app2/app/modules/expert/views/expert_view.dart';
-import 'package:travel_app2/app/routes/app_pages.dart';
+import 'package:travel_app2/app/modules/travellers/views/travellers_view.dart';
 import '../controllers/dm_controller.dart';
 import 'user_model.dart';
+// ✅ import TravellersView
 
 class DmView extends StatelessWidget {
   const DmView({Key? key, this.initialIndex = 0}) : super(key: key);
@@ -30,7 +31,7 @@ class DmView extends StatelessWidget {
               padding: const EdgeInsets.only(right: 20),
               child: GestureDetector(
                 onTap: () {
-                  Get.to(() =>  ExpertView()); // ✅ Correct navigation
+                  Get.to(ExpertView()); // Navigate to Experts tab
                 },
                 child: Container(
                   height: 50,
@@ -74,7 +75,7 @@ class DmView extends StatelessWidget {
             labelStyle: GoogleFonts.openSans(fontWeight: FontWeight.w600),
             tabs: const [
               Tab(text: "Users"),
-              Tab(text: "Talk to Travellers"),
+              Tab(text: "Talk to travellers"),
             ],
           ),
         ),
@@ -107,7 +108,7 @@ class DmView extends StatelessWidget {
             Expanded(
               child: TabBarView(
                 children: [
-                  // 🔹 Users tab
+                  // 🔹 Users tab (dynamic)
                   Obx(() {
                     if (controller.isLoading.value) {
                       return const Center(child: CircularProgressIndicator());
@@ -116,16 +117,8 @@ class DmView extends StatelessWidget {
                         controller.users, "No Users Found", chatController);
                   }),
 
-                  // 🔹 Travellers tab
-                  Obx(() {
-                    if (controller.isTravellersLoading.value) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                    return _buildUserList(
-                        controller.travellers, "No Travellers Found", chatController);
-                 
-                 
-                  }),
+                  // 🔹 Travellers tab (new page with its controller)
+                  TravellersView(),
                 ],
               ),
             ),
@@ -150,69 +143,66 @@ class DmView extends StatelessWidget {
       );
     }
 
- return ListView.separated(
-  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-  itemCount: userList.length,
-  separatorBuilder: (context, index) => const SizedBox(height: 12),
-  itemBuilder: (context, index) {
-    final user = userList[index];
+    return ListView.separated(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      itemCount: userList.length,
+      separatorBuilder: (context, index) => const SizedBox(height: 12),
+      itemBuilder: (context, index) {
+        final user = userList[index];
 
-    return GestureDetector(
-      onTap: () {
-        // If it's a traveller, navigate to CHAT_WITH_EXPERT
-        Get.toNamed(
-          Routes.CHAT_WITH_EXPERT,
-          arguments: {
-            "expertId": user.userId,
-            "expertName": user.name,
-            // "experttitle": user.title ?? "Traveller",
-            "expertImage": user.profile,
+        return GestureDetector(
+          onTap: () {
+            // ✅ Start chat on tap
+            chatController.startChatWithUser({
+              "id": user.userId,
+              "name": user.name,
+              "profile": user.profile,
+            });
           },
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1F1F1F),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                _buildAvatar(user.profile, user.name),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        user.name,
+                        style: GoogleFonts.openSans(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        user.lastMessage ?? "Tap to chat",
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          color: Colors.grey.shade500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.arrow_forward_ios,
+                    size: 16, color: Colors.grey),
+              ],
+            ),
+          ),
         );
       },
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: const Color(0xFF1F1F1F),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            _buildAvatar(user.profile, user.name),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    user.name,
-                    style: GoogleFonts.openSans(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    user.lastMessage ?? "Tap to chat",
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      color: Colors.grey.shade500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
-          ],
-        ),
-      ),
     );
-  },
-);
-      }
+  }
 
-  /// 🔹 Avatar with fallback
+  /// 🔹 Avatar with fallback initials
   Widget _buildAvatar(String? imageUrl, String name) {
     if (imageUrl != null && imageUrl.isNotEmpty) {
       return CircleAvatar(

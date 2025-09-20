@@ -32,6 +32,8 @@ class ExpertsProfileController extends GetxController {
         final data = jsonDecode(response.body);
         if (data["success"] == true) {
           expert.value = data["data"];
+        } else {
+          Get.snackbar("Error", data["message"] ?? "Failed to fetch expert");
         }
       } else {
         Get.snackbar("Error", "Failed to fetch expert: ${response.statusCode}");
@@ -43,5 +45,3 @@ class ExpertsProfileController extends GetxController {
     }
   }
 }
-
-

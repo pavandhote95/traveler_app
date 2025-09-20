@@ -12,9 +12,11 @@ class ExpertView extends GetView<ExpertController> {
   ExpertController controller = Get.put(ExpertController());
   final ExpertsProfileController profileController = Get.put(ExpertsProfileController());
 
+
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
+
 
     return Scaffold(
       backgroundColor: AppColors.mainBg,
@@ -29,11 +31,7 @@ class ExpertView extends GetView<ExpertController> {
                  padding: const EdgeInsets.only(right:20.0),
                  child: InkWell(
                   onTap: () {
-    //                Get.to(() => DmView(
-    //   expertId: controller.exper,
-    //   expert: controller.expert,
-    // ));
-
+  Get.to(DmView());
                   },
                   child: Image.asset(
                     'assets/icons/telegram.png',
@@ -63,7 +61,7 @@ class ExpertView extends GetView<ExpertController> {
                 decoration: InputDecoration(
                   hintText: "Search experts...",
                   hintStyle: const TextStyle(color: Colors.white70),
-                  prefixIcon: const Icon(Icons.search, color: Colors.white70),
+                  prefixIcon: const Icon(Icons  .search, color: Colors.white70),
                   filled: true,
                   fillColor: AppColors.cardBg,
                   border: OutlineInputBorder(

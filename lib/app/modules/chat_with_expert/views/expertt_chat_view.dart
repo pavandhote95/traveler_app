@@ -29,6 +29,7 @@ class _ExpertChatViewState extends State<ExpertChatView> {
   void initState() {
     super.initState();
     _tag = 'expert_${widget.expertId}';
+      debugPrint("✅ Expert Image: ${widget.expertImage}");
 
     // Reuse controller per expert using a tag. If not registered — create and keep permanent.
     if (Get.isRegistered<ChatWithExpertController>(tag: _tag)) {

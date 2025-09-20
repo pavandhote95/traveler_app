@@ -13,9 +13,8 @@ class ExpertsProfileView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(ExpertsProfileController());
-final expert = controller.expert;
 
-    // 🔥 Load expert detail
+    // Load expert detail
     controller.fetchExpertDetail(expertId);
 
     return Scaffold(
@@ -37,7 +36,6 @@ final expert = controller.expert;
         }
 
         final expert = controller.expert;
-
         if (expert.isEmpty) {
           return const Center(
             child: Text(
@@ -47,17 +45,15 @@ final expert = controller.expert;
           );
         }
 
-        final imageUrl = (expert['image'] != null &&
-                expert['image'].toString().isNotEmpty)
-            ? expert['image']
-            : "https://via.placeholder.com/600x400"; // ✅ fallback
+        final imageUrl = expert['image']?.toString() ??
+            "https://via.placeholder.com/600x400";
 
         return SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header image with name
+              // Header image with expert name
               Container(
                 height: 240,
                 width: double.infinity,
@@ -81,7 +77,7 @@ final expert = controller.expert;
                   ),
                   padding: const EdgeInsets.all(16),
                   child: Text(
-                    expert['expert_name'] ?? '',
+                    expert['expert_name']?.toString() ?? 'Expert',
                     style: GoogleFonts.poppins(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
@@ -102,8 +98,9 @@ final expert = controller.expert;
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Expert title
                     Text(
-                      expert['title'] ?? '',
+                      expert['title']?.toString() ?? '',
                       style: GoogleFonts.poppins(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
@@ -112,6 +109,7 @@ final expert = controller.expert;
                     ),
                     const SizedBox(height: 8),
 
+                    // Location
                     Row(
                       children: [
                         const Icon(Icons.place,
@@ -119,7 +117,7 @@ final expert = controller.expert;
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
-                            expert['location'] ?? '',
+                            expert['location']?.toString() ?? '',
                             style: GoogleFonts.poppins(color: Colors.white70),
                           ),
                         ),
@@ -127,6 +125,8 @@ final expert = controller.expert;
                     ),
 
                     const SizedBox(height: 8),
+
+                    // Languages
                     Row(
                       children: [
                         const Icon(Icons.language,
@@ -134,9 +134,10 @@ final expert = controller.expert;
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
-                            (expert['language'] as List)
-                                .map((lang) => lang['value'])
-                                .join(', '),
+                            (expert['language'] as List<dynamic>?)
+                                    ?.map((lang) => lang['value'].toString())
+                                    .join(', ') ??
+                                '',
                             style: GoogleFonts.poppins(color: Colors.white70),
                           ),
                         ),
@@ -147,6 +148,7 @@ final expert = controller.expert;
                     Divider(color: Colors.white24),
                     const SizedBox(height: 12),
 
+                    // Days
                     Row(
                       children: [
                         const Icon(Icons.map,
@@ -154,7 +156,7 @@ final expert = controller.expert;
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
-                            expert['days'] ?? '',
+                            expert['days']?.toString() ?? '0',
                             style: GoogleFonts.openSans(
                               color: Colors.white60,
                               fontSize: 13,
@@ -165,13 +167,15 @@ final expert = controller.expert;
                     ),
 
                     const SizedBox(height: 8),
+
+                    // Guided
                     Row(
                       children: [
                         const Icon(Icons.people,
                             color: AppColors.buttonBg, size: 18),
                         const SizedBox(width: 6),
                         Text(
-                          expert['guided'] ?? '',
+                          expert['guided']?.toString() ?? '',
                           style: GoogleFonts.poppins(
                             color: Colors.white60,
                             fontSize: 13,
@@ -184,6 +188,7 @@ final expert = controller.expert;
                     Divider(color: Colors.white24),
                     const SizedBox(height: 12),
 
+                    // About
                     Text(
                       'About the Expert',
                       style: GoogleFonts.poppins(
@@ -194,7 +199,7 @@ final expert = controller.expert;
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      expert['about'] ?? '',
+                      expert['about']?.toString() ?? '',
                       style: GoogleFonts.poppins(
                         color: Colors.white70,
                         fontSize: 14,
@@ -212,19 +217,17 @@ final expert = controller.expert;
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16),
-          child:
-          
-           ElevatedButton.icon(
+          child: ElevatedButton.icon(
             onPressed: () {
-             Get.toNamed(
-      Routes.CHAT_WITH_EXPERT,
-      arguments: {
-        "expertId": expertId,
-        "expertName": expert['expert_name'] ?? 'Expert',
-        "experttitle": expert['title'] ?? 'Expert',
-        "expertImage":expert['image']
-      },
-    );
+              Get.toNamed(
+                Routes.CHAT_WITH_EXPERT,
+                arguments: {
+                  "expertId": expertId,
+                  "expertName": controller.expert['expert_name']?.toString() ?? 'Expert',
+                  "experttitle": controller.expert['title']?.toString() ?? 'Expert',
+                  "expertImage": controller.expert['image']?.toString(),
+                },
+              );
             },
             icon: const Icon(Icons.chat),
             label: Text(
@@ -243,8 +246,6 @@ final expert = controller.expert;
           ).animate().fadeIn().slideX(begin: -0.2),
         ),
       ),
-   
-   
     );
   }
 }
