@@ -8,7 +8,6 @@ import 'package:travel_app2/app/modules/expert/views/expert_view.dart';
 import 'package:travel_app2/app/modules/travellers/views/travellers_view.dart';
 import '../controllers/dm_controller.dart';
 import 'user_model.dart';
-// ✅ import TravellersView
 
 class DmView extends StatelessWidget {
   const DmView({Key? key, this.initialIndex = 0}) : super(key: key);
@@ -19,6 +18,9 @@ class DmView extends StatelessWidget {
   Widget build(BuildContext context) {
     final DmController controller = Get.put(DmController());
     final ChatController chatController = Get.put(ChatController());
+
+    // ✅ Example: Get expertId dynamically from arguments (if needed)
+    final int expertuserId = Get.arguments?['id'] ?? 0;
 
     return DefaultTabController(
       length: 2,
@@ -31,7 +33,7 @@ class DmView extends StatelessWidget {
               padding: const EdgeInsets.only(right: 20),
               child: GestureDetector(
                 onTap: () {
-                  Get.to(ExpertView()); // Navigate to Experts tab
+                  Get.to( ExpertView()); // Navigate to Experts tab
                 },
                 child: Container(
                   height: 50,
@@ -108,7 +110,7 @@ class DmView extends StatelessWidget {
             Expanded(
               child: TabBarView(
                 children: [
-                  // 🔹 Users tab (dynamic)
+                  // 🔹 Users tab
                   Obx(() {
                     if (controller.isLoading.value) {
                       return const Center(child: CircularProgressIndicator());
@@ -117,8 +119,8 @@ class DmView extends StatelessWidget {
                         controller.users, "No Users Found", chatController);
                   }),
 
-                  // 🔹 Travellers tab (new page with its controller)
-                  TravellersView(),
+                  // 🔹 Travellers tab (with expertId passed)
+                  TravellersView(expertuserId: expertuserId),
                 ],
               ),
             ),
@@ -152,7 +154,6 @@ class DmView extends StatelessWidget {
 
         return GestureDetector(
           onTap: () {
-            // ✅ Start chat on tap
             chatController.startChatWithUser({
               "id": user.userId,
               "name": user.name,

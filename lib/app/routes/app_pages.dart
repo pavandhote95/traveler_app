@@ -147,7 +147,7 @@ class AppPages {
       name: _Paths.EXPERTS_PROFILE,
       page: () {
         final args = Get.arguments as Map<String, dynamic>;
-        return ExpertsProfileView(expertId: args['expertId']);
+        return ExpertsProfileView(expertId: args['expertId'], expertuserId: args['expertuserId'],);
       },
       binding: ExpertsProfileBinding(),
     ),
@@ -186,7 +186,7 @@ class AppPages {
         // Read arguments safely
         final args = Get.arguments as Map<String, dynamic>? ?? {};
 
-        return ExpertChatView(
+        return ChatWithExpertView(
           expertId: args['expertId'] ?? 0,
           expertName: args['expertName'] ?? "Expert",
           expertImage: args['expertImage'] ?? "",
@@ -194,10 +194,18 @@ class AppPages {
       },
       binding: ChatWithExpertBinding(),
     ),
+
     GetPage(
       name: _Paths.TRAVELLERS,
-      page: () =>  TravellersView(),
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>? ?? {};
+        return TravellersView(
+          expertuserId: args['expertuserId'] ?? 0,
+     
+        );
+      },
       binding: TravellersBinding(),
     ),
+
   ];
 }

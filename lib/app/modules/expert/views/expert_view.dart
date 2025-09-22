@@ -124,8 +124,10 @@ class ExpertCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
+           print("🟢 Selected Expert ID: ${expert['user_id']}");
         Get.to(() => ExpertsProfileView(
               expertId: expert['id'],
+              expertuserId: expert['user_id'],
             ));
       },
       child: Card(

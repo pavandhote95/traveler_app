@@ -8,7 +8,8 @@ import '../controllers/experts_profile_controller.dart';
 
 class ExpertsProfileView extends StatelessWidget {
   final int expertId;
-  const ExpertsProfileView({super.key, required this.expertId});
+  final int expertuserId;
+  const ExpertsProfileView({super.key, required this.expertId, required this.expertuserId});
 
   @override
   Widget build(BuildContext context) {
@@ -16,6 +17,8 @@ class ExpertsProfileView extends StatelessWidget {
 
     // Load expert detail
     controller.fetchExpertDetail(expertId);
+    controller.fetchExpertDetail(expertuserId);
+    print("🟢 Opened Expert Profile ID: $expertId");
 
     return Scaffold(
       backgroundColor: AppColors.mainBg,
@@ -222,7 +225,7 @@ class ExpertsProfileView extends StatelessWidget {
               Get.toNamed(
                 Routes.CHAT_WITH_EXPERT,
                 arguments: {
-                  "expertId": expertId,
+                  "expertId": expertuserId,
                   "expertName": controller.expert['expert_name']?.toString() ?? 'Expert',
                   "experttitle": controller.expert['title']?.toString() ?? 'Expert',
                   "expertImage": controller.expert['image']?.toString(),

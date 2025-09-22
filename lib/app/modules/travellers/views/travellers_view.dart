@@ -1,26 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:travel_app2/app/modules/experts_profile/controllers/experts_profile_controller.dart';
 import 'package:travel_app2/app/modules/travellers/controllers/travellers_controller.dart';
 import 'package:travel_app2/app/modules/travellers/views/all_expert_chat_model.dart';
+import 'package:travel_app2/app/routes/app_pages.dart';
 
 class TravellersView extends StatelessWidget {
-  TravellersView({Key? key}) : super(key: key);
+  final int expertuserId;
+  TravellersView({Key? key, required this.expertuserId}) : super(key: key);
 
   final TravellersController controller = Get.put(TravellersController());
+  final ExpertsProfileController profileController = Get.put(ExpertsProfileController());
 
   @override
   Widget build(BuildContext context) {
+    // Load expert detail here to ensure expertuserId is available
+    profileController.fetchExpertDetail(expertuserId);
+
     return Obx(() {
       if (controller.isLoading.value) {
         return const Center(child: CircularProgressIndicator());
       }
+
+      // 🖥 Print travellers data in terminal
+      print("✅ Loaded travellers for expertId: $expertuserId");
+      for (var t in controller.travellers) {
+        print("Traveller => id:${t.userId}, name:${t.name}, profile:${t.profile}, lastMessage:${t.lastMessage}");
+      }
+
+      // 🖥 Print expert data in terminal
+      print("✅ Expert Data => ${profileController.expert}");
+
       return _buildTravellerList(controller.travellers);
     });
   }
 
   Widget _buildTravellerList(List<UserModel2> travellers) {
     if (travellers.isEmpty) {
+      print("⚠️ No travellers found for this expert");
       return Center(
         child: Text(
           "No Travellers Found",
@@ -39,9 +57,21 @@ class TravellersView extends StatelessWidget {
       itemBuilder: (context, index) {
         final traveller = travellers[index];
 
+        // 🖥 Print each traveller when building UI
+        print("📌 Building Traveller Widget => ${traveller.name}");
+
         return GestureDetector(
           onTap: () {
-            print("Tapped on ${traveller.name}");
+            print("👉 Opening chat with ExpertId: $expertuserId, Traveller: ${traveller.name}");
+            Get.toNamed(
+              Routes.CHAT_WITH_EXPERT,
+              arguments: {
+                "expertId": expertuserId,
+                "expertName": profileController.expert['expert_name']?.toString() ?? 'Expert',
+                "experttitle": profileController.expert['title']?.toString() ?? 'Expert',
+                "expertImage": profileController.expert['image']?.toString(),
+              },
+            );
           },
           child: Container(
             padding: const EdgeInsets.all(12),
@@ -51,7 +81,7 @@ class TravellersView extends StatelessWidget {
             ),
             child: Row(
               children: [
-                _buildAvatar(traveller.profile, traveller.name), // <-- use imageUrl
+                _buildAvatar(traveller.profile, traveller.name),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -96,11 +126,13 @@ class TravellersView extends StatelessWidget {
           height: 48,
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) {
-            return _initialsAvatar(name); // fallback if image fails
+            print("❌ Failed to load image for $name");
+            return _initialsAvatar(name);
           },
         ),
       );
     } else {
+      print("ℹ️ No image for $name, showing initials");
       return _initialsAvatar(name);
     }
   }

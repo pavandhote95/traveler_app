@@ -45,6 +45,7 @@ class TravellersController extends GetxController {
 
           for (var t in travellers) {
             print("Traveller: ${t.name}, LastMsg: ${t.lastMessage}");
+            print("Travellerid: ${t.userId}, LastMsg: ${t.lastMessage}");
           }
         } else {
           travellers.clear();

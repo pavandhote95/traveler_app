@@ -4,19 +4,18 @@ import 'package:http/http.dart' as http;
 import 'package:get_storage/get_storage.dart';
 
 class ExpertsProfileController extends GetxController {
-  var expert = {}.obs;
+  var expert = <String, dynamic>{}.obs;
   var isLoading = true.obs;
 
   final box = GetStorage();
 
   Future<void> fetchExpertDetail(int id) async {
-    try {
-      isLoading.value = true;
+    isLoading.value = true;
 
+    try {
       final token = box.read('token');
       if (token == null) {
         Get.snackbar("Error", "No token found. Please login first.");
-        isLoading.value = false;
         return;
       }
 
@@ -28,20 +27,31 @@ class ExpertsProfileController extends GetxController {
         },
       );
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        if (data["success"] == true) {
-          expert.value = data["data"];
-        } else {
-          Get.snackbar("Error", data["message"] ?? "Failed to fetch expert");
-        }
+      // Parse response
+      final data = jsonDecode(response.body);
+
+      // Only update expert if success and data exists
+      if (response.statusCode == 200 && data["success"] == true && data["data"] != null) {
+        expert.value = data["data"];
+        // Optional: You can show a success snackbar if you want
+        // Get.snackbar("Success", "Expert details fetched successfully");
       } else {
-        Get.snackbar("Error", "Failed to fetch expert: ${response.statusCode}");
+        // Show error only if something went wrong
+        // Get.snackbar("Error", data["message"] ?? "Failed to fetch expert");
       }
     } catch (e) {
       Get.snackbar("Error", e.toString());
     } finally {
       isLoading.value = false;
     }
+  }
+
+  // Helper to get languages as a comma-separated string
+  String getLanguages() {
+    if (expert.value["language"] != null) {
+      List langs = expert.value["language"];
+      return langs.map((e) => e["value"].toString()).join(", ");
+    }
+    return "";
   }
 }
