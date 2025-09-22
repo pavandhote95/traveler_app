@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
 import '../controllers/chat_with_expert_controller.dart';
 
 class ChatWithExpertView extends StatefulWidget {
@@ -27,12 +28,25 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
   final TextEditingController messageController = TextEditingController();
   final ScrollController scrollController = ScrollController();
 
+  late Razorpay _razorpay;
+
   @override
   void initState() {
     super.initState();
     controller = Get.put(ChatWithExpertController());
     controller.fetchMessages(receiverId: widget.expertId);
     ever(controller.messages, (_) => scrollToBottom());
+
+    _razorpay = Razorpay();
+    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
+    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
+    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+  }
+
+  @override
+  void dispose() {
+    _razorpay.clear();
+    super.dispose();
   }
 
   void scrollToBottom() {
@@ -51,6 +65,7 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
       controller.sendMessageToExpert(
         receiverId: widget.expertId,
         message: text,
+        // price: widget.expertPrice,
       );
       messageController.clear();
       scrollToBottom();
@@ -145,8 +160,8 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
                     height: 50,
                     child: ElevatedButton(
                       onPressed: () {
-                        Navigator.pop(context);
-                        _showPaymentConfirmation(widget.expertPrice);
+                        Navigator.pop(context); // close modal
+                        _openRazorpayPayment(widget.expertPrice); // open Razorpay
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green.shade600,
@@ -181,50 +196,43 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
     );
   }
 
-  void _showPaymentConfirmation(String amount) {
-    Get.dialog(
-      AlertDialog(
-        backgroundColor: const Color(0xFF1A1A1A),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title:
-            Text("Confirm Payment", style: GoogleFonts.poppins(color: Colors.white)),
-        content: Text(
-          "Do you want to pay $amount to ${widget.expertName}?",
-          style: GoogleFonts.poppins(color: Colors.white70),
-        ),
-        actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text("Cancel")),
-          ElevatedButton(
-            onPressed: () {
-              Get.back();
-              _showPaymentSuccess(amount);
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.green.shade600),
-            child: const Text("Confirm"),
-          ),
-        ],
-      ),
-    );
+  //rzp_test_RIcVT1kjDlJh9q:Test Key Id
+  //ex3N4k5SDWDiibBi2XZVgWii:Test Key Secre
+  //RIc97VjLqS0ASc:Merchant Id
+
+  void _openRazorpayPayment(String amount) {
+    var options = {
+      'key': 'rzp_test_RKZal2jhUmYf0K', // replace with your Razorpay key
+      'amount': (double.parse(amount) * 100).toInt(), // amount in paise
+      'name': widget.expertName,
+      'description': 'Consultation Payment',
+      'prefill': {
+        'contact': '7415743916', // optional: user contact
+        'email': 'pavandhote95@gmail.com' // optional: user email
+      },
+      'theme': {'color': '#F37254'}
+    };
+
+    try {
+      _razorpay.open(options);
+    } catch (e) {
+      debugPrint('Error: $e');
+    }
   }
 
-  void _showPaymentSuccess(String amount) {
-    Get.dialog(
-      AlertDialog(
-        backgroundColor: const Color(0xFF1A1A1A),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text("Payment Successful",
-            style: GoogleFonts.poppins(color: Colors.green.shade400)),
-        content: Text("$amount paid to ${widget.expertName}",
-            style: GoogleFonts.poppins(color: Colors.white70)),
-        actions: [
-          ElevatedButton(
-            onPressed: () => Get.back(),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.green.shade600),
-            child: const Text("OK"),
-          ),
-        ],
-      ),
-    );
+  void _handlePaymentSuccess(PaymentSuccessResponse response) {
+    Get.snackbar('Success', 'Payment successful: ${response.paymentId}',
+        backgroundColor: Colors.green.shade600, colorText: Colors.white);
+  }
+
+  void _handlePaymentError(PaymentFailureResponse response) {
+    Get.snackbar('Error', 'Payment failed: ${response.message}',
+        backgroundColor: Colors.red.shade600, colorText: Colors.white);
+  }
+
+  void _handleExternalWallet(ExternalWalletResponse response) {
+    Get.snackbar('Wallet', 'External wallet: ${response.walletName}',
+        backgroundColor: Colors.orange.shade600, colorText: Colors.white);
   }
 
   Widget _buildMessageBubble(Map<String, dynamic> msg) {
