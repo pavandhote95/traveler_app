@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:travel_app2/app/modules/dm/dm_user_model.dart';
+
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:travel_app2/app/modules/travellers/views/all_expert_chat_model.dart';
@@ -62,4 +62,5 @@ class TravellersController extends GetxController {
       isLoading.value = false;
     }
   }
+  
 }

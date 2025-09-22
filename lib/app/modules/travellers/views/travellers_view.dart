@@ -61,18 +61,18 @@ class TravellersView extends StatelessWidget {
         print("📌 Building Traveller Widget => ${traveller.name}");
 
         return GestureDetector(
-          onTap: () {
-            print("👉 Opening chat with ExpertId: $expertuserId, Traveller: ${traveller.name}");
-            Get.toNamed(
-              Routes.CHAT_WITH_EXPERT,
-              arguments: {
-                "expertId": expertuserId,
-                "expertName": profileController.expert['expert_name']?.toString() ?? 'Expert',
-                "experttitle": profileController.expert['title']?.toString() ?? 'Expert',
-                "expertImage": profileController.expert['image']?.toString(),
-              },
-            );
-          },
+         onTap: () {
+  print("👉 Opening chat with Traveller: ${traveller.name}");
+  Get.toNamed(
+    Routes.TALK_TO_TRAVELLERS_CHAT, // 👈 use your route name
+    arguments: {
+      "travellerId": traveller.userId,
+      "travellerName": traveller.name,
+      "travellerImage": traveller.profile,
+    },
+  );
+},
+
           child: Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(

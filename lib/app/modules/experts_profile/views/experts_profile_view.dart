@@ -3,13 +3,18 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:travel_app2/app/constants/app_color.dart';
+import 'package:travel_app2/app/modules/chat_with_expert/views/expertt_chat_view.dart';
 import 'package:travel_app2/app/routes/app_pages.dart';
 import '../controllers/experts_profile_controller.dart';
 
 class ExpertsProfileView extends StatelessWidget {
   final int expertId;
   final int expertuserId;
-  const ExpertsProfileView({super.key, required this.expertId, required this.expertuserId});
+  const ExpertsProfileView({
+    super.key,
+    required this.expertId,
+    required this.expertuserId,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +22,7 @@ class ExpertsProfileView extends StatelessWidget {
 
     // Load expert detail
     controller.fetchExpertDetail(expertId);
-    controller.fetchExpertDetail(expertuserId);
+
     print("🟢 Opened Expert Profile ID: $expertId");
 
     return Scaffold(
@@ -48,15 +53,15 @@ class ExpertsProfileView extends StatelessWidget {
           );
         }
 
-        final imageUrl = expert['image']?.toString() ??
-            "https://via.placeholder.com/600x400";
+        final imageUrl =
+            expert['image']?.toString() ?? "https://via.placeholder.com/600x400";
 
         return SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header image with expert name
+              // Header image
               Container(
                 height: 240,
                 width: double.infinity,
@@ -88,10 +93,7 @@ class ExpertsProfileView extends StatelessWidget {
                     ),
                   ),
                 ),
-              )
-                  .animate()
-                  .fadeIn(duration: 500.ms)
-                  .slideX(begin: -0.3, curve: Curves.easeOut),
+              ).animate().fadeIn(duration: 500.ms).slideX(begin: -0.3),
 
               const SizedBox(height: 20),
 
@@ -101,7 +103,6 @@ class ExpertsProfileView extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Expert title
                     Text(
                       expert['title']?.toString() ?? '',
                       style: GoogleFonts.poppins(
@@ -112,7 +113,6 @@ class ExpertsProfileView extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
 
-                    // Location
                     Row(
                       children: [
                         const Icon(Icons.place,
@@ -129,7 +129,6 @@ class ExpertsProfileView extends StatelessWidget {
 
                     const SizedBox(height: 8),
 
-                    // Languages
                     Row(
                       children: [
                         const Icon(Icons.language,
@@ -151,7 +150,6 @@ class ExpertsProfileView extends StatelessWidget {
                     Divider(color: Colors.white24),
                     const SizedBox(height: 12),
 
-                    // Days
                     Row(
                       children: [
                         const Icon(Icons.map,
@@ -171,7 +169,6 @@ class ExpertsProfileView extends StatelessWidget {
 
                     const SizedBox(height: 8),
 
-                    // Guided
                     Row(
                       children: [
                         const Icon(Icons.people,
@@ -191,7 +188,6 @@ class ExpertsProfileView extends StatelessWidget {
                     Divider(color: Colors.white24),
                     const SizedBox(height: 12),
 
-                    // About
                     Text(
                       'About the Expert',
                       style: GoogleFonts.poppins(
@@ -220,33 +216,43 @@ class ExpertsProfileView extends StatelessWidget {
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16),
-          child: ElevatedButton.icon(
-            onPressed: () {
-              Get.toNamed(
-                Routes.CHAT_WITH_EXPERT,
-                arguments: {
-                  "expertId": expertuserId,
-                  "expertName": controller.expert['expert_name']?.toString() ?? 'Expert',
-                  "experttitle": controller.expert['title']?.toString() ?? 'Expert',
-                  "expertImage": controller.expert['image']?.toString(),
-                },
-              );
-            },
-            icon: const Icon(Icons.chat),
-            label: Text(
-              'Chat with Expert',
-              style: GoogleFonts.openSans(fontWeight: FontWeight.w600),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.buttonBg,
-              foregroundColor: AppColors.appbar,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-          ).animate().fadeIn().slideX(begin: -0.2),
+          child: Obx(() {
+            if (controller.expert.isEmpty) {
+              return const SizedBox();
+            }
+
+            final expertPrice = controller.expert['price']?.toString() ?? "0";
+
+            return
+          ElevatedButton.icon(
+  onPressed: () {
+    final expertPrice = controller.expert['price']?.toString() ?? "0";
+
+    Get.to(() => ChatWithExpertView(
+          expertId: expertuserId,
+          expertName: controller.expert['expert_name']?.toString() ?? 'Expert',
+          expertImage: controller.expert['image']?.toString() ?? '',
+          expertPrice: expertPrice, // ✅ yaha direct pass hoga
+        ));
+  },
+  icon: const Icon(Icons.chat),
+  label: Text(
+    'Chat with Expert (₹$expertPrice)',
+    style: GoogleFonts.openSans(fontWeight: FontWeight.w600),
+  ),
+  style: ElevatedButton.styleFrom(
+    backgroundColor: AppColors.buttonBg,
+    foregroundColor: AppColors.appbar,
+    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(8),
+    ),
+  ),
+);
+
+        
+        
+          }),
         ),
       ),
     );

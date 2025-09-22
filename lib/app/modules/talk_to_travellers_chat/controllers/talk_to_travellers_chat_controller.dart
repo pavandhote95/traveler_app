@@ -4,15 +4,64 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:get_storage/get_storage.dart';
 
-class ChatWithExpertController extends GetxController {
+class TalkToTravellersChatController extends GetxController {
   var messages = <Map<String, dynamic>>[].obs;
-  var isSending = false.obs;
-
   var isLoading = false.obs;
+  var isSending = false.obs;
 
   final box = GetStorage();
 
-  /// Send message to expert
+  late int travellerId;
+  late String travellerName;
+  late String? travellerImage;
+  late int myUserId; // ✅ Current logged in user ID
+
+  @override
+  void onInit() {
+    super.onInit();
+
+    // ✅ Get arguments from previous screen
+    final args = Get.arguments as Map<String, dynamic>;
+    travellerId = args["travellerId"];
+    travellerName = args["travellerName"];
+    travellerImage = args["travellerImage"];
+    myUserId = box.read("user_id") ?? 0;
+
+    fetchChat();
+  }
+
+  /// 🔹 Fetch Chat Messagesc
+  Future<void> fetchChat() async {
+    try {
+      isLoading.value = true;
+      final token = box.read('token') ?? '';
+
+      final response = await http.post(
+        Uri.parse("https://kotiboxglobaltech.com/travel_app/api/expert-messages/get"),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Accept": "application/json",
+        },
+        body: {
+          "receiver_id": travellerId.toString(),
+        },
+      );
+
+      print("📩 Chat API Response: ${response.body}");
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data["status"] == true) {
+          messages.value = List<Map<String, dynamic>>.from(data["data"]);
+        }
+      }
+    } catch (e) {
+      print("❌ Error fetching chat: $e");
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  /// 🔹 Send Message
   Future<void> sendMessageToExpert({
     required int receiverId,
     required String message,
@@ -55,13 +104,14 @@ class ChatWithExpertController extends GetxController {
       final data = jsonDecode(responseString);
 
       if (response.statusCode == 201 && data["status"] == true) {
-        // Add sent message to UI
+        // ✅ Add sent message to UI with correct structure
         messages.add({
-          "sender": "me",
+          "sender_id": myUserId,
+          "receiver_id": receiverId,
           "message": message,
-          "created_at": DateTime.now().toString(),
+          "message_type": messageType,
+          "created_at": DateTime.now().toIso8601String(),
         });
-        Fluttertoast.showToast(msg: "Message sent successfully");
       } else {
         Fluttertoast.showToast(msg: data["message"] ?? "Failed to send message");
       }
@@ -70,45 +120,6 @@ class ChatWithExpertController extends GetxController {
       print("❌ Error sending message: $e");
     } finally {
       isSending.value = false;
-    }
-  }
-
-  /// Fetch messages from expert
-  Future<void> fetchMessages({required int receiverId}) async {
-    try {
-      final token = box.read('token') ??
-          '552|OlWZOZb6fsqgimApW1LFnbTzKVVFkVGKjv7xdKxafe7c3546';
-
-      var url = Uri.parse(
-          'https://kotiboxglobaltech.com/travel_app/api/expert-messages/get?receiver_id=$receiverId');
-
-      var response = await http.post(url, headers: {
-        'Authorization': 'Bearer $token',
-        'Accept': 'application/json',
-      });
-
-      if (response.statusCode == 200) {
-        var data = jsonDecode(response.body);
-
-        if (data["status"] == true && data["data"] != null) {
-          List messagesList = data["data"];
-          messages.value = messagesList.map<Map<String, dynamic>>((msg) {
-            return {
-              "sender": msg['sender_id'].toString() ==
-                      box.read('user_id').toString()
-                  ? "me"
-                  : "expert",
-              "message": msg['message'],
-              "created_at": msg['created_at'],
-            };
-          }).toList();
-        }
-      } else {
-        Fluttertoast.showToast(msg: "Failed to fetch messages");
-      }
-    } catch (e) {
-      Fluttertoast.showToast(msg: "Error fetching messages");
-      print("❌ Error fetching messages: $e");
     }
   }
 }

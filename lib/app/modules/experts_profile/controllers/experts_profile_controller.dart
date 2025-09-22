@@ -27,17 +27,12 @@ class ExpertsProfileController extends GetxController {
         },
       );
 
-      // Parse response
       final data = jsonDecode(response.body);
 
-      // Only update expert if success and data exists
-      if (response.statusCode == 200 && data["success"] == true && data["data"] != null) {
+      if (response.statusCode == 200 &&
+          data["success"] == true &&
+          data["data"] != null) {
         expert.value = data["data"];
-        // Optional: You can show a success snackbar if you want
-        // Get.snackbar("Success", "Expert details fetched successfully");
-      } else {
-        // Show error only if something went wrong
-        // Get.snackbar("Error", data["message"] ?? "Failed to fetch expert");
       }
     } catch (e) {
       Get.snackbar("Error", e.toString());
@@ -46,7 +41,6 @@ class ExpertsProfileController extends GetxController {
     }
   }
 
-  // Helper to get languages as a comma-separated string
   String getLanguages() {
     if (expert.value["language"] != null) {
       List langs = expert.value["language"];

@@ -78,6 +78,7 @@ class DmView extends StatelessWidget {
             tabs: const [
               Tab(text: "Users"),
               Tab(text: "Talk to travellers"),
+              
             ],
           ),
         ),
@@ -117,6 +118,7 @@ class DmView extends StatelessWidget {
                     }
                     return _buildUserList(
                         controller.users, "No Users Found", chatController);
+
                   }),
 
                   // 🔹 Travellers tab (with expertId passed)
