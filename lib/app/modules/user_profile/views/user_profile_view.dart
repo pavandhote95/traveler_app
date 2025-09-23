@@ -1,4 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -61,6 +61,7 @@ class UserProfileView extends StatelessWidget {
         // 🔹 Stats
         final int posts = (profile['posts'] as List<dynamic>?)?.length ?? 0;
         final int points = profile['user_points'] ?? 0;
+        
 
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16),
