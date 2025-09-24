@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:http/http.dart' as http;
 import 'package:travel_app2/app/constants/my_toast.dart';
 import 'package:travel_app2/app/routes/app_pages.dart';
 import 'package:travel_app2/app/services/api_service.dart';
@@ -28,6 +29,39 @@ class MyProfileController extends GetxController {
     super.onInit();
     fetchProfile();
   }
+  
+  Future<void> deletePost(int postId) async {
+    try {
+      isLoading.value = true;
+
+      final token = box.read('token') ?? ''; // Read token from GetStorage
+
+      final response = await http.post(
+        Uri.parse('https://kotiboxglobaltech.com/travel_app/api/post-delete'),
+        headers: {
+          'Authorization': 'Bearer $token', // send token in headers
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: {'id': postId.toString()},
+      );
+
+      final data = json.decode(response.body);
+
+      if (data['status'] == true) {
+        Get.snackbar("Success", "Post deleted successfully",
+            snackPosition: SnackPosition.BOTTOM);
+        userPosts.removeWhere((post) => post['id'] == postId);
+      } else {
+        Get.snackbar("Error", data['message'] ?? "Failed to delete post",
+            snackPosition: SnackPosition.BOTTOM);
+      }
+    } catch (e) {
+      Get.snackbar("Error", e.toString(), snackPosition: SnackPosition.BOTTOM);
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
 
   Future<void> fetchProfile() async {
     final token = box.read('token');

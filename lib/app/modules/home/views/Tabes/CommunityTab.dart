@@ -137,9 +137,11 @@ class _CommunityTabState extends State<CommunityTab>
   }
 
   Widget _buildPostCard(Datum post, int index) {
+      print("Post ID: ${post.id}");
     final isExpanded = controller.isExpanded[index] ?? false;
     const maxLines = 3;
     final commentController = _getControllerForPost(post.id);
+    
 
     final textStyle = GoogleFonts.openSans(
       fontSize: 16,

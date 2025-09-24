@@ -264,6 +264,19 @@ class ApiService extends GetxService {
       throw Exception('Failed to fetch location posts: $e');
     }
   }
+  Future<dynamic> deletePost(String token, int postId) async {
+  final url = Uri.parse('https://kotiboxglobaltech.com/travel_app/api/post-delete');
+  final response = await http.post(
+    url,
+    headers: {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    },
+    body: jsonEncode({'post_id': postId}),
+  );
+  return response;
+}
+
 
   // Add Post with Multiple Image Uploads
   Future<http.Response> addPost({

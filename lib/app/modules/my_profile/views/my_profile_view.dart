@@ -1,4 +1,3 @@
-// my_profile_view.dart
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -9,7 +8,6 @@ import 'package:travel_app2/app/constants/custom_button.dart';
 import 'package:travel_app2/app/modules/my_profile/views/rewards_info_view.dart';
 import '../controllers/my_profile_controller.dart';
 import '../../edit_profile/views/edit_profile_view.dart';
-
 
 class MyProfileView extends GetView<MyProfileController> {
   MyProfileView({super.key});
@@ -63,25 +61,25 @@ class MyProfileView extends GetView<MyProfileController> {
             child: Obx(() => Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                  Obx(() {
-  final imageUrl = controller.profileImage.value;
-  return CircleAvatar(
-    radius: 35,
-    backgroundColor: Colors.white24,
-    child: imageUrl.isNotEmpty
-        ? ClipOval(
-            child: Image.network(
-              imageUrl,
-              width: 70,
-              height: 70,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => const Icon(Icons.person, size: 40, color: Colors.white70),
-            ),
-          )
-        : const Icon(Icons.person, size: 40, color: Colors.white70),
-  );
-}),
-
+                    Obx(() {
+                      final imageUrl = controller.profileImage.value;
+                      return CircleAvatar(
+                        radius: 35,
+                        backgroundColor: Colors.white24,
+                        child: imageUrl.isNotEmpty
+                            ? ClipOval(
+                                child: Image.network(
+                                  imageUrl,
+                                  width: 70,
+                                  height: 70,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      const Icon(Icons.person, size: 40, color: Colors.white70),
+                                ),
+                              )
+                            : const Icon(Icons.person, size: 40, color: Colors.white70),
+                      );
+                    }),
                     const SizedBox(height: 10),
                     Text(
                       controller.username.value != ''
@@ -107,20 +105,17 @@ class MyProfileView extends GetView<MyProfileController> {
           ),
           ListTile(
             leading: const Icon(Icons.settings, color: Colors.white),
-            title: Text("Settings",
-                style: GoogleFonts.poppins(color: Colors.white)),
+            title: Text("Settings", style: GoogleFonts.poppins(color: Colors.white)),
             onTap: () {},
           ),
           ListTile(
             leading: const Icon(Icons.verified_user, color: Colors.white),
-            title: Text("My Badges",
-                style: GoogleFonts.poppins(color: Colors.white)),
+            title: Text("My Badges", style: GoogleFonts.poppins(color: Colors.white)),
             onTap: () {},
           ),
           ListTile(
             leading: const Icon(Icons.help_outline, color: Colors.white),
-            title: Text("Help & Support",
-                style: GoogleFonts.poppins(color: Colors.white)),
+            title: Text("Help & Support", style: GoogleFonts.poppins(color: Colors.white)),
             onTap: () {},
           ),
         ],
@@ -136,25 +131,25 @@ class MyProfileView extends GetView<MyProfileController> {
             children: [
               Row(
                 children: [
-                Obx(() {
-  final imageUrl = controller.profileImage.value;
-  return CircleAvatar(
-    radius: 35,
-    backgroundColor: Colors.white24,
-    child: imageUrl.isNotEmpty
-        ? ClipOval(
-            child: Image.network(
-              imageUrl,
-              width: 70,
-              height: 70,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => const Icon(Icons.person, size: 40, color: Colors.white70),
-            ),
-          )
-        : const Icon(Icons.person, size: 40, color: Colors.white70),
-  );
-}),
-
+                  Obx(() {
+                    final imageUrl = controller.profileImage.value;
+                    return CircleAvatar(
+                      radius: 35,
+                      backgroundColor: Colors.white24,
+                      child: imageUrl.isNotEmpty
+                          ? ClipOval(
+                              child: Image.network(
+                                imageUrl,
+                                width: 70,
+                                height: 70,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    const Icon(Icons.person, size: 40, color: Colors.white70),
+                              ),
+                            )
+                          : const Icon(Icons.person, size: 40, color: Colors.white70),
+                    );
+                  }),
                   const SizedBox(width: 24),
                   Expanded(
                     child: Row(
@@ -163,8 +158,7 @@ class MyProfileView extends GetView<MyProfileController> {
                         _buildStatColumn("Posts", controller.totalPosts.value),
                         _buildStatColumn(
                           "Points",
-                          (controller.totalPosts.value * 50) +
-                              (controller.totalAnswers.value * 10),
+                          (controller.totalPosts.value * 50) + (controller.totalAnswers.value * 10),
                         ),
                       ],
                     ),
@@ -173,9 +167,7 @@ class MyProfileView extends GetView<MyProfileController> {
               ),
               const SizedBox(height: 16),
               Text(
-                controller.username.value != ''
-                    ? controller.username.value
-                    : "Guest",
+                controller.username.value != '' ? controller.username.value : "Guest",
                 style: GoogleFonts.poppins(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -184,9 +176,7 @@ class MyProfileView extends GetView<MyProfileController> {
               ),
               const SizedBox(height: 4),
               Text(
-                controller.role.value != ''
-                    ? controller.role.value
-                    : "Traveler",
+                controller.role.value != '' ? controller.role.value : "Traveler",
                 style: GoogleFonts.poppins(
                   fontSize: 13,
                   color: Colors.grey.shade400,
@@ -260,8 +250,8 @@ class MyProfileView extends GetView<MyProfileController> {
                       borderRadius: BorderRadius.circular(8),
                       child: CachedNetworkImage(
                         imageUrl: baseUrl + mainImage,
-                        placeholder: (context, url) => Container(
-                            height: 100, width: 100, color: Colors.black26),
+                        placeholder: (context, url) =>
+                            Container(height: 100, width: 100, color: Colors.black26),
                         errorWidget: (context, url, error) =>
                             const Icon(Icons.error, color: Colors.redAccent),
                         width: 100,
@@ -293,6 +283,28 @@ class MyProfileView extends GetView<MyProfileController> {
                               fontSize: 13,
                             ),
                           ),
+                        const SizedBox(height: 8),
+                        Align(
+                          alignment: Alignment.bottomRight,
+                          child: TextButton.icon(
+                            onPressed: () => Get.defaultDialog(
+                              title: "Confirm Delete",
+                              middleText: "Are you sure you want to delete this post?",
+                              textConfirm: "Yes",
+                              textCancel: "No",
+                              confirmTextColor: Colors.white,
+                              onConfirm: () {
+                                controller.deletePost(post['id']);
+                                Get.back();
+                              },
+                            ),
+                            icon: const Icon(Icons.delete, color: Colors.redAccent),
+                            label: Text(
+                              "Delete",
+                              style: GoogleFonts.poppins(color: Colors.redAccent),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -313,19 +325,15 @@ class MyProfileView extends GetView<MyProfileController> {
           children: [
             Text("$value",
                 style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white)),
+                    fontSize: 18, fontWeight: FontWeight.w600, color: Colors.white)),
             const SizedBox(height: 4),
-            Text(label,
-                style: GoogleFonts.poppins(
-                    fontSize: 13, color: Colors.grey.shade400)),
+            Text(label, style: GoogleFonts.poppins(fontSize: 13, color: Colors.grey.shade400)),
           ],
         ),
       );
 
   Widget _buildPromoCard() => InkWell(
-        onTap: () => Get.to(() => RewardsInfoView()), // 👈 TAP ACTION
+        onTap: () => Get.to(() => RewardsInfoView()),
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           padding: const EdgeInsets.all(16),
@@ -340,8 +348,7 @@ class MyProfileView extends GetView<MyProfileController> {
               Expanded(
                 child: Text(
                   "Ask, answer, earn - every question and reply gives you rewards",
-                  style:
-                      GoogleFonts.poppins(fontSize: 14, color: Colors.white),
+                  style: GoogleFonts.poppins(fontSize: 14, color: Colors.white),
                 ),
               ),
             ],
