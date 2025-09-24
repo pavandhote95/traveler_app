@@ -102,6 +102,7 @@ class _CommunityTabState extends State<CommunityTab>
                       backgroundColor: AppColors.buttonBg,
                     ),
                   );
+
                 },
                 upSwipeAllowed: false,
                 fillSpace: true,
@@ -340,7 +341,7 @@ post.image.isNotEmpty
 
                 /// Like & Comment Row
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
                       children: [
@@ -354,28 +355,31 @@ post.image.isNotEmpty
                         const SizedBox(width: 8),
                         Text(
                           '${post.likesCount} Likes',
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white,
-                          ),
+                         style: GoogleFonts.inter(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.buttonBg,
+                            ),
                         ),
                       ],
                     ),
-                    Row(
-                      children: [
-                        const Icon(Icons.comment, color: Colors.white70, size: 20),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${post.comments ?? 0} Comments',
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white70,
+                             const SizedBox(width: 8),
+                  
+                     Row(
+                        children: [
+                          Image.asset('assets/icons/message.png', width: 24, height: 24),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Reply',
+                            style: GoogleFonts.inter(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.buttonBg,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
+           
                   ],
                 ),
 
