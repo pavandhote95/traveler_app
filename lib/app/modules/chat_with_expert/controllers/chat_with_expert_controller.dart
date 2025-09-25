@@ -74,7 +74,7 @@ class ChatWithExpertController extends GetxController {
   }
 
   /// Fetch messages from expert
-  Future<void> fetchMessages({required int receiverId}) async {
+  Future<void> fetchMessagesusertoexpert({required int receiverId}) async {
     try {
       final token = box.read('token') ??
           '552|OlWZOZb6fsqgimApW1LFnbTzKVVFkVGKjv7xdKxafe7c3546';

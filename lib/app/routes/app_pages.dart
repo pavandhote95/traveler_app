@@ -2,6 +2,8 @@ import 'package:get/get.dart';
 
 import '../modules/chat/bindings/chat_binding.dart';
 import '../modules/chat/views/chat_view.dart';
+import '../modules/chat_both/bindings/chat_both_binding.dart';
+import '../modules/chat_both/views/chat_both_view.dart';
 import '../modules/chat_with_expert/bindings/chat_with_expert_binding.dart';
 import '../modules/chat_with_expert/views/expertt_chat_view.dart';
 import '../modules/community_search/bindings/community_search_binding.dart';
@@ -145,17 +147,17 @@ class AppPages {
       page: () => ExpertView(),
       binding: ExpertBinding(),
     ),
-   GetPage(
-  name: _Paths.EXPERTS_PROFILE,
-  page: () {
-    final args = Get.arguments as Map<String, dynamic>;
-    return ExpertsProfileView(
-      expertId: args['expertId'],
-      expertuserId: args['expertuserId'],
-    );
-  },
-  binding: ExpertsProfileBinding(),
-),
+    GetPage(
+      name: _Paths.EXPERTS_PROFILE,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>;
+        return ExpertsProfileView(
+          expertId: args['expertId'],
+          expertuserId: args['expertuserId'],
+        );
+      },
+      binding: ExpertsProfileBinding(),
+    ),
     GetPage(
       name: _Paths.PHONE_LOGIN,
       page: () => PhoneLoginView(),
@@ -185,22 +187,21 @@ class AppPages {
       ),
       binding: ChatBinding(),
     ),
-   GetPage(
-  name: _Paths.CHAT_WITH_EXPERT,
-  page: () {
-    // Read arguments safely
-    final args = Get.arguments as Map<String, dynamic>? ?? {};
+    GetPage(
+      name: _Paths.CHAT_WITH_EXPERT,
+      page: () {
+        // Read arguments safely
+        final args = Get.arguments as Map<String, dynamic>? ?? {};
 
-    return ChatWithExpertView(
-      expertId: args['expertId'] ?? 0,
-      expertName: args['expertName'] ?? "Expert",
-      expertImage: args['expertImage'] ?? "",
-      expertPrice: args['amount'].toString() , // ✅ Added amount argument
-    );
-  },
-  binding: ChatWithExpertBinding(),
-),
-
+        return ChatWithExpertView(
+          expertId: args['expertId'] ?? 0,
+          expertName: args['expertName'] ?? "Expert",
+          expertImage: args['expertImage'] ?? "",
+          expertPrice: args['amount'].toString(), // ✅ Added amount argument
+        );
+      },
+      binding: ChatWithExpertBinding(),
+    ),
 
     GetPage(
       name: _Paths.TRAVELLERS,
@@ -217,5 +218,18 @@ class AppPages {
       page: () => const TalkToTravellersChatView(),
       binding: TalkToTravellersChatBinding(),
     ),
+   GetPage(
+  name: _Paths.CHAT_BOTH,
+  page: () => ChatBothView(
+    currentUser: Get.arguments['currentUser'],
+    otherUser: Get.arguments['otherUser'],
+    otherUserImage: Get.arguments['otherUserImage'],
+    otherUserId: Get.arguments['otherUserId'],
+    chatId: Get.arguments['chatId'],
+    isExpert: Get.arguments['isExpert'] ?? false,
+  ),
+  binding: ChatBothBinding(),
+),
+
   ];
 }

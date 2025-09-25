@@ -1,8 +1,11 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
+import 'package:travel_app2/app/routes/app_pages.dart';
 import '../controllers/chat_with_expert_controller.dart';
 
 class ChatWithExpertView extends StatefulWidget {
@@ -27,20 +30,24 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
   late ChatWithExpertController controller;
   final TextEditingController messageController = TextEditingController();
   final ScrollController scrollController = ScrollController();
-
   late Razorpay _razorpay;
+
+  final box = GetStorage();
+  late String userType;
 
   @override
   void initState() {
     super.initState();
     controller = Get.put(ChatWithExpertController());
-    controller.fetchMessages(receiverId: widget.expertId);
+    controller.fetchMessagesusertoexpert(receiverId: widget.expertId);
     ever(controller.messages, (_) => scrollToBottom());
 
     _razorpay = Razorpay();
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
     _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+
+    userType = box.read('role') ?? "user"; // user or expert
   }
 
   @override
@@ -65,7 +72,6 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
       controller.sendMessageToExpert(
         receiverId: widget.expertId,
         message: text,
-        // price: widget.expertPrice,
       );
       messageController.clear();
       scrollToBottom();
@@ -126,8 +132,7 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
                 decoration: BoxDecoration(
                   color: Colors.grey.shade800,
                   borderRadius: BorderRadius.circular(12),
@@ -161,7 +166,7 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
                     child: ElevatedButton(
                       onPressed: () {
                         Navigator.pop(context); // close modal
-                        _openRazorpayPayment(widget.expertPrice); // open Razorpay
+                        _openRazorpayPayment(widget.expertPrice);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green.shade600,
@@ -196,19 +201,15 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
     );
   }
 
-  //rzp_test_RIcVT1kjDlJh9q:Test Key Id
-  //ex3N4k5SDWDiibBi2XZVgWii:Test Key Secre
-  //RIc97VjLqS0ASc:Merchant Id
-
   void _openRazorpayPayment(String amount) {
     var options = {
-      'key': 'rzp_test_RKZal2jhUmYf0K', // replace with your Razorpay key
-      'amount': (double.parse(amount) * 100).toInt(), // amount in paise
+      'key': 'rzp_test_RKZal2jhUmYf0K',
+      'amount': (double.parse(amount) * 100).toInt(),
       'name': widget.expertName,
       'description': 'Consultation Payment',
       'prefill': {
-        'contact': '7415743916', // optional: user contact
-        'email': 'pavandhote95@gmail.com' // optional: user email
+        'contact': '7415743916',
+        'email': 'pavandhote95@gmail.com'
       },
       'theme': {'color': '#F37254'}
     };
@@ -259,8 +260,8 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
             if (timeString.isNotEmpty)
               Text(
                 timeString,
-                style:
-                    GoogleFonts.poppins(color: Colors.grey.shade300, fontSize: 10),
+                style: GoogleFonts.poppins(
+                    color: Colors.grey.shade300, fontSize: 10),
               ),
           ],
         ),
@@ -275,12 +276,21 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
       appBar: AppBar(
         backgroundColor: Colors.black,
         iconTheme: const IconThemeData(color: Colors.white),
-        title: Row(
-          children: [
-            CircleAvatar(backgroundImage: NetworkImage(widget.expertImage)),
-            const SizedBox(width: 10),
-            Text(widget.expertName, style: GoogleFonts.poppins(color: Colors.white)),
-          ],
+        title: GestureDetector(
+          onTap: () {
+            Get.toNamed(
+              Routes.USER_PROFILE,
+              arguments: {"user_id": widget.expertId},
+            );
+          },
+          child: Row(
+            children: [
+              CircleAvatar(backgroundImage: NetworkImage(widget.expertImage)),
+              const SizedBox(width: 10),
+              Text(widget.expertName,
+                  style: GoogleFonts.poppins(color: Colors.white)),
+            ],
+          ),
         ),
       ),
       body: Column(
@@ -321,33 +331,35 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
                           borderRadius: BorderRadius.circular(30),
                           borderSide: BorderSide.none,
                         ),
-                        contentPadding:
-                            const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                        contentPadding: const EdgeInsets.symmetric(
+                            vertical: 10, horizontal: 16),
                       ),
                     ),
                   ),
                   const SizedBox(width: 8),
-                  InkWell(
-                    onTap: _showPaymentModal,
-                    borderRadius: BorderRadius.circular(30),
-                    child: Container(
-                      width: 42,
-                      height: 42,
-                      decoration: const BoxDecoration(
-                        color: Colors.green,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Center(
-                        child: Text(
-                          "₹",
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold),
+                  // ✅ Payment button only if user is NOT expert
+                  if (userType != "expert")
+                    InkWell(
+                      onTap: _showPaymentModal,
+                      borderRadius: BorderRadius.circular(30),
+                      child: Container(
+                        width: 42,
+                        height: 42,
+                        decoration: const BoxDecoration(
+                          color: Colors.green,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Center(
+                          child: Text(
+                            "₹",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold),
+                          ),
                         ),
                       ),
                     ),
-                  ),
                   const SizedBox(width: 8),
                   IconButton(
                     onPressed: _sendMessage,
@@ -357,6 +369,8 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
               ),
             ),
           ),
+       
+       
         ],
       ),
     );

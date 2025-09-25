@@ -16,7 +16,7 @@ class ChatController extends GetxController {
   }
 
   /// Fetch messages from API
-  Future<void> fetchMessages(String receiverId) async {
+  Future<void> fetchMessagesuser(String receiverId) async {
     final userId = box.read('user_id').toString();
     final token = box.read('token');
     if (token == null) return;
@@ -66,7 +66,7 @@ class ChatController extends GetxController {
   }
 
   /// Send message instantly (optimistic UI)
-  Future<void> sendMessageApi({
+  Future<void> sendMessageusertouser({
     required String receiverId,
     required String message,
     String messageType = "text",
@@ -108,7 +108,7 @@ class ChatController extends GetxController {
         final data = jsonDecode(response.body);
         if (data['status'] == true) {
           // Refresh immediately
-          await fetchMessages(receiverId);
+          await fetchMessagesuser(receiverId);
         }
       }
     } catch (e) {
@@ -119,7 +119,7 @@ class ChatController extends GetxController {
   /// Fast Stream (poll every 3 seconds instead of 1 to avoid flicker)
   Stream<List<Map<String, dynamic>>> messageStream(String receiverId) async* {
     while (true) {
-      await fetchMessages(receiverId);
+      await fetchMessagesuser(receiverId);
       yield messages;
       await Future.delayed(const Duration(seconds: 1));
     }

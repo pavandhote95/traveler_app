@@ -44,7 +44,7 @@ class _ChatViewState extends State<ChatView> {
     if (text.isEmpty) return;
 
     // ✅ API call
-    controller.sendMessageApi(receiverId: receiverId, message: text);
+    controller.sendMessageusertouser(receiverId: receiverId, message: text);
 
     _messageController.clear();
 

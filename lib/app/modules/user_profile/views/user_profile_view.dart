@@ -1,10 +1,10 @@
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:travel_app2/app/modules/chat_both/views/chat_both_view.dart';
 import '../../../constants/app_color.dart';
 import '../controllers/user_profile_controller.dart';
-import '../../chat/controllers/chat_controller.dart';
+// ✅ ChatBothView import
 
 class UserProfileView extends StatelessWidget {
   const UserProfileView({super.key});
@@ -12,7 +12,6 @@ class UserProfileView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final UserProfileController controller = Get.put(UserProfileController());
-    final ChatController chatController = Get.put(ChatController());
 
     return Scaffold(
       backgroundColor: AppColors.mainBg,
@@ -61,7 +60,6 @@ class UserProfileView extends StatelessWidget {
         // 🔹 Stats
         final int posts = (profile['posts'] as List<dynamic>?)?.length ?? 0;
         final int points = profile['user_points'] ?? 0;
-        
 
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -125,7 +123,7 @@ class UserProfileView extends StatelessWidget {
                     const SizedBox(height: 16),
 
                     // ✅ Message Button
-              ElevatedButton.icon(
+                ElevatedButton.icon(
   style: ElevatedButton.styleFrom(
     backgroundColor: AppColors.buttonBg,
     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -133,20 +131,17 @@ class UserProfileView extends StatelessWidget {
       borderRadius: BorderRadius.circular(12),
     ),
   ),
-onPressed: () {
-  final otherUserId = profile['id'];
-  if (otherUserId != null) {
-    chatController.startChatWithUser(profile);
-  } else {
-    Get.snackbar(
-      "Error",
-      "Cannot start chat: user ID missing",
-      backgroundColor: Colors.redAccent,
-      colorText: Colors.white,
-    );
-  }
-},
-
+  onPressed: () {
+    Get.to(() => ChatBothView(
+          currentUser: controller.currentUserId.toString(), // ✅ Now works
+          otherUser: name,
+          otherUserImage: profileImage,
+          otherUserId: profile['id'].toString(),
+          chatId:
+              "${controller.currentUserId}_${profile['id']}", // unique chat id
+          isExpert: false,
+        ));
+  },
   icon: const Icon(Icons.message, color: Colors.white),
   label: Text(
     "Message",
@@ -158,7 +153,6 @@ onPressed: () {
   ),
 ),
 
-                 
                   ],
                 ),
               ),
