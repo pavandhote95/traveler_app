@@ -203,13 +203,13 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
 
   void _openRazorpayPayment(String amount) {
     var options = {
-      'key': 'rzp_test_RKZal2jhUmYf0K',
+      'key': 'rzp_test_RIcVT1kjDlJh9q',
       'amount': (double.parse(amount) * 100).toInt(),
       'name': widget.expertName,
       'description': 'Consultation Payment',
       'prefill': {
-        'contact': '7415743916',
-        'email': 'pavandhote95@gmail.com'
+        'contact': '99425 49844',
+        'email': 'Bidyawantp@gmail.com'
       },
       'theme': {'color': '#F37254'}
     };
@@ -221,15 +221,50 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
     }
   }
 
-  void _handlePaymentSuccess(PaymentSuccessResponse response) {
-    Get.snackbar('Success', 'Payment successful: ${response.paymentId}',
-        backgroundColor: Colors.green.shade600, colorText: Colors.white);
-  }
+void _handlePaymentSuccess(PaymentSuccessResponse response) async {
+  final paymentId = response.paymentId ?? '';
 
-  void _handlePaymentError(PaymentFailureResponse response) {
-    Get.snackbar('Error', 'Payment failed: ${response.message}',
-        backgroundColor: Colors.red.shade600, colorText: Colors.white);
-  }
+  print("✅ Payment successful. Payment ID: $paymentId");
+
+  // First show success toast/snackbar
+  Get.snackbar(
+    'Success',
+    'Payment successful: $paymentId',
+    backgroundColor: Colors.green.shade600,
+    colorText: Colors.white,
+  );
+
+  // ✅ Call API to store paymentId & expertId
+  await controller.PaymentIdexpertIdStoreApi(
+    paymentId: paymentId,
+    expertId: widget.expertId,
+  );
+}
+
+void _handlePaymentError(PaymentFailureResponse response) {
+  print("❌ Payment Failed");
+  print("Code: ${response.code}");
+  print("Message: ${response.message}");
+
+  // yahan se nikalo metadata se paymentId
+  final orderId = response.error?['metadata']?['order_id'] ?? 'N/A';
+  final paymentId = response.error?['metadata']?['payment_id'] ?? 'Not generated';
+
+  print("Order ID: $orderId");
+  print("Payment ID: $paymentId");
+
+  Get.snackbar(
+    'Payment Failed',
+    'Code: ${response.code}\n'
+    'Message: ${response.message}\n'
+    'Order ID: $orderId\n'
+    'Payment ID: $paymentId',
+    backgroundColor: Colors.red.shade600,
+    colorText: Colors.white,
+    snackPosition: SnackPosition.BOTTOM,
+    duration: const Duration(seconds: 5),
+  );
+}
 
   void _handleExternalWallet(ExternalWalletResponse response) {
     Get.snackbar('Wallet', 'External wallet: ${response.walletName}',

@@ -61,7 +61,7 @@ class LoginController extends GetxController {
         final userData = data['data'] ?? {};
         final int userId = userData['id'] ?? 0;
         final int userPoints = userData['user_points'] ?? 0;
-        // final String userType = userData['user_type'] ?? 'user'; // ✅ get user_type
+        final String userType = userData['user_type'] ?? 'user'; // ✅ get user_type
 
         if (token != null) {
           // Save token, userId, userPoints
@@ -69,7 +69,7 @@ class LoginController extends GetxController {
           box.write('userId', userId);
           box.write('userPoints', userPoints);
           box.write('isLoggedIn', true);
-              // box.write('user_type', userType); // ✅ save user_type
+              box.write('user_type', userType); // ✅ save user_type
 
           debugPrint("📦 Token: $token");
           debugPrint("🆔 UserId: $userId");
