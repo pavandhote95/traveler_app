@@ -27,9 +27,9 @@ class DashboardView extends GetView<DashboardController> {
     final List<Widget> pages = [
       HomeView(),
       CommunitySearchView(),
-      userType == "user"
-          ? ExpertView()
-          : MyProfileView(), // ✅ if expert → ExpertView, else → UserProfileView
+      userType == "expert"
+          ? MyProfileView()
+          : ExpertView(), // ✅ if expert → ExpertView, else → UserProfileView
       NotificationView(),
       MyProfileView(),
     ];

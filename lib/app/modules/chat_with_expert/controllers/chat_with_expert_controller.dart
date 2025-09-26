@@ -101,7 +101,7 @@ class ChatWithExpertController extends GetxController {
           }).toList();
         }
       } else {
-        Fluttertoast.showToast(msg: "Failed to fetch messages");
+        // Fluttertoast.showToast(msg: "Failed to fetch messages");
       }
     } catch (e) {
       Fluttertoast.showToast(msg: "Error fetching messages");

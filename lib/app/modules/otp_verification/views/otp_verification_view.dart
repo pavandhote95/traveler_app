@@ -13,7 +13,9 @@ class OtpVerificationView extends GetView<LoginController> {
   @override
   Widget build(BuildContext context) {
     // Use controller from GetView<LoginController>
+    
     final List<FocusNode> focusNodes = List.generate(4, (_) => FocusNode());
+
 
     return Scaffold(
       backgroundColor: AppColors.mainBg,

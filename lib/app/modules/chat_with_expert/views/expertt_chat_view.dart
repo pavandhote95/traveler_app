@@ -34,7 +34,6 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
 
   final box = GetStorage();
   late String userType;
-  
 
   @override
   void initState() {
@@ -79,10 +78,29 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
     }
   }
 
+  /// ✅ Smart Timestamp Formatter (Today, Yesterday, or Date)
   String formatMessageTime(String time) {
     try {
       final dt = DateTime.parse(time).toLocal();
-      return DateFormat('hh:mm a').format(dt);
+      final now = DateTime.now();
+
+      // Today
+      if (dt.day == now.day &&
+          dt.month == now.month &&
+          dt.year == now.year) {
+        return DateFormat('hh:mm a').format(dt); // 3:37 PM
+      }
+
+      // Yesterday
+      final yesterday = now.subtract(const Duration(days: 1));
+      if (dt.day == yesterday.day &&
+          dt.month == yesterday.month &&
+          dt.year == yesterday.year) {
+        return "Yesterday ${DateFormat('hh:mm a').format(dt)}";
+      }
+
+      // Older
+      return DateFormat('dd MMM, hh:mm a').format(dt); // 24 Sep, 03:37 PM
     } catch (_) {
       return '';
     }
@@ -133,7 +151,8 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
                 decoration: BoxDecoration(
                   color: Colors.grey.shade800,
                   borderRadius: BorderRadius.circular(12),
@@ -208,10 +227,7 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
       'amount': (double.parse(amount) * 100).toInt(),
       'name': widget.expertName,
       'description': 'Consultation Payment',
-      'prefill': {
-        'contact': '9942549844',
-        'email': 'Bidyawantp@gmail.com'
-      },
+      'prefill': {'contact': '9942549844', 'email': 'Bidyawantp@gmail.com'},
       'theme': {'color': '#F37254'}
     };
 
@@ -222,63 +238,56 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
     }
   }
 
-void _handlePaymentSuccess(PaymentSuccessResponse response) async {
-  final paymentId = response.paymentId ?? '';
+  void _handlePaymentSuccess(PaymentSuccessResponse response) async {
+    final paymentId = response.paymentId ?? '';
+    print("✅ Payment successful. Payment ID: $paymentId");
 
-  print("✅ Payment successful. Payment ID: $paymentId");
-
-  // Show success snackbar
-  Get.snackbar(
-    'Success',
-    'Payment successful: $paymentId',
-    backgroundColor: Colors.green.shade600,
-    colorText: Colors.white,
-  );
-
-  // ✅ Get token from storage
-  final token = box.read('token') ?? '';
-  if (token.isEmpty) {
     Get.snackbar(
-      'Error',
-      'User token not found. Please login again.',
-      backgroundColor: Colors.red.shade600,
+      'Success',
+      'Payment successful: $paymentId',
+      backgroundColor: Colors.green.shade600,
       colorText: Colors.white,
     );
-    return;
+
+    final token = box.read('token') ?? '';
+    if (token.isEmpty) {
+      Get.snackbar(
+        'Error',
+        'User token not found. Please login again.',
+        backgroundColor: Colors.red.shade600,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    await controller.verifyPayment(
+      paymentId: paymentId,
+      expertId: widget.expertId,
+      token: token,
+    );
   }
 
-  // ✅ Call API dynamically from ChatWithExpertController
-  await controller.verifyPayment(
-    paymentId: paymentId,
-    expertId: widget.expertId,
-    token: token, // pass dynamic token
-  );
-}
+  void _handlePaymentError(PaymentFailureResponse response) {
+    print("❌ Payment Failed");
+    print("Code: ${response.code}");
+    print("Message: ${response.message}");
 
-void _handlePaymentError(PaymentFailureResponse response) {
-  print("❌ Payment Failed");
-  print("Code: ${response.code}");
-  print("Message: ${response.message}");
+    final orderId = response.error?['metadata']?['order_id'] ?? 'N/A';
+    final paymentId =
+        response.error?['metadata']?['payment_id'] ?? 'Not generated';
 
-  // yahan se nikalo metadata se paymentId
-  final orderId = response.error?['metadata']?['order_id'] ?? 'N/A';
-  final paymentId = response.error?['metadata']?['payment_id'] ?? 'Not generated';
-
-  print("Order ID: $orderId");
-  print("Payment ID: $paymentId");
-
-  Get.snackbar(
-    'Payment Failed',
-    'Code: ${response.code}\n'
-    'Message: ${response.message}\n'
-    'Order ID: $orderId\n'
-    'Payment ID: $paymentId',
-    backgroundColor: Colors.red.shade600,
-    colorText: Colors.white,
-    snackPosition: SnackPosition.BOTTOM,
-    duration: const Duration(seconds: 5),
-  );
-}
+    Get.snackbar(
+      'Payment Failed',
+      'Code: ${response.code}\n'
+      'Message: ${response.message}\n'
+      'Order ID: $orderId\n'
+      'Payment ID: $paymentId',
+      backgroundColor: Colors.red.shade600,
+      colorText: Colors.white,
+      snackPosition: SnackPosition.BOTTOM,
+      duration: const Duration(seconds: 5),
+    );
+  }
 
   void _handleExternalWallet(ExternalWalletResponse response) {
     Get.snackbar('Wallet', 'External wallet: ${response.walletName}',
@@ -386,7 +395,6 @@ void _handlePaymentError(PaymentFailureResponse response) {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  // ✅ Payment button only if user is NOT expert
                   if (userType != "expert")
                     InkWell(
                       onTap: _showPaymentModal,
@@ -418,8 +426,6 @@ void _handlePaymentError(PaymentFailureResponse response) {
               ),
             ),
           ),
-       
-       
         ],
       ),
     );
