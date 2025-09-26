@@ -9,7 +9,7 @@ import '../../community_search/views/community_search_view.dart';
 import '../../home/views/home_view.dart';
 import '../../my_profile/views/my_profile_view.dart';
 import '../../notifications/views/notifications_view.dart';
-import '../../user_profile/views/user_profile_view.dart'; // ✅ import user profile
+ // ✅ import user profile
 import '../controllers/dashboard_controller.dart';
 
 class DashboardView extends GetView<DashboardController> {
@@ -71,7 +71,7 @@ class DashboardView extends GetView<DashboardController> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      userType == "expert"
+                      userType == "user"
                           ? "Expert\nTraveler"
                           : "User\nProfile", // ✅ correct label
                       textAlign: TextAlign.center,

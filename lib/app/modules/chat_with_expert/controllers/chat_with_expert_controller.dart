@@ -109,56 +109,69 @@ class ChatWithExpertController extends GetxController {
     }
   }
 
-  /// ✅ Verify payment API call
-Future<void> PaymentIdexpertIdStoreApi({
+
+
+/// Verifies payment dynamically with given paymentId, expertId, and token.
+Future<void> verifyPayment({
   required String paymentId,
   required int expertId,
+  required String token,
 }) async {
   try {
-    final token = box.read('token');
-    if (token == null) {
-      Fluttertoast.showToast(msg: "Please login first");
+    if (token.isEmpty) {
+      print("❌ Token is required. Please login first.");
       return;
     }
 
     var headers = {
-      'Authorization': 'Bearer $token',
       'Accept': 'application/json',
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/x-www-form-urlencoded',
     };
 
-    print("📤 Sending Payment Verification Request...");
-    print("➡️ payment_id---: $paymentId, expert_id-----: $expertId");
+    var bodyFields = {
+      'payment_id': paymentId.trim(),
+      'expert_id': expertId.toString(),
+    };
 
-    var response = await http.post(
+    print("--------------------------------------------------");
+    print("📤 Sending Payment Verification Request...");
+    print("➡ URL: https://kotiboxglobaltech.com/travel_app/api/verify-payment-id");
+    print("➡ Headers: $headers");
+    print("➡ Body: $bodyFields");
+    print("--------------------------------------------------");
+
+    var request = http.Request(
+      'POST',
       Uri.parse('https://kotiboxglobaltech.com/travel_app/api/verify-payment-id'),
-      headers: headers,
-      body: {
-        "payment_id": paymentId.trim(), // 👈 extra space hata diya
-        "expert_id": expertId.toString(),
-      },
     );
 
-    print("📥 API Response Code: ${response.statusCode}");
-    print("📥 API Response Body: ${response.body}");
+    request.bodyFields = bodyFields;
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    // Convert stream to string
+    final responseBody = await response.stream.bytesToString();
+
+    print("📥 Response Body: $responseBody");
 
     if (response.statusCode == 200) {
-      var data = jsonDecode(response.body);
-          print("📥 API Response Codeokkkkkkkkkk: ${response.statusCode}");
-    print("📥 API Response Bodyyyyyyy: ${response.body}");
-      if (data["status"] == true) {
-        Fluttertoast.showToast(msg: "Payment verified successfully ✅");
-        print("✅ Payment verification success");
+      var data = jsonDecode(responseBody);
+      print("✅ Payment verification response: $data");
+
+      if (data['status'] == true) {
+        print("✅ Payment verified successfully");
       } else {
-        Fluttertoast.showToast(msg: data["message"] ?? "Payment verification failed");
-        print("❌ Payment verification failed: ${data["message"]}");
+        print("❌ Payment verification failed: ${data['message']}");
       }
     } else {
-      Fluttertoast.showToast(msg: "Server error: ${response.statusCode}");
       print("❌ Server error: ${response.statusCode}");
+      print("Reason: ${response.reasonPhrase}");
     }
   } catch (e) {
-    Fluttertoast.showToast(msg: "Error verifying payment");
-    print("❌ Error verifying payment: $e");
+    print("🔥 Error verifying payment: $e");
   }
 }
+
 }

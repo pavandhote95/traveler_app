@@ -34,6 +34,7 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
 
   final box = GetStorage();
   late String userType;
+  
 
   @override
   void initState() {
@@ -208,7 +209,7 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
       'name': widget.expertName,
       'description': 'Consultation Payment',
       'prefill': {
-        'contact': '99425 49844',
+        'contact': '9942549844',
         'email': 'Bidyawantp@gmail.com'
       },
       'theme': {'color': '#F37254'}
@@ -226,7 +227,7 @@ void _handlePaymentSuccess(PaymentSuccessResponse response) async {
 
   print("✅ Payment successful. Payment ID: $paymentId");
 
-  // First show success toast/snackbar
+  // Show success snackbar
   Get.snackbar(
     'Success',
     'Payment successful: $paymentId',
@@ -234,10 +235,23 @@ void _handlePaymentSuccess(PaymentSuccessResponse response) async {
     colorText: Colors.white,
   );
 
-  // ✅ Call API to store paymentId & expertId
-  await controller.PaymentIdexpertIdStoreApi(
+  // ✅ Get token from storage
+  final token = box.read('token') ?? '';
+  if (token.isEmpty) {
+    Get.snackbar(
+      'Error',
+      'User token not found. Please login again.',
+      backgroundColor: Colors.red.shade600,
+      colorText: Colors.white,
+    );
+    return;
+  }
+
+  // ✅ Call API dynamically from ChatWithExpertController
+  await controller.verifyPayment(
     paymentId: paymentId,
     expertId: widget.expertId,
+    token: token, // pass dynamic token
   );
 }
 

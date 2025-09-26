@@ -74,7 +74,7 @@ class LoginController extends GetxController {
           debugPrint("📦 Token: $token");
           debugPrint("🆔 UserId: $userId");
           debugPrint("⭐ UserPoints: $userPoints");
-    // debugPrint("👤 UserType: $userType"); 
+    debugPrint("👤 UserType: $userType"); 
           CustomToast.showSuccess(Get.context!, 'Login Successful');
 
           // ✅ Save FCM Device Token after login
