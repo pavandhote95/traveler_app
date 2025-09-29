@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:intl/intl.dart';
 import '../controllers/talk_to_travellers_chat_controller.dart';
 
 class TalkToTravellersChatView extends GetView<TalkToTravellersChatController> {
@@ -10,7 +11,7 @@ class TalkToTravellersChatView extends GetView<TalkToTravellersChatController> {
   Widget build(BuildContext context) {
     final TextEditingController msgController = TextEditingController();
     final box = GetStorage();
-    final String userType = box.read("role") ?? "traveller"; // ✅ Example: "expert" / "traveller"
+    final String userType = box.read("role") ?? "traveller"; // "expert" / "traveller"
 
     void _sendMessage() {
       final text = msgController.text.trim();
@@ -43,7 +44,7 @@ class TalkToTravellersChatView extends GetView<TalkToTravellersChatController> {
                 ElevatedButton(
                   onPressed: () {
                     Navigator.pop(context);
-                    // TODO: Call Razorpay or payment function here
+                    // TODO: Integrate Razorpay or payment function here
                   },
                   child: const Text("Proceed to Pay"),
                 ),
@@ -81,18 +82,29 @@ class TalkToTravellersChatView extends GetView<TalkToTravellersChatController> {
                 if (controller.isLoading.value) {
                   return const Center(child: CircularProgressIndicator());
                 }
-        
+
                 if (controller.messages.isEmpty) {
                   return const Center(child: Text("No messages yet"));
                 }
-        
+
                 return ListView.builder(
                   padding: const EdgeInsets.all(12),
                   itemCount: controller.messages.length,
                   itemBuilder: (context, index) {
                     final msg = controller.messages[index];
                     final isMe = msg["sender_id"] == controller.myUserId;
-        
+
+                    // 🔹 Format time
+                    String time = "";
+                    try {
+                      if (msg["created_at"] != null) {
+                        DateTime parsedTime = DateTime.parse(msg["created_at"]);
+                        time = DateFormat("hh:mm a").format(parsedTime);
+                      }
+                    } catch (e) {
+                      time = "";
+                    }
+
                     return Align(
                       alignment:
                           isMe ? Alignment.centerRight : Alignment.centerLeft,
@@ -103,9 +115,24 @@ class TalkToTravellersChatView extends GetView<TalkToTravellersChatController> {
                           color: isMe ? Colors.blue : Colors.grey[800],
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: Text(
-                          msg["message"] ?? "",
-                          style: const TextStyle(color: Colors.white),
+                        child: Column(
+                          crossAxisAlignment: isMe
+                              ? CrossAxisAlignment.end
+                              : CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              msg["message"] ?? "",
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              time,
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     );
@@ -113,7 +140,7 @@ class TalkToTravellersChatView extends GetView<TalkToTravellersChatController> {
                 );
               }),
             ),
-        
+
             /// 🔹 Message Input
             SafeArea(
               child: Container(
@@ -140,7 +167,7 @@ class TalkToTravellersChatView extends GetView<TalkToTravellersChatController> {
                       ),
                     ),
                     const SizedBox(width: 8),
-        
+
                     /// 🔹 Payment Button (Only for travellers)
                     if (userType != "expert")
                       InkWell(
@@ -166,7 +193,7 @@ class TalkToTravellersChatView extends GetView<TalkToTravellersChatController> {
                         ),
                       ),
                     const SizedBox(width: 8),
-        
+
                     IconButton(
                       onPressed: _sendMessage,
                       icon: const Icon(Icons.send, color: Colors.white),

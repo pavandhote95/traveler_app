@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:travel_app2/app/constants/constants.dart';
 import 'package:travel_app2/app/constants/app_color.dart';
 import 'package:travel_app2/app/constants/custom_button.dart';
+import 'package:travel_app2/app/modules/expert_user_profile/controllers/expert_user_profile_controller.dart';
 import 'package:travel_app2/app/modules/my_profile/views/rewards_info_view.dart';
 import '../controllers/my_profile_controller.dart';
 import '../../edit_profile/views/edit_profile_view.dart';
@@ -12,6 +13,8 @@ import '../../edit_profile/views/edit_profile_view.dart';
 class MyProfileView extends GetView<MyProfileController> {
   MyProfileView({super.key});
   final MyProfileController controller = Get.put(MyProfileController());
+    final ExpertUserProfileController userpointcontroller =
+      Get.put(ExpertUserProfileController());
 
   @override
   Widget build(BuildContext context) {
@@ -151,18 +154,19 @@ class MyProfileView extends GetView<MyProfileController> {
                     );
                   }),
                   const SizedBox(width: 24),
-                  Expanded(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        _buildStatColumn("Posts", controller.totalPosts.value),
-                        _buildStatColumn(
-                          "Points",
-                          (controller.totalPosts.value * 50) + (controller.totalAnswers.value * 10),
-                        ),
-                      ],
-                    ),
-                  ),
+                Expanded(
+  child: Row(
+    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    children: [
+      _buildStatColumn("Posts", controller.totalPosts.value),
+      Obx(() {
+        final points = userpointcontroller.profileData['points'] ?? 0;
+        return _buildStatColumn("Points", points);
+      }),
+    ],
+  ),
+),
+
                 ],
               ),
               const SizedBox(height: 16),
@@ -316,21 +320,31 @@ class MyProfileView extends GetView<MyProfileController> {
       );
     });
   }
-
-  Widget _buildStatColumn(String label, int value) => SizedBox(
-        width: 80,
-        height: 72,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text("$value",
-                style: GoogleFonts.poppins(
-                    fontSize: 18, fontWeight: FontWeight.w600, color: Colors.white)),
-            const SizedBox(height: 4),
-            Text(label, style: GoogleFonts.poppins(fontSize: 13, color: Colors.grey.shade400)),
-          ],
-        ),
-      );
+Widget _buildStatColumn(String label, int value) => SizedBox(
+      width: 80,
+      height: 72,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            "$value",
+            style: GoogleFonts.poppins(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: GoogleFonts.poppins(
+              fontSize: 13,
+              color: Colors.grey.shade400,
+            ),
+          ),
+        ],
+      ),
+    );
 
   Widget _buildPromoCard() => InkWell(
         onTap: () => Get.to(() => RewardsInfoView()),

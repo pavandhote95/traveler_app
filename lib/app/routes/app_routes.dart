@@ -34,6 +34,7 @@ abstract class Routes {
   static const TRAVELLERS = _Paths.TRAVELLERS;
   static const TALK_TO_TRAVELLERS_CHAT = _Paths.TALK_TO_TRAVELLERS_CHAT;
   static const CHAT_BOTH = _Paths.CHAT_BOTH;
+  static const EXPERT_USER_PROFILE = _Paths.EXPERT_USER_PROFILE;
 }
 
 abstract class _Paths {
@@ -70,4 +71,5 @@ abstract class _Paths {
   static const TRAVELLERS = '/travellers';
   static const TALK_TO_TRAVELLERS_CHAT = '/talk-to-travellers-chat';
   static const CHAT_BOTH = '/chat-both';
+  static const EXPERT_USER_PROFILE = '/expert-user-profile';
 }

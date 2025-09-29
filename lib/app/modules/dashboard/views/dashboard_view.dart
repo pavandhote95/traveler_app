@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:travel_app2/app/constants/app_color.dart';
 import 'package:travel_app2/app/modules/expert/views/expert_view.dart';
+import 'package:travel_app2/app/modules/expert_user_profile/views/expert_user_profile_view.dart';
 
 import '../../community_search/views/community_search_view.dart';
 import '../../home/views/home_view.dart';
@@ -28,7 +29,7 @@ class DashboardView extends GetView<DashboardController> {
       HomeView(),
       CommunitySearchView(),
       userType == "expert"
-          ? MyProfileView()
+          ? ExpertUserProfileView()
           : ExpertView(), // ✅ if expert → ExpertView, else → UserProfileView
       NotificationView(),
       MyProfileView(),

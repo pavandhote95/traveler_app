@@ -16,6 +16,8 @@ import '../modules/edit_profile/bindings/edit_profile_binding.dart';
 import '../modules/edit_profile/views/edit_profile_view.dart';
 import '../modules/expert/bindings/expert_binding.dart';
 import '../modules/expert/views/expert_view.dart';
+import '../modules/expert_user_profile/bindings/expert_user_profile_binding.dart';
+import '../modules/expert_user_profile/views/expert_user_profile_view.dart';
 import '../modules/experts_profile/bindings/experts_profile_binding.dart';
 import '../modules/experts_profile/views/experts_profile_view.dart';
 import '../modules/forgot_password/bindings/forgot_password_binding.dart';
@@ -218,18 +220,22 @@ class AppPages {
       page: () => const TalkToTravellersChatView(),
       binding: TalkToTravellersChatBinding(),
     ),
-   GetPage(
-  name: _Paths.CHAT_BOTH,
-  page: () => ChatBothView(
-    currentUser: Get.arguments['currentUser'],
-    otherUser: Get.arguments['otherUser'],
-    otherUserImage: Get.arguments['otherUserImage'],
-    otherUserId: Get.arguments['otherUserId'],
-    chatId: Get.arguments['chatId'],
-    isExpert: Get.arguments['isExpert'] ?? false,
-  ),
-  binding: ChatBothBinding(),
-),
-
+    GetPage(
+      name: _Paths.CHAT_BOTH,
+      page: () => ChatBothView(
+        currentUser: Get.arguments['currentUser'],
+        otherUser: Get.arguments['otherUser'],
+        otherUserImage: Get.arguments['otherUserImage'],
+        otherUserId: Get.arguments['otherUserId'],
+        chatId: Get.arguments['chatId'],
+        isExpert: Get.arguments['isExpert'] ?? false,
+      ),
+      binding: ChatBothBinding(),
+    ),
+    GetPage(
+      name: _Paths.EXPERT_USER_PROFILE,
+      page: () =>  ExpertUserProfileView(),
+      binding: ExpertUserProfileBinding(),
+    ),
   ];
 }

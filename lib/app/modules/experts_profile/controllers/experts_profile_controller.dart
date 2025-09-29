@@ -10,6 +10,7 @@ class ExpertsProfileController extends GetxController {
   final box = GetStorage();
 
   Future<void> fetchExpertDetail(int id) async {
+    
     isLoading.value = true;
 
     try {

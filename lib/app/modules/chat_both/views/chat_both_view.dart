@@ -102,6 +102,7 @@ class _ChatBothViewState extends State<ChatBothView> {
       Expanded(
   child: Obx(() {
     final isLoading = controller.isLoading.value;
+    
     final messages = controller.messages;
 
      if (controller.isLoading.value) {
@@ -272,6 +273,7 @@ class _ChatBothViewState extends State<ChatBothView> {
       ),
     );
   }
+
 
   Widget _buildAvatar(String? imageUrl, String name) {
     if (imageUrl != null && imageUrl.isNotEmpty && imageUrl.startsWith("http")) {

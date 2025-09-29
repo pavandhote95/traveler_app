@@ -14,7 +14,7 @@ class TalkToTravellersChatController extends GetxController {
   late int travellerId;
   late String travellerName;
   late String? travellerImage;
-  late int myUserId; // ✅ Current logged in user ID
+  late int myUserId; // Current logged-in user ID
 
   @override
   void onInit() {
@@ -30,7 +30,7 @@ class TalkToTravellersChatController extends GetxController {
     fetchChat();
   }
 
-  /// 🔹 Fetch Chat Messagesc
+  /// 🔹 Fetch Chat Messages
   Future<void> fetchChat() async {
     try {
       isLoading.value = true;
@@ -104,7 +104,7 @@ class TalkToTravellersChatController extends GetxController {
       final data = jsonDecode(responseString);
 
       if (response.statusCode == 201 && data["status"] == true) {
-        // ✅ Add sent message to UI with correct structure
+        // ✅ Add sent message to UI with timestamp
         messages.add({
           "sender_id": myUserId,
           "receiver_id": receiverId,

@@ -1,8 +1,6 @@
-import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
 import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -299,6 +297,8 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
       backgroundColor: Colors.orange.shade600,
       colorText: Colors.white,
     );
+
+    
   }
 
   Widget _buildMessageBubble(Map<String, dynamic> msg) {
