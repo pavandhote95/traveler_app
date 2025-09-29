@@ -9,7 +9,7 @@ class ChatController extends GetxController {
 
   /// Messages list
   RxList<Map<String, dynamic>> messages = <Map<String, dynamic>>[].obs;
-
+RxBool isLoading = false.obs;
   /// Add message instantly (optimistic UI)
   void addLocalMessage(Map<String, dynamic> msg) {
     messages.insert(0, msg); // reverse list

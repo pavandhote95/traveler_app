@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
+import 'package:lottie/lottie.dart';
 import 'package:travel_app2/app/constants/app_color.dart';
 import 'package:travel_app2/app/modules/chat_with_expert/views/expertt_chat_view.dart';
-import 'package:travel_app2/app/routes/app_pages.dart';
+
 import '../controllers/experts_profile_controller.dart';
 
 class ExpertsProfileView extends StatelessWidget {
@@ -40,7 +41,18 @@ class ExpertsProfileView extends StatelessWidget {
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
+           return Center(
+            child: SizedBox(
+              height: 120,
+              width: 120,
+              child: Lottie.asset(
+                'assets/lottie/Loading.json', // ✅ apna asset path yaha do
+                repeat: true,
+                animate: true,
+          
+              ),
+            ),
+          );
         }
 
         final expert = controller.expert;

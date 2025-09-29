@@ -20,7 +20,7 @@ class SplashView extends GetView<SplashController> {
               child: Transform.scale(
                 scale: controller.scaleAnimation.value,
                 child: Text(
-                  'Traveler',
+                  'Traveller',
                   style: GoogleFonts.poppins(
                     fontSize: 40,
                     fontWeight: FontWeight.bold,

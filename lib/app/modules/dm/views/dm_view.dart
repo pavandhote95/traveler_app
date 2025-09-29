@@ -36,12 +36,13 @@ class DmView extends StatelessWidget {
                   Get.to( ExpertView()); // Navigate to Experts tab
                 },
                 child: Container(
-                  height: 50,
-                  width: 50,
-                  padding: const EdgeInsets.all(14),
+                  height: 40,
+                  width: 100,
+                  padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
                     color: AppColors.buttonBg,
-                    shape: BoxShape.circle,
+             
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withOpacity(0.3),
@@ -50,11 +51,17 @@ class DmView extends StatelessWidget {
                       ),
                     ],
                   ),
-                  child: const Icon(
+                  child:Row(children: [
+                    Text("Experts",style: TextStyle(color: Colors.black54),),
+                    SizedBox(width: 4,),
+                    const Icon(
                     CupertinoIcons.star_fill,
-                    color: Colors.black,
+                    color: Colors.black54,
                     size: 20,
+
                   ),
+
+                  ],), 
                 ),
               ),
             ),

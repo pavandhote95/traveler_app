@@ -1,12 +1,14 @@
-import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
-import 'package:travel_app2/app/routes/app_pages.dart';
-import '../controllers/chat_with_expert_controller.dart';
+import 'package:travel_app2/app/modules/chat_with_expert/controllers/chat_with_expert_controller.dart';
 
 class ChatWithExpertView extends StatefulWidget {
   final int expertId;
@@ -53,6 +55,8 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
   @override
   void dispose() {
     _razorpay.clear();
+    messageController.dispose();
+    scrollController.dispose();
     super.dispose();
   }
 
@@ -78,24 +82,20 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
     }
   }
 
-  /// ✅ Smart Timestamp Formatter (Today, Yesterday, or Date)
+  /// Smart Timestamp Formatter (Today, Yesterday, or Date)
   String formatMessageTime(String time) {
     try {
       final dt = DateTime.parse(time).toLocal();
       final now = DateTime.now();
 
       // Today
-      if (dt.day == now.day &&
-          dt.month == now.month &&
-          dt.year == now.year) {
+      if (dt.day == now.day && dt.month == now.month && dt.year == now.year) {
         return DateFormat('hh:mm a').format(dt); // 3:37 PM
       }
 
       // Yesterday
       final yesterday = now.subtract(const Duration(days: 1));
-      if (dt.day == yesterday.day &&
-          dt.month == yesterday.month &&
-          dt.year == yesterday.year) {
+      if (dt.day == yesterday.day && dt.month == yesterday.month && dt.year == yesterday.year) {
         return "Yesterday ${DateFormat('hh:mm a').format(dt)}";
       }
 
@@ -135,15 +135,12 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
                   Text(
                     'Pay Expert',
                     style: GoogleFonts.poppins(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white),
+                        fontSize: 24, fontWeight: FontWeight.w600, color: Colors.white),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     widget.expertName,
-                    style: GoogleFonts.poppins(
-                        fontSize: 16, color: Colors.grey.shade300),
+                    style: GoogleFonts.poppins(fontSize: 16, color: Colors.grey.shade300),
                   ),
                 ],
               ),
@@ -151,8 +148,7 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
                 decoration: BoxDecoration(
                   color: Colors.grey.shade800,
                   borderRadius: BorderRadius.circular(12),
@@ -161,15 +157,12 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.currency_rupee,
-                        color: Colors.white, size: 22),
+                    const Icon(Icons.currency_rupee, color: Colors.white, size: 22),
                     const SizedBox(width: 8),
                     Text(
                       widget.expertPrice,
                       style: GoogleFonts.poppins(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white),
+                          fontSize: 20, fontWeight: FontWeight.w600, color: Colors.white),
                     ),
                   ],
                 ),
@@ -185,7 +178,7 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
                     height: 50,
                     child: ElevatedButton(
                       onPressed: () {
-                        Navigator.pop(context); // close modal
+                        Navigator.pop(context); // Close modal
                         _openRazorpayPayment(widget.expertPrice);
                       },
                       style: ElevatedButton.styleFrom(
@@ -208,8 +201,7 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
                     onPressed: () => Navigator.pop(context),
                     child: Text(
                       'Cancel',
-                      style: GoogleFonts.poppins(
-                          color: Colors.grey.shade400, fontSize: 16),
+                      style: GoogleFonts.poppins(color: Colors.grey.shade400, fontSize: 16),
                     ),
                   ),
                 ],
@@ -224,7 +216,7 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
   void _openRazorpayPayment(String amount) {
     var options = {
       'key': 'rzp_test_RIcVT1kjDlJh9q',
-      'amount': (double.parse(amount) * 100).toInt(),
+      'amount': (double.parse(amount) * 100).toInt(), // Amount in paise
       'name': widget.expertName,
       'description': 'Consultation Payment',
       'prefill': {'contact': '9942549844', 'email': 'Bidyawantp@gmail.com'},
@@ -234,20 +226,31 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
     try {
       _razorpay.open(options);
     } catch (e) {
-      debugPrint('Error: $e');
+      debugPrint('Error opening Razorpay: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to open payment gateway: $e',
+        backgroundColor: Colors.red.shade600,
+        colorText: Colors.white,
+      );
     }
   }
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) async {
     final paymentId = response.paymentId ?? '';
-    print("✅ Payment successful. Payment ID: $paymentId");
+    final expertId = widget.expertId.toString();
 
-    Get.snackbar(
-      'Success',
-      'Payment successful: $paymentId',
-      backgroundColor: Colors.green.shade600,
-      colorText: Colors.white,
-    );
+    print('💳 Payment Success: payment_id=$paymentId, expert_id=$expertId');
+
+    if (paymentId.isEmpty) {
+      Get.snackbar(
+        'Error',
+        'Payment ID is empty. Cannot verify payment.',
+        backgroundColor: Colors.red.shade600,
+        colorText: Colors.white,
+      );
+      return;
+    }
 
     final token = box.read('token') ?? '';
     if (token.isEmpty) {
@@ -260,10 +263,11 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
       return;
     }
 
+    // Verify payment with amount for capture
     await controller.verifyPayment(
       paymentId: paymentId,
-      expertId: widget.expertId,
-      token: token,
+      expertId: expertId,
+      amount: widget.expertPrice, // Pass amount for capture
     );
   }
 
@@ -273,15 +277,14 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
     print("Message: ${response.message}");
 
     final orderId = response.error?['metadata']?['order_id'] ?? 'N/A';
-    final paymentId =
-        response.error?['metadata']?['payment_id'] ?? 'Not generated';
+    final paymentId = response.error?['metadata']?['payment_id'] ?? 'Not generated';
 
     Get.snackbar(
       'Payment Failed',
       'Code: ${response.code}\n'
-      'Message: ${response.message}\n'
-      'Order ID: $orderId\n'
-      'Payment ID: $paymentId',
+          'Message: ${response.message}\n'
+          'Order ID: $orderId\n'
+          'Payment ID: $paymentId',
       backgroundColor: Colors.red.shade600,
       colorText: Colors.white,
       snackPosition: SnackPosition.BOTTOM,
@@ -290,14 +293,17 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
   }
 
   void _handleExternalWallet(ExternalWalletResponse response) {
-    Get.snackbar('Wallet', 'External wallet: ${response.walletName}',
-        backgroundColor: Colors.orange.shade600, colorText: Colors.white);
+    Get.snackbar(
+      'Wallet',
+      'External wallet: ${response.walletName}',
+      backgroundColor: Colors.orange.shade600,
+      colorText: Colors.white,
+    );
   }
 
   Widget _buildMessageBubble(Map<String, dynamic> msg) {
     final isSender = msg['sender'] == "me";
-    final timeString =
-        msg['created_at'] != null ? formatMessageTime(msg['created_at']) : '';
+    final timeString = msg['created_at'] != null ? formatMessageTime(msg['created_at']) : '';
 
     return Align(
       alignment: isSender ? Alignment.centerRight : Alignment.centerLeft,
@@ -309,17 +315,17 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
-          crossAxisAlignment:
-              isSender ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          crossAxisAlignment: isSender ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
-            Text(msg['message'] ?? '',
-                style: GoogleFonts.poppins(color: Colors.white)),
+            Text(
+              msg['message'] ?? '',
+              style: GoogleFonts.poppins(color: Colors.white),
+            ),
             const SizedBox(height: 4),
             if (timeString.isNotEmpty)
               Text(
                 timeString,
-                style: GoogleFonts.poppins(
-                    color: Colors.grey.shade300, fontSize: 10),
+                style: GoogleFonts.poppins(color: Colors.grey.shade300, fontSize: 10),
               ),
           ],
         ),
@@ -337,7 +343,7 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
         title: GestureDetector(
           onTap: () {
             Get.toNamed(
-              Routes.USER_PROFILE,
+              '/user-profile', // Update with your actual route
               arguments: {"user_id": widget.expertId},
             );
           },
@@ -345,8 +351,10 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
             children: [
               CircleAvatar(backgroundImage: NetworkImage(widget.expertImage)),
               const SizedBox(width: 10),
-              Text(widget.expertName,
-                  style: GoogleFonts.poppins(color: Colors.white)),
+              Text(
+                widget.expertName,
+                style: GoogleFonts.poppins(color: Colors.white),
+              ),
             ],
           ),
         ),
@@ -356,13 +364,22 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
           Expanded(
             child: Obx(() {
               if (controller.isLoading.value) {
-                return const Center(
-                    child: CircularProgressIndicator(color: Colors.white));
+                  return Center(
+            child: SizedBox(
+              height: 120,
+              width: 120,
+              child: Lottie.asset(
+                'assets/lottie/Loading.json', // ✅ apna asset path yaha do
+                repeat: true,
+                animate: true,
+          
+              ),
+            ),
+          );
               }
               return ListView.builder(
                 controller: scrollController,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 itemCount: controller.messages.length,
                 itemBuilder: (context, index) {
                   return _buildMessageBubble(controller.messages[index]);
@@ -389,8 +406,7 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
                           borderRadius: BorderRadius.circular(30),
                           borderSide: BorderSide.none,
                         ),
-                        contentPadding: const EdgeInsets.symmetric(
-                            vertical: 10, horizontal: 16),
+                        contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
                       ),
                     ),
                   ),
@@ -410,9 +426,10 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
                           child: Text(
                             "₹",
                             style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold),
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
@@ -426,6 +443,8 @@ class _ChatWithExpertViewState extends State<ChatWithExpertView> {
               ),
             ),
           ),
+ 
+ 
         ],
       ),
     );

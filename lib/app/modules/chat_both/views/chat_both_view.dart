@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
 import 'package:travel_app2/app/modules/chat/controllers/chat_controller.dart';
 import 'package:travel_app2/app/modules/chat_with_expert/controllers/chat_with_expert_controller.dart';
 
@@ -98,17 +99,39 @@ class _ChatBothViewState extends State<ChatBothView> {
       body: Column(
         children: [
           // ✅ Messages List
-          Expanded(
-            child: Obx(() {
-              final messages = controller.messages;
-              if (messages.isEmpty) {
-                return const Center(
-                  child: Text(
-                    "No messages yet",
-                    style: TextStyle(color: Colors.white70),
-                  ),
-                );
-              }
+      Expanded(
+  child: Obx(() {
+    final isLoading = controller.isLoading.value;
+    final messages = controller.messages;
+
+     if (controller.isLoading.value) {
+           return Center(
+            child: SizedBox(
+              height: 120,
+              width: 120,
+              child: Lottie.asset(
+                'assets/lottie/Loading.json', // ✅ apna asset path yaha do
+                repeat: true,
+                animate: true,
+          
+              ),
+            ),
+          );
+        }
+    if (messages.isEmpty) {
+        return Center(
+            child: SizedBox(
+              height: 120,
+              width: 120,
+              child: Lottie.asset(
+                'assets/lottie/Loading.json', // ✅ apna asset path yaha do
+                repeat: true,
+                animate: true,
+          
+              ),
+            ),
+          );
+    }
 
               return ListView.builder(
                 controller: _scrollController,

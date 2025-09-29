@@ -32,7 +32,7 @@ class TravellersView extends StatelessWidget {
       // 🖥 Print expert data in terminal
       print("✅ Expert Data => ${profileController.expert}");
 
-      return _buildTravellerList(controller.travellers);
+      return SafeArea(child: _buildTravellerList(controller.travellers));
     });
   }
 
