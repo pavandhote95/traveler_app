@@ -215,11 +215,22 @@ class AppPages {
       },
       binding: TravellersBinding(),
     ),
-    GetPage(
-      name: _Paths.TALK_TO_TRAVELLERS_CHAT,
-      page: () => const TalkToTravellersChatView(),
-      binding: TalkToTravellersChatBinding(),
-    ),
+GetPage(
+  name: _Paths.TALK_TO_TRAVELLERS_CHAT,
+  page: () {
+    final args = Get.arguments ?? {};
+    return TalkToTravellersChatView(
+      travellerId: args['travellerId'] ?? 0,
+      travellerName: args['travellerName'] ?? "Traveller",
+      travellerImage: args['travellerImage'] ?? "",
+  
+    );
+  },
+  binding: TalkToTravellersChatBinding(),
+),
+
+
+
     GetPage(
       name: _Paths.CHAT_BOTH,
       page: () => ChatBothView(

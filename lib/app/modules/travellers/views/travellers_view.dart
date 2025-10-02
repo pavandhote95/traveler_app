@@ -69,6 +69,8 @@ class TravellersView extends StatelessWidget {
       "travellerId": traveller.userId,
       "travellerName": traveller.name,
       "travellerImage": traveller.profile,
+
+      
     },
   );
 },

@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lottie/lottie.dart';
 import 'package:travel_app2/app/constants/app_color.dart';
 import 'package:travel_app2/app/modules/chat/controllers/chat_controller.dart';
 import 'package:travel_app2/app/modules/expert/views/expert_view.dart';
@@ -84,7 +85,7 @@ class DmView extends StatelessWidget {
             labelStyle: GoogleFonts.openSans(fontWeight: FontWeight.w600),
             tabs: const [
               Tab(text: "Users"),
-              Tab(text: "Talk to travellers"),
+              Tab(text: "Talk to Experts"),
               
             ],
           ),
@@ -121,7 +122,18 @@ class DmView extends StatelessWidget {
                   // 🔹 Users tab
                   Obx(() {
                     if (controller.isLoading.value) {
-                      return const Center(child: CircularProgressIndicator());
+                 return Center(
+            child: SizedBox(
+              height: 120,
+              width: 120,
+              child: Lottie.asset(
+                'assets/lottie/Loading.json', // ✅ apna asset path yaha do
+                repeat: true,
+                animate: true,
+          
+              ),
+            ),
+          );
                     }
                     return _buildUserList(
                         controller.users, "No Users Found", chatController);
